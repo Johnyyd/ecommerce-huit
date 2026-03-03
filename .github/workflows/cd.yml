@@ -3,6 +3,7 @@ name: CD - Build and Deploy
 on:
   push:
     branches: [ main ]
+    tags: [ 'v*.*.*' ]
   workflow_dispatch:
 
 env:
@@ -15,15 +16,42 @@ jobs:
     permissions:
       contents: read
       packages: write
+      security-events: write  # For security scanning
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Required for versioning and SBOM
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          **/packages/*
+          **/.nuget/packages/*
+          ~/.nuget/packages
+          ${{ runner.temp }}/.net/store
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.props', '**/*.targets') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Extract version from project
+      id: version
+      run: |
+        # Extract version from .csproj or use git tag
+        if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+          VERSION="${GITHUB_REF#refs/tags/v}"
+        else
+          # Get version from .csproj or generate from date
+          VERSION=$(grep -oP '(?<=<Version>)[^<]+' BACKEND/src/ECommerce.Huit.API/ECommerce.Huit.API.csproj || echo "0.0.1-${{ github.sha }}")
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
 
     - name: Restore dependencies
       run: dotnet restore BACKEND/src/ECommerce.Huit.API/ECommerce.Huit.API.csproj
@@ -31,12 +59,12 @@ jobs:
     - name: Build
       run: |
         cd BACKEND/src/ECommerce.Huit.API
-        dotnet build -c Release --no-restore
+        dotnet build -c Release --no-restore /p:Version=${{ steps.version.outputs.version }}
 
     - name: Publish
       run: |
         cd BACKEND/src/ECommerce.Huit.API
-        dotnet publish -c Release -o ${{ runner.temp }}/publish --no-build
+        dotnet publish -c Release -o ${{ runner.temp }}/publish --no-build /p:Version=${{ steps.version.outputs.version }}
 
     - name: Docker meta
       id: meta
@@ -48,6 +76,7 @@ jobs:
         tag-semver: |
           # major.minor.patch
           {{semver ordering=MAJOR,MINOR,PATCH}}
+        tag-custom: ${{ steps.version.outputs.version }}
 
     - name: Log in to Container Registry
       if: github.event_name != 'pull_request'
@@ -69,29 +98,43 @@ jobs:
         cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
         cache-to: type=inline
 
+    - name: Generate SBOM (optional)
+      if: github.event_name != 'pull_request'
+      run: |
+        echo "SBOM generation can be added with CycloneDX if needed."
+        # Uncomment to enable SBOM generation:
+        # dotnet tool install --global CycloneDX
+        # cyclonedx-dotnet -tool -r ${{ runner.temp }}/publish -o ${{ runner.temp }}/bom.xml
+      # Optional step - can be enabled when needed
+
+    - name: Security scan
+      if: github.event_name != 'pull_request'
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ steps.docker_build.outputs.image }}
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        severity: 'CRITICAL,HIGH'
+
+    - name: Upload Trivy scan results
+      if: github.event_name != 'pull_request'
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: 'trivy-results.sarif'
+
     - name: Image digest
       run: |
         echo "Image pushed: ${{ steps.docker_build.outputs.image }}"
 
-  # Optional: Deploy to staging/production (example for Docker container)
-  deploy-staging:
-    needs: build-and-push
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-    - name: Deploy to staging server
-      # Example: SSH and run docker pull + restart
-      # You need to set up SSH secrets: STAGING_HOST, STAGING_USER, STAGING_SSH_KEY
-      run: |
-        echo "Deploying to staging..."
-        # ssh -i ${{ secrets.STAGING_SSH_KEY }} ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }} "docker pull ${{ steps.meta.outputs.tags }} && docker stop ecommerce-huit-staging && docker rm ecommerce-huit-staging && docker run -d --name ecommerce-huit-staging -p 5000:80 ${{ steps.meta.outputs.tags }}"
-
   notify:
-    needs: [build-and-push, deploy-staging]
+    needs: build-and-push
     runs-on: ubuntu-latest
     if: always()
     steps:
-    - name: Send notification to Discord/Slack (optional)
-      # Configure webhook URL in secrets
+    - name: Summary
       run: |
-        echo "Build and deployment completed. Status: ${{ needs.build-and-push.result }}"
+        echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- Status: ${{ needs.build-and-push.result }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Image: ${{ needs.build-and-push.outputs.image }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Tags: ${{ needs.build-and-push.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
