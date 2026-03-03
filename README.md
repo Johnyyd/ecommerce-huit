@@ -301,6 +301,16 @@ GET    /admin/reports/top-products # Best sellers
 
 ---
 
+## 📚 Tài liệu bổ sung
+
+- **Kiến trúc hệ thống:** [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md)
+- **Ví dụ API calls:** [`docs/API_EXAMPLES.md`](./docs/API_EXAMPLES.md)
+- **Khắc phục sự cố:** [`docs/TROUBLESHOOTING.md`](./docs/TROUBLESHOOTING.md)
+- **Stored procedures:** [`DATABASE/init.sql`](../DATABASE/init.sql)
+- **API reference (OpenAPI):** [`docs/openapi.yaml`](./docs/openapi.yaml)
+
+---
+
 ## Đóng góp
 
 1. Fork repo

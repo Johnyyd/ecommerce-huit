@@ -1,0 +1,97 @@
+name: CD - Build and Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore BACKEND/src/ECommerce.Huit.API/ECommerce.Huit.API.csproj
+
+    - name: Build
+      run: |
+        cd BACKEND/src/ECommerce.Huit.API
+        dotnet build -c Release --no-restore
+
+    - name: Publish
+      run: |
+        cd BACKEND/src/ECommerce.Huit.API
+        dotnet publish -c Release -o ${{ runner.temp }}/publish --no-build
+
+    - name: Docker meta
+      id: meta
+      uses: crazy-max/ghaction-docker-meta@v1
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tag-sha: true
+        tag-latest: true
+        tag-semver: |
+          # major.minor.patch
+          {{semver ordering=MAJOR,MINOR,PATCH}}
+
+    - name: Log in to Container Registry
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build and push Docker image
+      if: github.event_name != 'pull_request'
+      id: docker_build
+      uses: docker/build-push-action@v5
+      with:
+        context: BACKEND/src/ECommerce.Huit.API
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+        cache-to: type=inline
+
+    - name: Image digest
+      run: |
+        echo "Image pushed: ${{ steps.docker_build.outputs.image }}"
+
+  # Optional: Deploy to staging/production (example for Docker container)
+  deploy-staging:
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy to staging server
+      # Example: SSH and run docker pull + restart
+      # You need to set up SSH secrets: STAGING_HOST, STAGING_USER, STAGING_SSH_KEY
+      run: |
+        echo "Deploying to staging..."
+        # ssh -i ${{ secrets.STAGING_SSH_KEY }} ${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }} "docker pull ${{ steps.meta.outputs.tags }} && docker stop ecommerce-huit-staging && docker rm ecommerce-huit-staging && docker run -d --name ecommerce-huit-staging -p 5000:80 ${{ steps.meta.outputs.tags }}"
+
+  notify:
+    needs: [build-and-push, deploy-staging]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+    - name: Send notification to Discord/Slack (optional)
+      # Configure webhook URL in secrets
+      run: |
+        echo "Build and deployment completed. Status: ${{ needs.build-and-push.result }}"
