@@ -1,414 +1,182 @@
-# Triển khai (Deployment) - ECommerce HUIT
+# Deployment Guide - ECommerce HUIT
 
-Hướng dẫn triển khai ứng dụng trong môi trường production.
-
----
-
-## 📦 Mục lục
-
-1. [Yêu cầu Hạ tầng](#yêu-cầu-hạ-tầng)
-2. [Environment Variables](#environment-variables)
-3. [Database Setup](#database-setup)
-4. [Docker Deployment](#docker-deployment)
-5. [Kubernetes (K8s) Deployment](#kubernetes-k8s-deployment)
-6. [CI/CD với GitHub Actions](#cicd-với-github-actions)
-7. [SSL/TLS](#ssltls)
-8. [Monitoring](#monitoring)
-9. [Backup & Recovery](#backup--recovery)
-10. [Scaling](#scaling)
+Tài liệu này hướng dẫn deploy backend API lên các môi trường Staging và Production.
 
 ---
 
-## Yêu cầu Hạ tầng
+## 1. Architecture Overview
 
-### Minimum Requirements
-
-| Component | Minimum | Recommended |
-|-----------|---------|-------------|
-| **Server** | 2 vCPU, 4GB RAM | 4 vCPU, 8GB RAM |
-| **OS** | Ubuntu 22.04 LTS | Ubuntu 22.04 LTS |
-| **Docker** | 20.10+ | 24.0+ |
-| **SQL Server** | 2019+ Express | 2022+ Standard |
-| **Redis** | 6.x | 7.x |
-| **Domain** | Optional | Required |
-
-### Network
-
-- Port 80 (HTTP) → redirect to 443
-- Port 443 (HTTPS)
-- Port 5000 (Docker internal)
-- Database: 1433 (internal only, not public)
-
----
-
-## Environment Variables
-
-### Backend (`ECommerce.Huit.API`)
-
-```bash
-# Required
-ConnectionStrings__DefaultConnection="Server=db;Database=HuitShopDB;User Id=sa;Password=..."
-Jwt__Key="your-64-characters-super-secret-key-minimum"
-Jwt__Issuer="ECommerceHuit"
-Jwt__Audience="ECommerceHuitClient"
-Jwt__DurationInMinutes="1440"
-
-# Optional
-Redis__ConnectionString="redis:6379"
-Serilog__WriteTo__0__Args__path="/logs/log-.txt"
-Email__SmtpHost="smtp.gmail.com"
-Email__SmtpPort="587"
-Email__Username="your@gmail.com"
-Email__Password="app_password"
 ```
-
-### Docker Compose
-
-Tạo file `.env` trong thư mục root:
-
-```bash
-# SQL Server
-SA_PASSWORD=YourStrong@Passw0rd
-ACCEPT_EULA=Y
-MSSQL_PID=Express
-MSSQL_DATA_DIR=/var/opt/mssql/data
-
-# Redis
-REDIS_PASSWORD=OptionalRedisPass
-
-# JWT (should be in secret manager in prod)
-JWT_SECRET=your-production-secret-64-chars-long-change-this
-
-# Email
-SMTP_USERNAME=
-SMTP_PASSWORD=
+┌─────────────┐
+│   Client    │ (Web/Mobile App)
+└──────┬──────┘
+       │ HTTPS
+┌──────▼──────┐
+│   Nginx     │ (reverse proxy, SSL termination)
+└──────┬──────┘
+       │
+┌──────▼─────────────────────────────┐
+│   App Server (Ubuntu/Debian)       │
+│   - Docker installed               │
+│   - docker-compose                 │
+│   - Pull images from GHCR          │
+└────────────────────────────────────┘
+       │
+       ▼
+┌─────────────────────────────────────┐
+│   SQL Server (Docker or Azure)     │
+│   Redis (Docker or Azure Cache)    │
+└─────────────────────────────────────┘
 ```
 
 ---
 
-## Database Setup
+## 2. Pre-deployment Checklist
 
-### 1. Initialize Database
-
-```bash
-# Using sqlcmd (install mssql-tools)
-sqlcmd -S localhost -U SA -P 'YourStrong@Passw0rd' -i DATABASE/init.sql
-sqlcmd -S localhost -U SA -P 'YourStrong@Passw0rd' -i DATABASE/seed.sql
-```
-
-### 2. Create Backup User (optional)
-
-```sql
-CREATE LOGIN backup_user WITH PASSWORD = 'StrongBackupPass123';
-CREATE USER backup_user FOR LOGIN backup_user;
-EXEC sp_addrolemember 'db_backupoperator', 'backup_user';
-GRANT SELECT, INSERT, UPDATE, DELETE ON DATABASE::HuitShopDB TO backup_user;
-```
-
-### 3. Enable Query Store (SQL Server 2019+)
-
-```sql
-ALTER DATABASE HuitShopDB SET QUERY_STORE = ON;
-ALTER DATABASE HuitShopDB SET QUERY_STORE (OPERATION_MODE = READ_WRITE);
-```
-
-### 4. Configure Max Degree of Parallelism (MAXDOP)
-
-```sql
-EXEC sp_configure 'show advanced options', 1;
-RECONFIGURE;
-EXEC sp_configure 'max degree of parallelism', 1;
-RECONFIGURE;
-```
+- [ ] Environment variables configured (`appsettings.Production.json` or Docker secrets)
+- [ ] SSL certificate installed (Nginx)
+- [ ] Domain DNS points to server IP
+- [ ] Firewall allows ports: 80, 443, 22
+- [ ] Docker & docker-compose installed
+- [ ] Server has enough resources (CPU, RAM, Disk)
+- [ ] Database backups scheduled
+- [ ] Monitoring (Prometheus/Grafana or Application Insights) configured
 
 ---
 
-## Docker Deployment
+## 3. Docker Deployment (Recommended)
 
-### 1. Build Images
+### 3.1. Build & Push Image to GitHub Container Registry (GHCR)
 
-```bash
-cd /path/to/ecommerce-huit
-docker-compose build
-```
-
-### 2. Production Environment File
-
-Tạo `.env.prod`:
+The CI/CD pipeline already does this on push to `main`. To manually trigger:
 
 ```bash
-# Database
-MSSQL_SA_PASSWORD=SuperStrongProdPass123!@#
-MSSQL_DATABASE=HuitShopDB_Prod
-MSSQL_PID=Standard
-
-# JWT
-JWT_SECRET=prod-super-secret-key-with-64-characters-minimum-change-this-now
-
-# Redis
-REDIS_PASSWORD=prod-redis-pass
-
-# App
-ASPNETCORE_ENVIRONMENT=Production
-DOTNET_VERSION=8.0
+cd ecommerce-huit/BACKEND/src/ECommerce.Huit.API
+docker build -t ghcr.io/Johnyyd/ecommerce-huit-api:latest .
+docker push ghcr.io/Johnyyd/ecommerce-huit-api:latest
 ```
 
-### 3. Run with Docker Compose
+You may need to login to GHCR:
 
 ```bash
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+echo $GITHUB_TOKEN | docker login ghcr.io -u $GITHUB_USERNAME --password-stdin
 ```
 
-### 4. Check Logs
+### 3.2. docker-compose Setup
 
-```bash
-docker-compose logs -f backend
-docker-compose logs -f sqlserver
-docker-compose logs -f redis
-```
-
-### 5. Database Migrations
-
-Nếu dùng EF Core migrations (chưa setup), chạy:
-
-```bash
-docker-compose exec backend dotnet ef database update
-```
-
-### 6. Initialize Data (Optional)
-
-```bash
-# Run seed script if needed
-docker-compose exec sqlserver /opt/mssql-tools/bin/sqlcmd \
-  -S localhost -U SA -P 'SuperStrongProdPass123!' \
-  -d HuitShopDB_Prod \
-  -i /scripts/seed.sql
-```
-
----
-
-## Kubernetes (K8s) Deployment
-
-### 1. Create Namespace
+Create `docker-compose.prod.yml` in the server:
 
 ```yaml
-# k8s/namespace.yaml
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: ecommerce-huit
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: huit-sqlserver
+    environment:
+      - SA_PASSWORD=${DB_SA_PASSWORD}
+      - ACCEPT_EULA=Y
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    ports:
+      - "1433:1433"
+    networks:
+      - huit-network
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: huit-redis
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - huit-network
+    restart: unless-stopped
+
+  api:
+    image: ghcr.io/Johnyyd/ecommerce-huit-api:latest
+    container_name: huit-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=HuitShopDB;User Id=sa;Password=${DB_SA_PASSWORD};TrustServerCertificate=true
+      - ConnectionStrings__Redis=redis:6379,password=${REDIS_PASSWORD}
+      - Jwt__Key=${JWT_KEY}
+      - Jwt__Issuer=ECommerceHuit
+      - Jwt__Audience=ECommerceHuitClient
+      - Jwt__DurationInMinutes=1440
+    depends_on:
+      - sqlserver
+      - redis
+    ports:
+      - "5000:80"
+    networks:
+      - huit-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  sqlserver-data:
+  redis-data:
+
+networks:
+  huit-network:
+    driver: bridge
 ```
 
-### 2. Secrets
-
-```yaml
-# k8s/secrets.yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: ecommerce-secrets
-  namespace: ecommerce-huit
-type: Opaque
-stringData:
-  connection-string: "Server=sqlserver;Database=HuitShopDB;User Id=sa;Password=${SQL_SA_PASSWORD};"
-  jwt-key: "${JWT_SECRET}"
-  redis-connection: "redis:6379,password=${REDIS_PASSWORD}"
-```
-
-### 3. ConfigMap
-
-```yaml
-# k8s/configmap.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: ecommerce-config
-  namespace: ecommerce-huit
-data:
-  ASPNETCORE_ENVIRONMENT: "Production"
-  Jwt__Issuer: "ECommerceHuit"
-  Jwt__Audience: "ECommerceHuitClient"
-  Jwt__DurationInMinutes: "1440"
-```
-
-### 4. Deployment
-
-```yaml
-# k8s/deployment.yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: ecommerce-api
-  namespace: ecommerce-huit
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
-      app: ecommerce-api
-  template:
-    metadata:
-      labels:
-        app: ecommerce-api
-    spec:
-      containers:
-      - name: api
-        image: ghcr.io/johnyyd/ecommerce-huit:latest
-        ports:
-        - containerPort: 80
-        envFrom:
-        - configMapRef:
-            name: ecommerce-config
-        - secretRef:
-            name: ecommerce-secrets
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 80
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /ready
-            port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 5
-```
-
-### 5. Service
-
-```yaml
-# k8s/service.yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: ecommerce-api-service
-  namespace: ecommerce-huit
-spec:
-  selector:
-    app: ecommerce-api
-  ports:
-  - port: 80
-    targetPort: 80
-    protocol: TCP
-  type: LoadBalancer
-```
-
-### 6. Ingress (with TLS)
-
-```yaml
-# k8s/ingress.yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: ecommerce-ingress
-  namespace: ecommerce-huit
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-spec:
-  tls:
-  - hosts:
-    - api.huit.com
-    secretName: ecommerce-tls
-  rules:
-  - host: api.huit.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: ecommerce-api-service
-            port:
-              number: 80
-```
-
-### 7. Apply
+**Environment file (`.env`):**
 
 ```bash
-kubectl apply -f k8s/
+DB_SA_PASSWORD=YourStrong@Passw0rd
+REDIS_PASSWORD=RedisStrongPass123
+JWT_KEY=your_64_char_secret_key_here_minimum_32_for_jwt
 ```
+
+### 3.3. Initialize Database
+
+First run must execute `init.sql` and `seed.sql`:
+
+```bash
+# exec into sqlserver container
+docker exec -it huit-sqlserver /opt/mssql-tools/bin/sqlcmd \
+  -S localhost -U SA -P 'YourStrong@Passw0rd' \
+  -i /path/to/init.sql
+
+docker exec -it huit-sqlserver /opt/mssql-tools/bin/sqlcmd \
+  -S localhost -U SA -P 'YourStrong@Passw0rd' \
+  -i /path/to/seed.sql
+```
+
+Or you can mount the SQL files in the docker-compose and use an init script.
 
 ---
 
-## CI/CD với GitHub Actions
+## 4. Nginx Reverse Proxy
 
-Workflows đã được tạo trong `.github/workflows/`:
-
-### CI Workflow (`ci.yml`)
-
-- **Trigger:** Push/PR vào `main` hoặc `develop`
-- **Services:** SQL Server + Redis
-- **Steps:**
-  1. Checkout
-  2. Setup .NET 8
-  3. Restore dependencies
-  4. Build
-  5. Create test database
-  6. Run tests (Unit + Integration)
-  7. Upload test results (TRX)
-  8. Run `dotnet format` for linting
-
-### CD Workflow (`cd.yml`)
-
-- **Trigger:** Push vào `main`
-- **Steps:**
-  1. Build Docker image với multi-stage
-  2. Tag với `git sha` và `latest`
-  3. Push lên `ghcr.io` (GitHub Container Registry)
-  4. (Optional) Deploy đến staging server qua SSH
-
-**Cấu hình Secrets trên GitHub:**
-
-- `DOCKERHUB_USERNAME` (nếu dùng Docker Hub)
-- `DOCKERHUB_TOKEN`
-- `STAGING_SSH_KEY` (private key để SSH)
-- `STAGING_HOST`, `STAGING_USER`
-
----
-
-## SSL/TLS
-
-### Backend (Kestrel)
-
-Trong production, nên để Kestrel chạy behind reverse proxy (NGINX/Apache). Nếu cần HTTPS trực tiếp:
-
-```bash
-# Tạo certificate (self-signed for testing)
-dotnet dev-certs https -ep /path/to/cert.pfx -p password
-
-# Trong Program.cs:
-.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(5001, listenOptions =>
-    {
-        listenOptions.UseHttps("/path/to/cert.pfx", "password");
-    });
-});
-```
-
-### Nginx Reverse Proxy
+Create `/etc/nginx/sites-available/ecommerce-huit`:
 
 ```nginx
 server {
     listen 80;
-    server_name api.huit.com;
+    server_name api.huit.edu.vn; # your domain
+
+    # Redirect to HTTPS
     return 301 https://$server_name$request_uri;
 }
 
 server {
     listen 443 ssl http2;
-    server_name api.huit.com;
+    server_name api.huit.edu.vn;
 
-    ssl_certificate /etc/letsencrypt/live/api.huit.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/api.huit.com/privkey.pem;
+    ssl_certificate /etc/ssl/certs/your-cert.crt;
+    ssl_certificate_key /etc/ssl/private/your-key.key;
+    ssl_protocols TLSv1.2 TLSv1.3;
 
     location / {
         proxy_pass http://localhost:5000;
@@ -416,177 +184,220 @@ server {
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection keep-alive;
         proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # Health endpoint
+    location /health {
+        access_log off;
+        proxy_pass http://localhost:5000/health;
     }
 }
 ```
 
----
+Enable site:
 
-## Monitoring
-
-### Application Insights (Azure)
-
-```csharp
-// Program.cs
-builder.Services.AddApplicationInsightsTelemetry();
+```bash
+sudo ln -s /etc/nginx/sites-available/ecommerce-huit /etc/nginx/sites-enabled/
+sudo nginx -t
+sudo systemctl reload nginx
 ```
 
-### Serilog + ELK
+---
 
-Thêm sink trong `appsettings.json`:
+## 5. Zero-Downtime Deploy with Docker Compose
+
+```bash
+cd /path/to/ecommerce-huit
+docker-compose -f docker-compose.prod.yml pull   # fetch latest image
+docker-compose -f docker-compose.prod.yml up -d  # recreate containers
+docker-compose -f docker-compose.prod.yml logs -f api  # follow logs
+```
+
+Useful commands:
+
+```bash
+# Restart API only
+docker-compose -f docker-compose.prod.yml restart api
+
+# View logs
+docker-compose -f docker-compose.prod.yml logs -f api
+
+# Exec into container
+docker-compose -f docker-compose.prod.yml exec api bash
+
+# Stop all
+docker-compose -f docker-compose.prod.yml down
+
+# Stop and remove volumes (CAUTION: data loss!)
+docker-compose -f docker-compose.prod.yml down -v
+```
+
+---
+
+## 6. Database Migrations
+
+If using EF Core migrations (optional, as init.sql already creates schema):
+
+```bash
+# From development machine or CI
+dotnet ef database update --project BACKEND/src/ECommerce.Huit.API
+```
+
+Or apply manually via `sqlcmd` as shown above.
+
+---
+
+## 7. Monitoring & Logs
+
+### Docker Logs
+
+```bash
+docker logs huit-api --tail 100 -f
+docker logs huit-sqlserver
+docker logs huit-redis
+```
+
+### Structured Logs (Serilog)
+
+Logs written to `./logs` inside container if mounted:
+
+Add volume to docker-compose:
+
+```yaml
+  api:
+    ...
+    volumes:
+      - ./logs:/app/logs
+```
+
+Serilog config in `appsettings.Production.json`:
 
 ```json
-"Serilog": {
-  "WriteTo": [
-    { "Name": "Elasticsearch", "Args": { "nodeUris": "http://localhost:9200", "indexFormat": "logstash-{0:yyyy.MM.dd}" } }
-  ]
+{
+  "Serilog": {
+    "WriteTo": [
+      { "Name": "Console" },
+      {
+        "Name": "File",
+        "Args": { "path": "/app/logs/log-.txt", "rollingInterval": "Day" }
+      }
+    ]
+  }
 }
 ```
 
-### Prometheus + Grafana (Metrics)
+### Health Check
 
-```csharp
-// Install-Package Prometheus.AspNetCore
-app.UseHttpMetrics();
-```
-
-Metrics endpoint: `/metrics`
+API has built-in health endpoint at `/health`. Configure monitoring to poll it.
 
 ---
 
-## Backup & Recovery
+## 8. Backup Strategy
 
 ### SQL Server Backup
 
 ```bash
-# Full backup
-/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'password' -Q "BACKUP DATABASE [HuitShopDB] TO DISK = N'/var/opt/mssql/backup/HuitShopDB_full.bak' WITH FORMAT, INIT, NAME = 'HuitShopDB-Full'"
+# Backup
+docker exec huit-sqlserver /opt/mssql-tools/bin/sqlcmd \
+  -S localhost -U SA -P 'YourStrong@Passw0rd' \
+  -Q "BACKUP DATABASE [HuitShopDB] TO DISK = N'/var/opt/mssql/backup/HuitShopDB.bak' WITH INIT"
 
-# Diff backup
-/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'password' -Q "BACKUP DATABASE [HuitShopDB] TO DISK = N'/var/opt/mssql/backup/HuitShopDB_diff.bak' WITH DIFFERENTIAL"
-
-# Restore
-/opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'password' -Q "RESTORE DATABASE [HuitShopDB] FROM DISK = N'/var/opt/mssql/backup/HuitShopDB_full.bak' WITH REPLACE"
+# Copy backup from container
+docker cp huit-sqlserver:/var/opt/mssql/backup/HuitShopDB.bak ./backup/
 ```
 
-**Cron job Backup hàng ngày:**
+Cron job on host (daily at 2 AM):
 
 ```bash
-# /etc/cron.d/sqlbackup
-0 2 * * * root /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -P 'password' -Q "BACKUP DATABASE [HuitShopDB] TO DISK = N'/backup/HuitShopDB_$(date +\%Y\%m\%d).bak'"
+0 2 * * * cd /var/backups/ecommerce && ./backup.sh
 ```
 
-### Redis Backup
+### Redis Persistence
+
+Redis uses AOF/RDB. Volume `redis-data` persists across restarts.
+
+---
+
+## 9. Scaling
+
+- **Horizontal scaling:** Run multiple API containers behind a load balancer (Nginx upstream or cloud LB)
+- **Database:** Move to Azure SQL Database or managed RDS for better scaling and HA
+- **Redis:** Use Redis Cluster or Azure Redis Cache
+- **CDN:** For static assets (images, docs)
+
+---
+
+## 10. Security Hardening
+
+- Change default `SA` password to something strong
+- Disable `sa` login, create dedicated SQL user for app
+- Use network isolation: database and Redis should not be exposed to public internet (only accessible from app network)
+- Enable firewall rules limiting inbound to ports 22 (SSH), 80, 443
+- Keep OS and Docker updated
+- Use HTTPS only (let's encrypt certs)
+- Store secrets in Docker secrets or environment file with restricted permissions (600)
+- Implement rate limiting at Nginx level
+- Enable audit logs
+
+---
+
+## 11. Rollback
+
+If new deployment breaks:
 
 ```bash
-# Redis RDB snapshot
-docker exec redis redis-cli SAVE
-docker cp redis:/data/dump.rdb /backup/redis-$(date +%Y%m%d).rdb
+# Find previous image tag (from GitHub tags or local)
+docker images | grep ecommerce-huit-api
+
+# Pull previous version
+docker pull ghcr.io/Johnyyd/ecommerce-huit-api:v1.2.3
+
+# Update docker-compose image line and restart
+docker-compose -f docker-compose.prod.yml up -d
 ```
+
+Or use `latest` tag with caution; better to pin to specific version.
 
 ---
 
-## Scaling
+## 12. Troubleshooting
 
-### Horizontal Scaling (API)
+### API not starting
 
-- Deploy nhiều instance của backend API
-- Load balancing với Nginx/HAProxy
-- Session state dùng Redis (distributed cache)
+Check logs: `docker logs huit-api`
 
-### Database Scaling
+Common issues:
+- Missing environment variable → container exits
+- Cannot connect to SQL Server → check network, credentials, DB container status
+- Port 5000 already in use → change host port mapping
 
-- Read replicas (SQL Server Always On)
-- Sharding theo tenant/region (future)
+### Database connection failures
 
-### Redis Scaling
+- Ensure SQL Server container is healthy: `docker ps`
+- Test connection: `docker exec huit-api dotnet sqlcmd ...` (install sqlcmd in API container)
+- Check connection string formatting
 
-- Redis Cluster (sharding)
-- Redis Sentinel (HA)
+### 502 Bad Gateway from Nginx
 
----
-
-## Security Checklist
-
-- [x] Enable HTTPS only (no HTTP)
-- [x] Strong JWT secret (64+ chars)
-- [x] Short-lived access tokens (24h)
-- [x] Refresh tokens stored in DB (not JWT)
-- [x] Rate limiting middleware
-- [x] CORS restricted to known domains
-- [x] SQL Injection protected (EF Core + parameterized queries)
-- [x] XSS protection headers
-- [x] CSRF tokens (if needed for state-changing operations)
-- [x] Secret management (Azure Key Vault, AWS Secrets, HashiCorp Vault)
-- [x] Database firewall (allow only app server)
-- [x] Regular backups (daily + weekly)
-- [x] Audit logs (already in schema)
+- API container not running? `docker ps`
+- API listening on port 80, not 5000? Check Dockerfile exposes 80, but container runs on 80. Nginx proxies to `localhost:5000` which maps to container's 80 via `ports`. This is correct.
 
 ---
 
-## Maintenance
+## 13. Supporting Advanced Scenarios
 
-### Health Checks
+### Multi-warehouse
 
-- `GET /health` - Liveness probe (DB, Redis connectivity)
-- `GET /ready` - Readiness probe (app initialized)
+Configure `Warehouse` table and assign `warehouse_id` in order processing. For now, default warehouse 1 is used.
 
-### Log Rotation
+### Webhooks (Payment providers)
 
-Giám sát file `logs/log-.txt`, dùng logrotate:
-
-```
-/var/log/ecommerce/*.log {
-    daily
-    rotate 30
-    compress
-    missingok
-    notifempty
-    create 644 www-data www-data
-    postrotate
-        systemctl reload nginx || true
-    endscript
-}
-```
+Expose public endpoint `/api/payments/webhook`. Configure Nginx to allow unauthenticated POST to that path.
 
 ---
 
-## Troubleshooting
-
-### Database Connection Issues
-
-```bash
-# Test connectivity from app container
-docker-compose exec backend dotnet ef dbcontext info
-docker-compose exec backend ping sqlserver
-```
-
-### View SQL Server Error Logs
-
-```bash
-docker-compose exec sqlserver /opt/mssql-tools/bin/sqlcmd \
-  -S localhost -U SA -P 'password' \
-  -Q "EXEC sp_readerrorlog 0, 1, N'Login failed'"
-```
-
-### Redis CLI
-
-```bash
-docker-compose exec redis redis-cli
-> ping
-> info
-> monitor
-```
-
----
-
-## Support
-
-Liên hệ dev team nếu gặp vấn đề triển khai.
-
----
-
-**Happy Deploying! 🚀**
+**Happy Deploying!** 🚀

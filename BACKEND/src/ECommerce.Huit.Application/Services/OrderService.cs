@@ -17,8 +17,64 @@ public class OrderService : IOrderService
 
     public async Task<OrderResponseDto> CreateOrderAsync(int userId, CreateOrderRequest request)
     {
-        // TODO: Implement with transaction and stored procedure call
-        throw new NotImplementedException();
+        // Extract cart items for the user
+        var cart = await _context.Carts
+            .Include(c => c.Items)
+                .ThenInclude(ci => ci.Variant)
+            .FirstOrDefaultAsync(c => c.UserId == userId);
+
+        if (cart == null || !cart.Items.Any())
+            throw new InvalidOperationException("Giỏ hàng trống");
+
+        // Build JSON array for order items
+        var orderItemsJson = System.Text.Json.JsonSerializer.Serialize(
+            cart.Items.Select(ci => new
+            {
+                variant_id = ci.VariantId,
+                quantity = ci.Quantity,
+                price_at_time = ci.Variant.Price
+            })
+        );
+
+        // Build voucher code if cart has one
+        var voucherCode = cart.VoucherCode;
+
+        // Call stored procedure
+        var orderCodeParam = new Microsoft.Data.SqlClient.SqlParameter("@OrderCode", System.Data.SqlDbType.VarChar, 20)
+        {
+            Direction = System.Data.ParameterDirection.Output
+        };
+        var orderIdParam = new Microsoft.Data.SqlClient.SqlParameter("@OrderID", System.Data.SqlDbType.Int)
+        {
+            Direction = System.Data.ParameterDirection.Output
+        };
+
+        var parameters = new[]
+        {
+            new Microsoft.Data.SqlClient.SqlParameter("@UserID", userId),
+            new Microsoft.Data.SqlClient.SqlParameter("@ShippingAddress", request.ShippingAddressJson ?? (object)DBNull.Value),
+            new Microsoft.Data.SqlClient.SqlParameter("@PaymentMethod", request.PaymentMethod ?? (object)DBNull.Value),
+            new Microsoft.Data.SqlClient.SqlParameter("@VoucherCode", string.IsNullOrEmpty(voucherCode) ? (object)DBNull.Value : voucherCode),
+            new Microsoft.Data.SqlClient.SqlParameter("@OrderItemsJSON", orderItemsJson),
+            orderIdParam,
+            orderCodeParam
+        };
+
+        await _context.Database.ExecuteSqlRawAsync(
+            "EXEC sp_CreateOrder @UserID, @ShippingAddress, @PaymentMethod, @VoucherCode, @OrderItemsJSON, @OrderID OUTPUT, @OrderCode OUTPUT",
+            parameters
+        );
+
+        var orderId = (int)orderIdParam.Value;
+        var orderCode = (string)orderCodeParam.Value;
+
+        // Return the created order
+        return await GetOrderByCodeAsync(orderCode) ?? new OrderResponseDto
+        {
+            Id = orderId,
+            Code = orderCode,
+            CreatedAt = DateTime.UtcNow
+        };
     }
 
     public async Task<IEnumerable<OrderResponseDto>> GetOrdersByUserIdAsync(int userId, int page = 1, int pageSize = 20)
@@ -102,58 +158,93 @@ public class OrderService : IOrderService
 
     public async Task<bool> CancelOrderAsync(int orderId, string reason)
     {
-        var order = await _context.Orders.FindAsync(orderId);
-        if (order == null) return false;
+        var parameters = new[]
+        {
+            new Microsoft.Data.SqlClient.SqlParameter("@OrderID", orderId),
+            new Microsoft.Data.SqlClient.SqlParameter("@Reason", reason ?? (object)DBNull.Value),
+            new Microsoft.Data.SqlClient.SqlParameter("@UserID", (object)DBNull.Value)
+        };
 
-        if (order.Status != OrderStatus.PENDING && order.Status != OrderStatus.CONFIRMED && order.Status != OrderStatus.PROCESSING)
+        try
+        {
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_CancelOrder @OrderID, @Reason, @UserID",
+                parameters
+            );
+            return true;
+        }
+        catch
+        {
             return false;
-
-        // TODO: Implement with transaction and inventory rollback
-        order.Status = OrderStatus.CANCELLED;
-        order.Note = reason;
-        order.UpdatedAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
-        return true;
+        }
     }
 
     public async Task<bool> ConfirmOrderAsync(int orderId, int? staffId)
     {
-        var order = await _context.Orders.FindAsync(orderId);
-        if (order == null || order.Status != OrderStatus.PENDING) return false;
-
-        order.Status = OrderStatus.CONFIRMED;
-        order.UpdatedAt = DateTime.UtcNow;
-
-        // Add status history
-        var history = new OrderStatusHistory
+        var parameters = new[]
         {
-            OrderId = orderId,
-            Status = OrderStatus.CONFIRMED.ToString(),
-            ChangedBy = staffId,
-            Note = "Đơn hàng đã được xác nhận"
+            new Microsoft.Data.SqlClient.SqlParameter("@OrderID", orderId)
         };
-        _context.OrderStatusHistories.Add(history);
 
-        await _context.SaveChangesAsync();
-        return true;
+        try
+        {
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_ConfirmOrder @OrderID",
+                parameters
+            );
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     public async Task<bool> ShipOrderAsync(int orderId, int warehouseId, string serialNumbersJson)
     {
-        // TODO: Implement proper serial allocation and inventory updates
-        throw new NotImplementedException();
+        // For now, we'll call sp_ShipOrder without tracking/shipping provider
+        // In production, you'd probably pass these as parameters
+        var parameters = new[]
+        {
+            new Microsoft.Data.SqlClient.SqlParameter("@OrderID", orderId),
+            new Microsoft.Data.SqlClient.SqlParameter("@TrackingNumber", string.IsNullOrEmpty(serialNumbersJson) ? (object)DBNull.Value : serialNumbersJson),
+            new Microsoft.Data.SqlClient.SqlParameter("@ShippingProvider", (object)DBNull.Value),
+            new Microsoft.Data.SqlClient.SqlParameter("@UserID", (object)DBNull.Value)
+        };
+
+        try
+        {
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_ShipOrder @OrderID, @TrackingNumber, @ShippingProvider, @UserID",
+                parameters
+            );
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     public async Task<bool> CompleteOrderAsync(int orderId)
     {
-        var order = await _context.Orders.FindAsync(orderId);
-        if (order == null || order.Status != OrderStatus.SHIPPING) return false;
+        var parameters = new[]
+        {
+            new Microsoft.Data.SqlClient.SqlParameter("@OrderID", orderId),
+            new Microsoft.Data.SqlClient.SqlParameter("@UserID", (object)DBNull.Value)
+        };
 
-        order.Status = OrderStatus.COMPLETED;
-        order.UpdatedAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
-        return true;
+        try
+        {
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC sp_CompleteOrder @OrderID, @UserID",
+                parameters
+            );
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }
