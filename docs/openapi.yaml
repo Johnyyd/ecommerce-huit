@@ -1,0 +1,584 @@
+openapi: 3.0.3
+info:
+  title: ECommerce HUIT API
+  description: API cho hệ thống bán hàng điện tử HUIT
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: admin@huit.edu.vn
+servers:
+  - url: https://api.huit.edu.vn
+    description: Production server
+  - url: http://localhost:5000
+    description: Development server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        full_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        role:
+          type: string
+          enum: [ADMIN, STAFF, WAREHOUSE, CUSTOMER]
+        avatar_url:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, BANNED]
+        created_at:
+          type: string
+          format: date-time
+        last_login:
+          type: string
+          format: date-time
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        brand:
+          $ref: '#/components/schemas/Brand'
+        category:
+          $ref: '#/components/schemas/Category'
+        description:
+          type: string
+        price_from:
+          type: number
+          format: decimal
+        price_to:
+          type: number
+          format: decimal
+        thumbnail_url:
+          type: string
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductVariant'
+
+    ProductVariant:
+      type: object
+      properties:
+        id:
+          type: integer
+        sku:
+          type: string
+        variant_name:
+          type: string
+        price:
+          type: number
+          format: decimal
+        original_price:
+          type: number
+          format: decimal
+        thumbnail_url:
+          type: string
+        quantity_available:
+          type: integer
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        total:
+          type: number
+          format: decimal
+        status:
+          type: string
+          enum: [PENDING, CONFIRMED, PROCESSING, SHIPPING, COMPLETED, CANCELLED, RETURNED]
+        payment_status:
+          type: string
+          enum: [PENDING, PAID, FAILED, REFUNDED]
+        payment_method:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+
+    OrderItem:
+      type: object
+      properties:
+        product_name:
+          type: string
+        sku:
+          type: string
+        quantity:
+          type: integer
+        unit_price:
+          type: number
+          format: decimal
+        total_price:
+          type: number
+          format: decimal
+
+    Cart:
+      type: object
+      properties:
+        id:
+          type: integer
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItem'
+        subtotal:
+          type: number
+          format: decimal
+        total:
+          type: number
+          format: decimal
+        applied_voucher:
+          $ref: '#/components/schemas/Voucher'
+
+    CartItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        variant:
+          $ref: '#/components/schemas/ProductVariant'
+        quantity:
+          type: integer
+        line_total:
+          type: number
+          format: decimal
+
+    Voucher:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+        name:
+          type: string
+        discount_type:
+          type: string
+          enum: [PERCENT, FIXED]
+        discount_value:
+          type: number
+          format: decimal
+        min_order_value:
+          type: number
+          format: decimal
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        slug:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+
+    Brand:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        origin:
+          type: string
+        logo_url:
+          type: string
+
+paths:
+  /api/auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Đăng ký tài khoản mới
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [full_name, email, password]
+              properties:
+                full_name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                password:
+                  type: string
+                  minLength: 6
+      responses:
+        '201':
+          description: Đăng ký thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  email:
+                    type: string
+                  full_name:
+                    type: string
+                  role:
+                    type: string
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+
+  /api/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Đăng nhập
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  access_token:
+                    type: string
+                  refresh_token:
+                    type: string
+
+  /api/products:
+    get:
+      tags:
+        - Products
+      summary: Danh sách sản phẩm
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+        - name: brandId
+          in: query
+          schema:
+            type: integer
+        - name: minPrice
+          in: query
+          schema:
+            type: number
+            format: decimal
+        - name: maxPrice
+          in: query
+          schema:
+            type: number
+            format: decimal
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                  pagination:
+                    type: object
+                    properties:
+                      page:
+                        type: integer
+                      pageSize:
+                        type: integer
+                      totalItems:
+                        type: integer
+                      totalPages:
+                        type: integer
+
+  /api/products/{id}:
+    get:
+      tags:
+        - Products
+      summary: Chi tiết sản phẩm
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+
+  /api/cart:
+    get:
+      tags:
+        - Cart
+      summary: Lấy giỏ hàng
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Cart'
+
+    post:
+      tags:
+        - Cart
+      summary: Thêm item vào giỏ
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [variant_id, quantity]
+              properties:
+                variant_id:
+                  type: integer
+                quantity:
+                  type: integer
+                  minimum: 1
+      responses:
+        '200':
+          description: Cart updated
+
+  /api/orders:
+    post:
+      tags:
+        - Orders
+      summary: Tạo đơn hàng (checkout)
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [shipping_address, payment_method]
+              properties:
+                shipping_address:
+                  type: object
+                  properties:
+                    receiver_name:
+                      type: string
+                    receiver_phone:
+                      type: string
+                    province:
+                      type: string
+                    district:
+                      type: string
+                    ward:
+                      type: string
+                    street_address:
+                      type: string
+                payment_method:
+                  type: string
+                  enum: [CASH, MOMO, VNPAY, BANKING, COD]
+                note:
+                  type: string
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  order_id:
+                    type: integer
+                  order_code:
+                    type: string
+                  total:
+                    type: number
+                    format: decimal
+                  payment_url:
+                    type: string
+                    nullable: true
+
+  /admin/orders:
+    get:
+      tags:
+        - Admin
+      summary: Liệt kê tất cả đơn hàng (Admin)
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: fromDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: toDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+
+  /admin/inventory/import:
+    post:
+      tags:
+        - Admin
+      summary: Nhập kho hàng mới
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [warehouse_id, variant_id, cost_price, serials]
+              properties:
+                warehouse_id:
+                  type: integer
+                variant_id:
+                  type: integer
+                cost_price:
+                  type: number
+                    format: decimal
+                supplier_id:
+                  type: integer
+                serials:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Import successful
+
+  /admin/reports/revenue:
+    get:
+      tags:
+        - Admin
+      summary: Báo cáo doanh thu
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: fromDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: toDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+        - name: groupBy
+          in: query
+          enum: [DAY, MONTH, YEAR]
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    period:
+                      type: string
+                    orders_count:
+                      type: integer
+                    revenue:
+                      type: number
+                      format: decimal
+
+# ... More endpoints (users, vouchers, support, etc.) should be added here
+
+tags:
+  - name: Authentication
+    description: Xác thực người dùng
+  - name: Users
+    description: Quản lý tài khoản
+  - name: Products
+    description: Danh mục sản phẩm
+  - name: Cart
+    description: Giỏ hàng
+  - name: Orders
+    description: Đơn hàng
+  - name: Admin
+    description: Endpoints dành cho quản trị viên
