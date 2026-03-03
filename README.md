@@ -84,7 +84,7 @@ Dự án này cung cấp một **bộ khung vững chắc, dễ mở rộng** ch
          │                       │                       ▼
          │                       │              ┌─────────────────┐
          │                       └─────────────►│   Redis Cache   │
-         │                                       └─────────────────┘
+         │                                      └─────────────────┘
          │                                               │
          ▼                                               ▼
 ┌─────────────────┐                              ┌─────────────────┐
@@ -319,8 +319,8 @@ MIT License - Xem file [LICENSE](LICENSE) để biết thêm chi tiết.
 
 ## Liên hệ
 
-**Author:** Tri Nguyen (Gemini AI hỗ trợ)  
-**Email:** admin@huit.edu.vn  
+**Author:** Tri Nguyen
+**Email:** trinm2102@gmail.com
 **Repo:** https://github.com/Johnyyd/ecommerce-huit
 
 ---
