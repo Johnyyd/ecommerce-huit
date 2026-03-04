@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 import { Disclosure, Menu, Transition } from '@headlessui/react'
-import { Bars3Icon, XMarkIcon } from 'lucide-react'
+import { Menu as MenuIcon, X as XIcon } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { toast } from 'react-hot-toast'
@@ -136,9 +136,9 @@ const Header = () => {
               <div className="md:hidden">
                 <Disclosure.Button className="text-gray-700 hover:text-primary-600">
                   {open ? (
-                    <XMarkIcon className="h-6 w-6" />
+                    <XIcon className="h-6 w-6" />
                   ) : (
-                    <Bars3Icon className="h-6 w-6" />
+                    <MenuIcon className="h-6 w-6" />
                   )}
                 </Disclosure.Button>
               </div>

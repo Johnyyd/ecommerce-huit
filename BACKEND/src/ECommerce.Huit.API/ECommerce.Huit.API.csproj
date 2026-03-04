@@ -27,11 +27,11 @@
     <ProjectReference Include="..\ECommerce.Huit.Infrastructure\ECommerce.Huit.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
+  <!--<ItemGroup>
     <Content Include="..\..\docker-compose.yml">
       <Link>docker-compose.yml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
+  </ItemGroup>-->
 
 </Project>

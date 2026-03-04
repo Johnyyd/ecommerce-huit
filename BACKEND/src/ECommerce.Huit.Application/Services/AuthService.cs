@@ -7,10 +7,10 @@ namespace ECommerce.Huit.Application.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IApplicationDbContext _context;
     private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
-    public AuthService(ApplicationDbContext context, IJwtTokenGenerator jwtTokenGenerator)
+    public AuthService(IApplicationDbContext context, IJwtTokenGenerator jwtTokenGenerator)
     {
         _context = context;
         _jwtTokenGenerator = jwtTokenGenerator;

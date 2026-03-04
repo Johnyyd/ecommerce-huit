@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using ECommerce.Huit.Domain.Entities;
 using ECommerce.Huit.Domain.Enums;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;

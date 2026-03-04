@@ -8,5 +8,9 @@ export default defineConfig({
     alias: {
       '@': '/src'
     }
+  },
+  server: {
+    host: '0.0.0.0',  // Listen on all network interfaces for Tailscale access
+    port: 5173
   }
 })

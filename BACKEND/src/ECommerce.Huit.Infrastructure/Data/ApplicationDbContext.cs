@@ -1,10 +1,13 @@
+using System.Data.Common;
+using ECommerce.Huit.Application.Common.Interfaces;
 using ECommerce.Huit.Domain.Entities;
 using ECommerce.Huit.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using ECommerce.Huit.Infrastructure.Data.Configurations;
 
 namespace ECommerce.Huit.Infrastructure.Data;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext : DbContext, IApplicationDbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
@@ -56,6 +59,9 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        // Ngan loi Multiple Cascade Paths cho bang Return
+        modelBuilder.Entity<Return>().HasOne(r => r.Order).WithMany().HasForeignKey(r => r.OrderId).OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.NoAction);
+        modelBuilder.Entity<Return>().HasOne(r => r.OrderItem).WithMany().HasForeignKey(r => r.OrderItemId).OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.NoAction);
 
         // Apply configurations
         modelBuilder.ApplyConfiguration(new UserConfiguration());
@@ -81,6 +87,16 @@ public class ApplicationDbContext : DbContext
     {
         UpdateTimestamps();
         return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    public Task<int> ExecuteSqlRawAsync(string sql, params object[] parameters)
+    {
+        return base.Database.ExecuteSqlRawAsync(sql, parameters);
+    }
+
+    public Task<int> ExecuteSqlRawAsync(string sql, System.Data.CommandBehavior behavior, params object[] parameters)
+    {
+        return base.Database.ExecuteSqlRawAsync(sql, behavior, parameters);
     }
 
     private void UpdateTimestamps()

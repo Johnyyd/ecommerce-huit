@@ -1,4 +1,5 @@
 using ECommerce.Huit.Application.Common.Interfaces;
+using ECommerce.Huit.Application.DTOs.Order;
 using ECommerce.Huit.Domain.Entities;
 using ECommerce.Huit.Domain.Enums;
 using Microsoft.Data.SqlClient;
@@ -8,9 +9,9 @@ namespace ECommerce.Huit.Application.Services;
 
 public class OrderService : IOrderService
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IApplicationDbContext _context;
 
-    public OrderService(ApplicationDbContext context)
+    public OrderService(IApplicationDbContext context)
     {
         _context = context;
     }
@@ -60,7 +61,7 @@ public class OrderService : IOrderService
             orderCodeParam
         };
 
-        await _context.Database.ExecuteSqlRawAsync(
+        await _context.ExecuteSqlRawAsync(
             "EXEC sp_CreateOrder @UserID, @ShippingAddress, @PaymentMethod, @VoucherCode, @OrderItemsJSON, @OrderID OUTPUT, @OrderCode OUTPUT",
             parameters
         );
@@ -167,7 +168,7 @@ public class OrderService : IOrderService
 
         try
         {
-            await _context.Database.ExecuteSqlRawAsync(
+            await _context.ExecuteSqlRawAsync(
                 "EXEC sp_CancelOrder @OrderID, @Reason, @UserID",
                 parameters
             );
@@ -188,7 +189,7 @@ public class OrderService : IOrderService
 
         try
         {
-            await _context.Database.ExecuteSqlRawAsync(
+            await _context.ExecuteSqlRawAsync(
                 "EXEC sp_ConfirmOrder @OrderID",
                 parameters
             );
@@ -214,7 +215,7 @@ public class OrderService : IOrderService
 
         try
         {
-            await _context.Database.ExecuteSqlRawAsync(
+            await _context.ExecuteSqlRawAsync(
                 "EXEC sp_ShipOrder @OrderID, @TrackingNumber, @ShippingProvider, @UserID",
                 parameters
             );
@@ -236,7 +237,7 @@ public class OrderService : IOrderService
 
         try
         {
-            await _context.Database.ExecuteSqlRawAsync(
+            await _context.ExecuteSqlRawAsync(
                 "EXEC sp_CompleteOrder @OrderID, @UserID",
                 parameters
             );

@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using ECommerce.Huit.Domain.Entities;
 using ECommerce.Huit.Domain.Enums;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -30,7 +31,7 @@ public class StockMovementConfiguration : IEntityTypeConfiguration<StockMovement
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(sm => sm.Variant)
-            .WithMany(v => v.StockMovements)
+            .WithMany()  // No navigation property on ProductVariant
             .HasForeignKey(sm => sm.VariantId)
             .OnDelete(DeleteBehavior.Restrict);
 

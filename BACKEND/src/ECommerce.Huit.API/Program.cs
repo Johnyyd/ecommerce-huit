@@ -1,7 +1,8 @@
+using ECommerce.Huit.API;
 using ECommerce.Huit.Application;
 using ECommerce.Huit.Application.Common.Interfaces;
 using ECommerce.Huit.Infrastructure.Data;
-using ECommerce.Huit.Infrastructure.Services;
+using ECommerce.Huit.API.Controllers;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -10,6 +11,10 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
+using StackExchange.Redis;
+using ECommerce.Huit.Application.Services;
+using ECommerce.Huit.Application.Validators.Auth;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -69,6 +74,10 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
+// Register DbContext interface
+builder.Services.AddScoped<IApplicationDbContext>(sp => 
+    sp.GetRequiredService<ApplicationDbContext>());
+
 // Configure JWT
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 builder.Services.AddAuthentication(options =>
@@ -115,16 +124,38 @@ builder.Services.AddSingleton<IConnectionMultiplexer, ConnectionMultiplexer>(sp 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterDtoValidator>();
 
+// Configure CORS for frontend
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy.WithOrigins(
+                    "http://localhost:5173",
+                    "http://100.89.137.3:5173",
+                    "http://192.168.100.100:5173"
+                )
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        });
+});
+
 var app = builder.Build();
 
 // Configure pipeline
-if (app.Environment.IsDevelopment())
+// Enable Swagger in all environments for development/testing
+app.UseStaticFiles(); // Add static files middleware
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "ECommerce HUIT API v1");
+    c.RoutePrefix = "swagger"; // Swagger UI at /swagger
+});
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowFrontend");
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -146,12 +177,11 @@ app.UseExceptionHandler(errorApp =>
     });
 });
 
-// Initialize DB (for dev only)
+// Initialize DB using SQL scripts
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    // Ensure database is created
-    await db.Database.EnsureCreatedAsync();
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await SeedHelper.InitializeDatabaseAsync(context);
 }
 
 try

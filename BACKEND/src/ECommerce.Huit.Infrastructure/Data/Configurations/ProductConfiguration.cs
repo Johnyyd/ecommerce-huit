@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using ECommerce.Huit.Domain.Entities;
 using ECommerce.Huit.Domain.Enums;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -40,7 +41,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.HasOne(p => p.Brand)
             .WithMany(b => b.Products)
             .HasForeignKey(p => p.BrandId)
-            .OnDelete(DeleteBehaviour.SetNull);
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasOne(p => p.Category)
             .WithMany(c => c.Products)

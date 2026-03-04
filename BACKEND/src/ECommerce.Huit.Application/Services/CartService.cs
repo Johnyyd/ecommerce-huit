@@ -1,5 +1,6 @@
 using ECommerce.Huit.Application.Common.Interfaces;
 using ECommerce.Huit.Application.DTOs.Cart;
+using ECommerce.Huit.Application.DTOs.Product;
 using ECommerce.Huit.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,9 +8,9 @@ namespace ECommerce.Huit.Application.Services;
 
 public class CartService : ICartService
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IApplicationDbContext _context;
 
-    public CartService(ApplicationDbContext context)
+    public CartService(IApplicationDbContext context)
     {
         _context = context;
     }

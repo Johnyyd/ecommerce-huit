@@ -1,3 +1,6 @@
+using ECommerce.Huit.Application.DTOs.Product;
+using ECommerce.Huit.Application.DTOs.Voucher;
+
 namespace ECommerce.Huit.Application.DTOs.Cart;
 
 public class CartDto
