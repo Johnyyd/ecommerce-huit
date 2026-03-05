@@ -60,8 +60,8 @@ export const orderApi = {
   createOrder: (
     userId: number,
     data: {
-      shipping_address_json: string
-      payment_method: string
+      paymentMethod: string
+      shippingAddressJson: string
       note?: string
     }
   ) => api.post(`/api/orders?userId=${userId}`, data),

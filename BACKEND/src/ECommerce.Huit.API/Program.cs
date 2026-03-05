@@ -177,11 +177,170 @@ app.UseExceptionHandler(errorApp =>
     });
 });
 
-// Initialize DB using SQL scripts
+// Initialize DB using EF Core
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await SeedHelper.InitializeDatabaseAsync(context);
+    // Delete and recreate database to ensure clean state with EF schema
+    await context.Database.EnsureDeletedAsync();
+    await context.Database.EnsureCreatedAsync();
+
+    // Seed minimal data if empty
+    if (!await context.Users.AnyAsync())
+    {
+        // Add roles/permissions? Not needed for basic functionality
+        // Add sample users
+        var adminUser = new ECommerce.Huit.Domain.Entities.User
+        {
+            FullName = "Nguyễn Minh Trí",
+            Email = "admin@huit.edu.vn",
+            Phone = "0909000001",
+            PasswordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes("admin123")),
+            Role = ECommerce.Huit.Domain.Enums.UserRole.ADMIN,
+            Status = ECommerce.Huit.Domain.Enums.UserStatus.ACTIVE,
+            CreatedAt = DateTime.UtcNow
+        };
+        context.Users.Add(adminUser);
+        await context.SaveChangesAsync();
+
+        // Add sample customer
+        var customer = new ECommerce.Huit.Domain.Entities.User
+        {
+            FullName = "Phạm Khách Hàng A",
+            Email = "customerA@gmail.com",
+            Phone = "0909000004",
+            PasswordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes("customer123")),
+            Role = ECommerce.Huit.Domain.Enums.UserRole.CUSTOMER,
+            Status = ECommerce.Huit.Domain.Enums.UserStatus.ACTIVE,
+            CreatedAt = DateTime.UtcNow
+        };
+        context.Users.Add(customer);
+        await context.SaveChangesAsync();
+
+        // Add categories
+        var laptopCategory = new ECommerce.Huit.Domain.Entities.Category
+        {
+            Name = "Laptop Văn Phòng",
+            Slug = "laptop-office",
+            IsActive = true,
+            SortOrder = 1
+        };
+        var phoneCategory = new ECommerce.Huit.Domain.Entities.Category
+        {
+            Name = "Điện Thoại",
+            Slug = "smart-phone",
+            IsActive = true,
+            SortOrder = 2
+        };
+        context.Categories.Add(laptopCategory);
+        context.Categories.Add(phoneCategory);
+        await context.SaveChangesAsync();
+
+        // Add brands
+        var dellBrand = new ECommerce.Huit.Domain.Entities.Brand
+        {
+            Name = "Dell",
+            Origin = "USA",
+            Description = "Máy tính để bàn và laptop"
+        };
+        var appleBrand = new ECommerce.Huit.Domain.Entities.Brand
+        {
+            Name = "Apple",
+            Origin = "USA",
+            Description = "Thiết bị chất lượng cao"
+        };
+        context.Brands.Add(dellBrand);
+        context.Brands.Add(appleBrand);
+        await context.SaveChangesAsync();
+
+        // Add products
+        var product1 = new ECommerce.Huit.Domain.Entities.Product
+        {
+            Name = "Dell XPS 13 Plus",
+            Slug = "dell-xps-13-plus",
+            BrandId = dellBrand.Id,
+            CategoryId = laptopCategory.Id,
+            Description = "Laptop mỏng nhẹ, màn hình OLED, chip Intel Core i7",
+            Specifications = "{\"screen\":\"13.4 inch OLED\",\"cpu\":\"Intel Core i7 1360P\",\"ram\":\"16GB\"}",
+            Status = ECommerce.Huit.Domain.Enums.ProductStatus.ACTIVE,
+            IsFeatured = true,
+            CreatedBy = adminUser.Id
+        };
+        var product2 = new ECommerce.Huit.Domain.Entities.Product
+        {
+            Name = "iPhone 15 Pro",
+            Slug = "iphone-15-pro",
+            BrandId = appleBrand.Id,
+            CategoryId = phoneCategory.Id,
+            Description = "iPhone với chip A17 Pro, camera 48MP",
+            Specifications = "{\"screen\":\"6.1 inch\",\"chip\":\"A17 Pro\"}",
+            Status = ECommerce.Huit.Domain.Enums.ProductStatus.ACTIVE,
+            IsFeatured = true,
+            CreatedBy = adminUser.Id
+        };
+        context.Products.Add(product1);
+        context.Products.Add(product2);
+        await context.SaveChangesAsync();
+
+        // Add variants
+        var variant1 = new ECommerce.Huit.Domain.Entities.ProductVariant
+        {
+            ProductId = product1.Id,
+            Sku = "DELL-XPS13-16-512",
+            VariantName = "i7/16GB/512GB",
+            Price = 45000000,
+            OriginalPrice = 48000000,
+            ThumbnailUrl = "https://via.placeholder.com/300",
+            DisplayOrder = 1,
+            IsActive = true
+        };
+        var variant2 = new ECommerce.Huit.Domain.Entities.ProductVariant
+        {
+            ProductId = product2.Id,
+            Sku = "IP15-128-BK",
+            VariantName = "128GB - Đen",
+            Price = 25990000,
+            OriginalPrice = 29990000,
+            ThumbnailUrl = "https://via.placeholder.com/300",
+            DisplayOrder = 1,
+            IsActive = true
+        };
+        context.ProductVariants.Add(variant1);
+        context.ProductVariants.Add(variant2);
+        await context.SaveChangesAsync();
+
+        // Add warehouse
+        var warehouse = new ECommerce.Huit.Domain.Entities.Warehouse
+        {
+            Name = "Kho chính",
+            Address = "Hà Nội",
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow
+        };
+        context.Warehouses.Add(warehouse);
+        await context.SaveChangesAsync();
+
+        // Add inventory for each variant
+        context.Inventories.Add(new ECommerce.Huit.Domain.Entities.Inventory
+        {
+            WarehouseId = warehouse.Id,
+            VariantId = variant1.Id,
+            QuantityOnHand = 100,
+            QuantityReserved = 0,
+            ReorderPoint = 10,
+            CreatedAt = DateTime.UtcNow
+        });
+        context.Inventories.Add(new ECommerce.Huit.Domain.Entities.Inventory
+        {
+            WarehouseId = warehouse.Id,
+            VariantId = variant2.Id,
+            QuantityOnHand = 100,
+            QuantityReserved = 0,
+            ReorderPoint = 10,
+            CreatedAt = DateTime.UtcNow
+        });
+        await context.SaveChangesAsync();
+    }
 }
 
 try

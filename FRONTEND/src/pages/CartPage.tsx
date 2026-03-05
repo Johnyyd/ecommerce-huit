@@ -59,7 +59,7 @@ const CartPage = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">Giỏ hàng</h1>
 
-      {cart?.items.length === 0 ? (
+      {(cart?.items || []).length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500 mb-4">Giỏ hàng trống</p>
           <Link to="/products">
@@ -71,11 +71,11 @@ const CartPage = () => {
           {/* Cart items */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow border">
-              {cart?.items.map((item, index) => (
+              {(cart?.items || []).map((item, index) => (
                 <div
                   key={item.id}
                   className={`flex items-center gap-4 p-4 ${
-                    index !== (cart.items.length - 1) ? 'border-b' : ''
+                    index !== ((cart?.items || []).length - 1) ? 'border-b' : ''
                   }`}
                 >
                   <img

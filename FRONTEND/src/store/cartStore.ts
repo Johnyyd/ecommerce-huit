@@ -35,8 +35,9 @@ export const useCartStore = create<CartStore>()(
       fetchCart: async (userId: number) => {
         set({ loading: true, error: null })
         try {
-          const data = await cartApi.getCart(userId)
-          set({ cart: data, loading: false })
+          const cart = await cartApi.getCart(userId)
+          set({ cart, loading: false })
+          console.log('fetchCart result:', cart)
         } catch (error: any) {
           set({ error: error.message, loading: false })
           toast.error('Không thể tải giỏ hàng')
@@ -46,8 +47,9 @@ export const useCartStore = create<CartStore>()(
       addItem: async (userId: number, variantId: number, quantity: number) => {
         set({ loading: true, error: null })
         try {
-          const data = await cartApi.addItem(userId, { variant_id: variantId, quantity })
-          set({ cart: data, loading: false })
+          const cart = await cartApi.addItem(userId, { variant_id: variantId, quantity })
+          set({ cart, loading: false })
+          console.log('addItem result:', cart)
         } catch (error: any) {
           set({ error: error.message, loading: false })
           toast.error(error.response?.data?.message || 'Không thể thêm sản phẩm')
@@ -57,8 +59,8 @@ export const useCartStore = create<CartStore>()(
       updateItem: async (userId: number, itemId: number, quantity: number) => {
         set({ loading: true, error: null })
         try {
-          const data = await cartApi.updateItem(userId, itemId, { quantity })
-          set({ cart: data, loading: false })
+          const cart = await cartApi.updateItem(userId, itemId, { quantity })
+          set({ cart, loading: false })
         } catch (error: any) {
           set({ error: error.message, loading: false })
           toast.error(error.response?.data?.message || 'Không thể cập nhật')
@@ -68,8 +70,8 @@ export const useCartStore = create<CartStore>()(
       removeItem: async (userId: number, itemId: number) => {
         set({ loading: true, error: null })
         try {
-          const data = await cartApi.removeItem(userId, itemId)
-          set({ cart: data, loading: false })
+          const cart = await cartApi.removeItem(userId, itemId)
+          set({ cart, loading: false })
         } catch (error: any) {
           set({ error: error.message, loading: false })
           toast.error('Không thể xóa sản phẩm')
@@ -79,8 +81,8 @@ export const useCartStore = create<CartStore>()(
       applyVoucher: async (userId: number, code: string) => {
         set({ loading: true, error: null })
         try {
-          const data = await cartApi.applyVoucher(userId, code)
-          set({ cart: data, loading: false })
+          const cart = await cartApi.applyVoucher(userId, code)
+          set({ cart, loading: false })
         } catch (error: any) {
           set({ error: error.message, loading: false })
           toast.error(error.response?.data?.message || 'Voucher không hợp lệ')
@@ -90,8 +92,8 @@ export const useCartStore = create<CartStore>()(
       clearCart: async (userId: number) => {
         set({ loading: true, error: null })
         try {
-          const data = await cartApi.clearCart(userId)
-          set({ cart: data, loading: false })
+          const cart = await cartApi.clearCart(userId)
+          set({ cart, loading: false })
         } catch (error: any) {
           set({ error: error.message, loading: false })
           toast.error('Không thể xóa giỏ hàng')

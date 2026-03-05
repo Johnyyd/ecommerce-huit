@@ -1,4 +1,5 @@
 import LoadingSpinner from './LoadingSpinner'
+import Button from '@/components/ui/Button'
 
 interface ProductCardProps {
   id: number
@@ -8,7 +9,7 @@ interface ProductCardProps {
   imageUrl: string
   brand?: string
   category?: string
-  onAddToCart?: (variantId: number) => void
+  onAddToCart?: (productId: number) => void
 }
 
 const ProductCard = ({
@@ -35,7 +36,7 @@ const ProductCard = ({
         <p className="text-sm text-gray-500 mb-1">{category}</p>
         <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">{name}</h3>
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-xl font-bold text-red-600">{price.toLocaleString('vi-VN')} ₫</span>
+          <span className="text-xl font-bold text-red-600">{price?.toLocaleString('vi-VN')} ₫</span>
           {originalPrice && originalPrice > price && (
             <span className="text-sm text-gray-400 line-through">
               {originalPrice.toLocaleString('vi-VN')} ₫

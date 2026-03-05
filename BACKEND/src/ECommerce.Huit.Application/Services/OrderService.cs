@@ -4,6 +4,9 @@ using ECommerce.Huit.Domain.Entities;
 using ECommerce.Huit.Domain.Enums;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Transactions;
 
 namespace ECommerce.Huit.Application.Services;
 
@@ -18,66 +21,189 @@ public class OrderService : IOrderService
 
     public async Task<OrderResponseDto> CreateOrderAsync(int userId, CreateOrderRequest request)
     {
-        // Extract cart items for the user
+        // Get cart with items and variant/product
         var cart = await _context.Carts
             .Include(c => c.Items)
                 .ThenInclude(ci => ci.Variant)
+                    .ThenInclude(v => v.Product)
             .FirstOrDefaultAsync(c => c.UserId == userId);
 
         if (cart == null || !cart.Items.Any())
             throw new InvalidOperationException("Giỏ hàng trống");
 
-        // Build JSON array for order items
-        var orderItemsJson = System.Text.Json.JsonSerializer.Serialize(
-            cart.Items.Select(ci => new
+        // Compute subtotal
+        decimal subtotal = cart.Items.Sum(ci => ci.Quantity * ci.Variant.Price);
+
+        // Voucher discount calculation
+        decimal discount = 0;
+        int? voucherId = null;
+        if (!string.IsNullOrEmpty(cart.VoucherCode))
+        {
+            var voucher = await _context.Vouchers
+                .FirstOrDefaultAsync(v => v.Code == cart.VoucherCode
+                    && v.IsActive
+                    && v.StartDate <= DateTime.UtcNow
+                    && v.EndDate >= DateTime.UtcNow
+                    && (v.UsageLimit == null || v.UsageCount < v.UsageLimit)
+                    && subtotal >= v.MinOrderValue);
+
+            if (voucher == null)
+                throw new InvalidOperationException("Voucher không hợp lệ hoặc đã hết hạn");
+
+            if (voucher.DiscountType == DiscountType.PERCENT)
             {
-                variant_id = ci.VariantId,
-                quantity = ci.Quantity,
-                price_at_time = ci.Variant.Price
-            })
-        );
+                discount = subtotal * (voucher.DiscountValue / 100);
+                if (voucher.MaxDiscountAmount.HasValue && discount > voucher.MaxDiscountAmount)
+                    discount = voucher.MaxDiscountAmount.Value;
+            }
+            else if (voucher.DiscountType == DiscountType.FIXED)
+            {
+                discount = voucher.DiscountValue;
+            }
 
-        // Build voucher code if cart has one
-        var voucherCode = cart.VoucherCode;
+            if (discount > subtotal) discount = subtotal;
+            voucherId = voucher.Id;
+        }
 
-        // Call stored procedure
-        var orderCodeParam = new Microsoft.Data.SqlClient.SqlParameter("@OrderCode", System.Data.SqlDbType.VarChar, 20)
+        // Shipping and tax (free and no tax for now)
+        decimal shippingFee = 0;
+        decimal taxAmount = 0;
+        decimal total = subtotal - discount + shippingFee + taxAmount;
+
+        // Generate unique order code
+        string orderCode = "ORD" + Guid.NewGuid().ToString("N").Substring(0, 14);
+
+        // Create order
+        var order = new Order
         {
-            Direction = System.Data.ParameterDirection.Output
+            UserId = userId,
+            Code = orderCode,
+            Subtotal = subtotal,
+            Discount = discount,
+            ShippingFee = shippingFee,
+            TaxAmount = taxAmount,
+            Total = total,
+            PaymentMethod = request.PaymentMethod,
+            ShippingAddress = request.ShippingAddressJson,
+            Status = OrderStatus.PENDING,
+            PaymentStatus = request.PaymentMethod == "COD" ? PaymentStatus.PENDING : PaymentStatus.PAID,
+            OrderType = OrderType.ONLINE,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = null
         };
-        var orderIdParam = new Microsoft.Data.SqlClient.SqlParameter("@OrderID", System.Data.SqlDbType.Int)
+
+        // Create order items
+        var orderItems = new List<OrderItem>();
+        foreach (var ci in cart.Items)
         {
-            Direction = System.Data.ParameterDirection.Output
-        };
+            var item = new OrderItem
+            {
+                Order = order,
+                VariantId = ci.VariantId,
+                ProductName = ci.Variant.Product.Name + (string.IsNullOrEmpty(ci.Variant.VariantName) ? "" : " " + ci.Variant.VariantName),
+                Sku = ci.Variant.Sku,
+                Quantity = ci.Quantity,
+                UnitPrice = ci.Variant.Price,
+                TotalPrice = ci.Quantity * ci.Variant.Price,
+                DiscountAmount = 0m,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = null
+            };
+            orderItems.Add(item);
+        }
+        order.Items = orderItems;
 
-        var parameters = new[]
+        // Reserve inventory (check availability and update)
+        // For simplicity, use default warehouse ID = 1 (assumes one warehouse)
+        int defaultWarehouseId = 1;
+        foreach (var ci in cart.Items)
         {
-            new Microsoft.Data.SqlClient.SqlParameter("@UserID", userId),
-            new Microsoft.Data.SqlClient.SqlParameter("@ShippingAddress", request.ShippingAddressJson ?? (object)DBNull.Value),
-            new Microsoft.Data.SqlClient.SqlParameter("@PaymentMethod", request.PaymentMethod ?? (object)DBNull.Value),
-            new Microsoft.Data.SqlClient.SqlParameter("@VoucherCode", string.IsNullOrEmpty(voucherCode) ? (object)DBNull.Value : voucherCode),
-            new Microsoft.Data.SqlClient.SqlParameter("@OrderItemsJSON", orderItemsJson),
-            orderIdParam,
-            orderCodeParam
+            var inventory = await _context.Inventories
+                .FirstOrDefaultAsync(i => i.WarehouseId == defaultWarehouseId && i.VariantId == ci.VariantId);
+            if (inventory == null)
+                throw new InvalidOperationException($"Không tìm thấy tồn kho cho sản phẩm {ci.VariantId}");
+
+            int available = inventory.QuantityOnHand - inventory.QuantityReserved;
+            if (available < ci.Quantity)
+                throw new InvalidOperationException($"Không đủ tồn kho cho sản phẩm {ci.VariantId}");
+
+            inventory.QuantityReserved += ci.Quantity;
+            inventory.UpdatedAt = DateTime.UtcNow;
+        }
+
+        // Create stock movements for reservation
+        foreach (var ci in cart.Items)
+        {
+            var sm = new StockMovement
+            {
+                WarehouseId = defaultWarehouseId,
+                VariantId = ci.VariantId,
+                Quantity = -ci.Quantity,
+                MovementType = MovementType.SALE_RESERVED,
+                ReferenceId = null, // will set after order saved
+                ReferenceType = "ORDER",
+                Note = $"Reserve for order {orderCode}",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = null
+            };
+            _context.StockMovements.Add(sm);
+        }
+
+        // Voucher usage and increment
+        if (voucherId.HasValue)
+        {
+            var usage = new VoucherUsage
+            {
+                VoucherId = voucherId.Value,
+                UserId = userId,
+                Order = order,
+                DiscountAmount = discount,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = null
+            };
+            _context.VoucherUsages.Add(usage);
+
+            var voucher = await _context.Vouchers.FindAsync(voucherId.Value);
+            if (voucher != null)
+            {
+                voucher.UsageCount++;
+            }
+        }
+
+        // Order status history
+        var history = new OrderStatusHistory
+        {
+            Order = order,
+            Status = OrderStatus.PENDING.ToString(),
+            Note = "Đơn hàng được tạo",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = null
         };
+        _context.OrderStatusHistories.Add(history);
 
-        await _context.ExecuteSqlRawAsync(
-            "EXEC sp_CreateOrder @UserID, @ShippingAddress, @PaymentMethod, @VoucherCode, @OrderItemsJSON, @OrderID OUTPUT, @OrderCode OUTPUT",
-            parameters
-        );
+        // Add order (cascades order items)
+        _context.Orders.Add(order);
 
-        var orderId = (int)orderIdParam.Value;
-        var orderCode = (string)orderCodeParam.Value;
+        // Clear cart items
+        cart.Items.Clear();
 
-        // Return the created order
+        // Save all changes
+        await _context.SaveChangesAsync();
+
+        // After save, we could update stock movements reference if needed:
+        // (Optional) set ReferenceId = order.Id and save again if required.
+        // For now leave NULL.
+
+        // Return the order DTO by fetching fresh
         return await GetOrderByCodeAsync(orderCode) ?? new OrderResponseDto
         {
-            Id = orderId,
-            Code = orderCode,
-            CreatedAt = DateTime.UtcNow
+            Id = order.Id,
+            Code = order.Code,
+            CreatedAt = order.CreatedAt
         };
     }
 
+    // existing GetOrdersByUserIdAsync and GetOrderByCodeAsync remain unchanged...
     public async Task<IEnumerable<OrderResponseDto>> GetOrdersByUserIdAsync(int userId, int page = 1, int pageSize = 20)
     {
         var orders = await _context.Orders
@@ -157,95 +283,28 @@ public class OrderService : IOrderService
         };
     }
 
-    public async Task<bool> CancelOrderAsync(int orderId, string reason)
+    // Stub implementations for other actions (will be implemented later)
+    public Task<bool> CancelOrderAsync(int orderId, string reason)
     {
-        var parameters = new[]
-        {
-            new Microsoft.Data.SqlClient.SqlParameter("@OrderID", orderId),
-            new Microsoft.Data.SqlClient.SqlParameter("@Reason", reason ?? (object)DBNull.Value),
-            new Microsoft.Data.SqlClient.SqlParameter("@UserID", (object)DBNull.Value)
-        };
-
-        try
-        {
-            await _context.ExecuteSqlRawAsync(
-                "EXEC sp_CancelOrder @OrderID, @Reason, @UserID",
-                parameters
-            );
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+        // TODO: Implement cancellation logic with inventory return, etc.
+        throw new NotImplementedException("CancelOrderAsync not implemented yet");
     }
 
-    public async Task<bool> ConfirmOrderAsync(int orderId, int? staffId)
+    public Task<bool> ConfirmOrderAsync(int orderId, int? staffId)
     {
-        var parameters = new[]
-        {
-            new Microsoft.Data.SqlClient.SqlParameter("@OrderID", orderId)
-        };
-
-        try
-        {
-            await _context.ExecuteSqlRawAsync(
-                "EXEC sp_ConfirmOrder @OrderID",
-                parameters
-            );
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+        // TODO: Implement confirmation
+        throw new NotImplementedException("ConfirmOrderAsync not implemented yet");
     }
 
-    public async Task<bool> ShipOrderAsync(int orderId, int warehouseId, string serialNumbersJson)
+    public Task<bool> ShipOrderAsync(int orderId, int warehouseId, string serialNumbersJson)
     {
-        // For now, we'll call sp_ShipOrder without tracking/shipping provider
-        // In production, you'd probably pass these as parameters
-        var parameters = new[]
-        {
-            new Microsoft.Data.SqlClient.SqlParameter("@OrderID", orderId),
-            new Microsoft.Data.SqlClient.SqlParameter("@TrackingNumber", string.IsNullOrEmpty(serialNumbersJson) ? (object)DBNull.Value : serialNumbersJson),
-            new Microsoft.Data.SqlClient.SqlParameter("@ShippingProvider", (object)DBNull.Value),
-            new Microsoft.Data.SqlClient.SqlParameter("@UserID", (object)DBNull.Value)
-        };
-
-        try
-        {
-            await _context.ExecuteSqlRawAsync(
-                "EXEC sp_ShipOrder @OrderID, @TrackingNumber, @ShippingProvider, @UserID",
-                parameters
-            );
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+        // TODO: Implement shipping logic
+        throw new NotImplementedException("ShipOrderAsync not implemented yet");
     }
 
-    public async Task<bool> CompleteOrderAsync(int orderId)
+    public Task<bool> CompleteOrderAsync(int orderId)
     {
-        var parameters = new[]
-        {
-            new Microsoft.Data.SqlClient.SqlParameter("@OrderID", orderId),
-            new Microsoft.Data.SqlClient.SqlParameter("@UserID", (object)DBNull.Value)
-        };
-
-        try
-        {
-            await _context.ExecuteSqlRawAsync(
-                "EXEC sp_CompleteOrder @OrderID, @UserID",
-                parameters
-            );
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+        // TODO: Implement completion logic
+        throw new NotImplementedException("CompleteOrderAsync not implemented yet");
     }
 }

@@ -42,8 +42,19 @@ public class CartController : ControllerBase
             return BadRequest(new { error = "ValidationFailed", details = validation.Errors });
 
         var userId = GetCurrentUserId();
-        var cart = await _cartService.AddItemAsync(userId, request);
-        return Ok(cart);
+        try
+        {
+            var cart = await _cartService.AddItemAsync(userId, request);
+            return Ok(cart);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = "ValidationError", message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = "CartError", message = ex.Message });
+        }
     }
 
     [HttpPut("items/{itemId:int}")]
@@ -54,8 +65,19 @@ public class CartController : ControllerBase
             return BadRequest(new { error = "ValidationFailed", details = validation.Errors });
 
         var userId = GetCurrentUserId();
-        var cart = await _cartService.UpdateItemAsync(userId, itemId, request.Quantity);
-        return Ok(cart);
+        try
+        {
+            var cart = await _cartService.UpdateItemAsync(userId, itemId, request.Quantity);
+            return Ok(cart);
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = "ValidationError", message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { error = "CartError", message = ex.Message });
+        }
     }
 
     [HttpDelete("items/{itemId:int}")]

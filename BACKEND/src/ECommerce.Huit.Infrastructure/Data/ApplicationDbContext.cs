@@ -1,4 +1,5 @@
 using System.Data.Common;
+using System.Text;
 using ECommerce.Huit.Application.Common.Interfaces;
 using ECommerce.Huit.Domain.Entities;
 using ECommerce.Huit.Domain.Enums;
@@ -75,6 +76,56 @@ public class ApplicationDbContext : DbContext, IApplicationDbContext
             new ECommerce.Huit.Domain.Entities.Permission { Id = 2, Code = "products.create", Name = "Tạo sản phẩm", Module = "PRODUCT" }
             // ... add more
         );
+
+        // Apply snake_case naming convention for columns and tables to match existing database schema
+        foreach (var entity in modelBuilder.Model.GetEntityTypes())
+        {
+            // Map columns to snake_case
+            foreach (var property in entity.GetProperties())
+            {
+                property.SetColumnName(ToSnakeCase(property.Name));
+            }
+
+            // Map tables to existing snake_case table names
+            var defaultTableName = entity.GetTableName(); // usually the DbSet property name or entity name
+            if (defaultTableName != null)
+            {
+                // Handle special cases where table name doesn't follow simple snake_case conversion of DbSet name
+                var snakeCaseTable = ToSnakeCase(defaultTableName);
+
+                // Special case: OrderStatusHistories -> order_status_history (singular)
+                if (defaultTableName == "OrderStatusHistories")
+                {
+                    entity.SetTableName("order_status_history");
+                }
+                else
+                {
+                    entity.SetTableName(snakeCaseTable);
+                }
+            }
+        }
+    }
+
+    private static string ToSnakeCase(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+            return name;
+
+        var sb = new StringBuilder();
+        for (var i = 0; i < name.Length; i++)
+        {
+            if (char.IsUpper(name[i]))
+            {
+                if (i > 0)
+                    sb.Append('_');
+                sb.Append(char.ToLowerInvariant(name[i]));
+            }
+            else
+            {
+                sb.Append(name[i]);
+            }
+        }
+        return sb.ToString();
     }
 
     public override int SaveChanges()

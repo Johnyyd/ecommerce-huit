@@ -26,4 +26,8 @@ public interface IApplicationDbContext : IDisposable
     DbSet<Warehouse> Warehouses { get; }
     DbSet<Voucher> Vouchers { get; }
     DbSet<Address> Addresses { get; }
+    DbSet<StockMovement> StockMovements { get; }
+    DbSet<VoucherUsage> VoucherUsages { get; }
+    DbSet<OrderStatusHistory> OrderStatusHistories { get; }
+    DbSet<OrderItemSerial> OrderItemSerials { get; }
 }

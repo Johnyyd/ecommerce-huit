@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace ECommerce.Huit.Application.DTOs.Auth;
 
@@ -6,6 +7,7 @@ public class RegisterDto
 {
     [Required]
     [StringLength(100)]
+    [JsonPropertyName("full_name")]
     public string FullName { get; set; } = string.Empty;
 
     [Required]

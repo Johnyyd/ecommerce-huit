@@ -4,6 +4,7 @@ import { Menu as MenuIcon, X as XIcon } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { toast } from 'react-hot-toast'
+import { cn } from '@/utils/format'
 
 const navigation = [
   { name: 'Trang chủ', href: '/' },

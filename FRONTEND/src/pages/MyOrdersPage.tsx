@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { useQuery } from 'react-query'
 import { orderApi } from '@/api'
 import { useAuthStore } from '@/store/authStore'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import Button from '@/components/ui/Button'
 import { formatCurrency } from '@/utils/format'
 import { Link } from 'react-router-dom'
 
@@ -63,14 +65,14 @@ const MyOrdersPage = () => {
                 </div>
 
                 <div className="border-t pt-4">
-                  {order.items.slice(0, 3).map((item: any, idx: number) => (
+                  {(order.items || []).slice(0, 3).map((item: any, idx: number) => (
                     <div key={idx} className="flex justify-between text-sm mb-2">
                       <span>{item.product_name} x{item.quantity}</span>
                       <span>{formatCurrency(item.total_price)}</span>
                     </div>
                   ))}
-                  {order.items.length > 3 && (
-                    <p className="text-sm text-gray-500">+{order.items.length - 3} sản phẩm khác</p>
+                  {(order.items || []).length > 3 && (
+                    <p className="text-sm text-gray-500">+{(order.items || []).length - 3} sản phẩm khác</p>
                   )}
                 </div>
 

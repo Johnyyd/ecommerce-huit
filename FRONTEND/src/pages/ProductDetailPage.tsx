@@ -40,6 +40,8 @@ const ProductDetailPage = () => {
 
   const mainImage = product.variants[0]?.thumbnail_url || 'https://via.placeholder.com/600'
 
+  const variants = product.variants || []
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -71,11 +73,11 @@ const ProductDetailPage = () => {
 
           <div className="flex items-center gap-4 mb-6">
             <span className="text-4xl font-bold text-red-600">
-              {formatCurrency(product.variants[0]?.price || 0)}
+              {formatCurrency(variants[0]?.price || 0)}
             </span>
-            {product.variants[0]?.original_price && (
+            {variants[0]?.original_price && (
               <span className="text-xl text-gray-400 line-through">
-                {formatCurrency(product.variants[0].original_price)}
+                {formatCurrency(variants[0].original_price)}
               </span>
             )}
           </div>
@@ -83,11 +85,11 @@ const ProductDetailPage = () => {
           <p className="text-gray-700 mb-6">{product.description || 'Chưa có mô tả.'}</p>
 
           {/* Variant selection */}
-          {product.variants.length > 1 && (
+          {variants.length > 1 && (
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">Biến thể</label>
               <div className="flex flex-wrap gap-2">
-                {product.variants.map((variant) => (
+                {variants.map((variant) => (
                   <button
                     key={variant.id}
                     onClick={() => setSelectedVariantId(variant.id)}
@@ -137,7 +139,7 @@ const ProductDetailPage = () => {
 
           {/* Stock info */}
           <p className="mt-4 text-sm text-gray-500">
-            Còn lại: {product.variants[0]?.quantity_available || 0} sản phẩm
+            Còn lại: {variants[0]?.quantity_available || 0} sản phẩm
           </p>
         </div>
       </div>

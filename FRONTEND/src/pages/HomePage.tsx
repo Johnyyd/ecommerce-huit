@@ -16,9 +16,10 @@ const HomePage = () => {
     const fetchProducts = async () => {
       try {
         const data = await productApi.getProducts({ page: 1, pageSize: 8 })
-        setProducts(data.data)
+        setProducts(data || [])
       } catch (error) {
         toast.error('Không thể tải sản phẩm')
+        setProducts([])
       } finally {
         setLoading(false)
       }
@@ -27,12 +28,24 @@ const HomePage = () => {
     fetchProducts()
   }, [])
 
-  const handleAddToCart = (variantId: number) => {
+  const handleAddToCart = async (productId: number) => {
     if (!user) {
       toast.info('Vui lòng đăng nhập để thêm vào giỏ hàng')
       return
     }
-    addItem(user.id, variantId, 1)
+    try {
+      // Fetch full product to get variant ID
+      const product = await productApi.getProductById(productId)
+      const variant = product.variants?.[0]
+      if (!variant) {
+        toast.error('Sản phẩm chưa có biến thể')
+        return
+      }
+      await addItem(user.id, variant.id, 1)
+      toast.success('Đã thêm vào giỏ hàng')
+    } catch (error) {
+      toast.error('Không thể thêm sản phẩm')
+    }
   }
 
   return (
@@ -77,11 +90,10 @@ const HomePage = () => {
                   key={product.id}
                   id={product.id}
                   name={product.name}
-                  price={product.price}
-                  originalPrice={product.original_price}
+                  price={product.priceFrom}
                   imageUrl={product.thumbnail_url || 'https://via.placeholder.com/300'}
-                  brand={product.brand_name}
-                  category={product.category_name}
+                  brand={product.brand?.name}
+                  category={product.category?.name}
                   onAddToCart={handleAddToCart}
                 />
               ))}

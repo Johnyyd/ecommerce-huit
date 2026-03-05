@@ -33,9 +33,8 @@ public class AuthService : IAuthService
                 throw new InvalidOperationException("Số điện thoại đã được sử dụng");
         }
 
-        // Hash password (use BCrypt or similar)
-        // For now: simple placeholder (NEVER store plain text!)
-        var passwordHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(registerDto.Password));
+        // NOTE: Dev only – store plain text password
+        var passwordHash = registerDto.Password;
 
         var user = new User
         {
@@ -77,10 +76,8 @@ public class AuthService : IAuthService
         if (user == null)
             return null;
 
-        // Verify password (compare hash)
-        // This is a placeholder - use proper password hashing!
-        var inputPasswordHash = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(loginDto.Password));
-        if (user.PasswordHash != inputPasswordHash)
+        // Dev only: compare plain text passwords
+        if (user.PasswordHash != loginDto.Password)
             return null;
 
         user.LastLogin = DateTime.UtcNow;

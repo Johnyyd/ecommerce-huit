@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import { orderApi } from '@/api'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import Button from '@/components/ui/Button'
 import { formatCurrency } from '@/utils/format'
 
 const OrderDetailPage = () => {
@@ -58,7 +59,7 @@ const OrderDetailPage = () => {
         <div className="border-t pt-6 mb-6">
           <h2 className="text-lg font-semibold mb-4">Sản phẩm</h2>
           <div className="space-y-4">
-            {order?.items.map((item: any) => (
+            {(order?.items || []).map((item: any) => (
               <div key={item.id} className="flex justify-between items-center">
                 <div>
                   <p className="font-medium">{item.product_name}</p>
@@ -122,7 +123,7 @@ const OrderDetailPage = () => {
           <div className="border-t pt-6 mt-6">
             <h3 className="font-semibold mb-4">Lịch sử trạng thái</h3>
             <ul className="space-y-2">
-              {order.status_history.map((history: any) => (
+              {(order.status_history || []).map((history: any) => (
                 <li key={history.id} className="text-sm text-gray-600">
                   <span className="font-medium">{history.status}</span>
                   {history.note && <span> - {history.note}</span>}

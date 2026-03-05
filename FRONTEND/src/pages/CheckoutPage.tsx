@@ -27,7 +27,7 @@ const CheckoutPage = () => {
     return null
   }
 
-  if (!cart || cart.items.length === 0) {
+  if (!cart || !cart.items || cart.items.length === 0) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
         <h2 className="text-2xl font-bold mb-4">Giỏ hàng trống</h2>
@@ -45,10 +45,12 @@ const CheckoutPage = () => {
 
     try {
       const shippingAddressJson = JSON.stringify(shippingAddress)
-      const response = await orderApi.createOrder(user.id, {
-        shipping_address_json: shippingAddressJson,
-        payment_method: paymentMethod,
-      })
+      const payload = {
+        paymentMethod: paymentMethod,
+        shippingAddressJson: shippingAddressJson,
+      }
+      console.log('Checkout payload:', payload)
+      const response = await orderApi.createOrder(user.id, payload)
 
       toast.success('Đặt hàng thành công!')
       await fetchCart(user.id) // refresh cart
@@ -173,7 +175,7 @@ const CheckoutPage = () => {
           <div className="bg-white rounded-lg shadow border p-6 sticky top-24">
             <h2 className="text-lg font-semibold mb-4">Đơn hàng</h2>
             <div className="space-y-4 mb-6">
-              {cart.items.map((item) => (
+              {(cart.items || []).map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
                   <span>
                     {item.variant.variant_name || item.variant.sku} x {item.quantity}

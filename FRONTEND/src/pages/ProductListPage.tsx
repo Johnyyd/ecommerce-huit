@@ -27,16 +27,28 @@ const ProductListPage = () => {
     queryFn: () => productApi.getProducts({ page, pageSize: 12, ...filters }),
   })
 
-  const handleAddToCart = (variantId: number) => {
+  const handleAddToCart = async (productId: number) => {
     if (!user) {
       toast.info('Vui lòng đăng nhập để thêm vào giỏ hàng')
       return
     }
-    addItem(user.id, variantId, 1)
+    try {
+      // Fetch full product to get variant ID
+      const product = await productApi.getProductById(productId)
+      const variant = product.variants?.[0]
+      if (!variant) {
+        toast.error('Sản phẩm chưa có biến thể')
+        return
+      }
+      await addItem(user.id, variant.id, 1)
+      toast.success('Đã thêm vào giỏ hàng')
+    } catch (error) {
+      toast.error('Không thể thêm sản phẩm')
+    }
   }
 
-  const products = data?.data || []
-  const pagination = data?.pagination
+  const products = data || []
+  const pagination = null // TODO: implement pagination from headers
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -105,10 +117,10 @@ const ProductListPage = () => {
                     key={product.id}
                     id={product.id}
                     name={product.name}
-                    price={product.price}
+                    price={product.priceFrom}
                     imageUrl={product.thumbnail_url || ''}
-                    brand={product.brand_name}
-                    category={product.category_name}
+                    brand={product.brand?.name}
+                    category={product.category?.name}
                     onAddToCart={handleAddToCart}
                   />
                 ))}

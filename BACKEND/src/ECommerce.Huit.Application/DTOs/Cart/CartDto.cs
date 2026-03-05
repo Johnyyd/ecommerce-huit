@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using ECommerce.Huit.Application.DTOs.Product;
 using ECommerce.Huit.Application.DTOs.Voucher;
 
@@ -23,11 +24,15 @@ public class CartItemDto
 
 public class AddCartItemRequest
 {
+    [JsonPropertyName("variant_id")]
     public int VariantId { get; set; }
+
+    [JsonPropertyName("quantity")]
     public int Quantity { get; set; } = 1;
 }
 
 public class UpdateCartItemRequest
 {
+    [JsonPropertyName("quantity")]
     public int Quantity { get; set; }
 }

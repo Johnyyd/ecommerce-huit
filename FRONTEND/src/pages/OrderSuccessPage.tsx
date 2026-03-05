@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useQuery } from 'react-query'
 import { orderApi } from '@/api'
 import LoadingSpinner from '@/components/ui/LoadingSpinner'
+import Button from '@/components/ui/Button'
 import { formatCurrency } from '@/utils/format'
 
 const OrderSuccessPage = () => {

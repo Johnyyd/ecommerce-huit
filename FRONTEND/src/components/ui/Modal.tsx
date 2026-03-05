@@ -1,3 +1,4 @@
+import { cn } from '@/utils/format'
 import { Button } from './Button'
 
 interface ModalProps {
