@@ -19,7 +19,12 @@ const CartPage = () => {
 
   const handleUpdateQuantity = async (itemId: number, newQuantity: number) => {
     if (!user) return
-    await updateItem(user.id, itemId, newQuantity)
+    // Nếu quantity <= 0 thì xóa item thay vì update
+    if (newQuantity <= 0) {
+      await handleRemove(itemId)
+    } else {
+      await updateItem(user.id, itemId, newQuantity)
+    }
   }
 
   const handleRemove = async (itemId: number) => {
@@ -79,13 +84,13 @@ const CartPage = () => {
                   }`}
                 >
                   <img
-                    src={item.variant.thumbnail_url || 'https://via.placeholder.com/100'}
+                    src={item.variant.thumbnailUrl || 'https://via.placeholder.com/100'}
                     alt=""
                     className="w-20 h-20 object-cover rounded"
                   />
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-900">{item.variant.sku}</h3>
-                    <p className="text-gray-600 text-sm">{item.variant.variant_name}</p>
+                    <p className="text-gray-600 text-sm">{item.variant.variantName}</p>
                     <p className="text-red-600 font-bold mt-1">
                       {formatCurrency(item.variant.price)}
                     </p>
@@ -108,7 +113,7 @@ const CartPage = () => {
                   </div>
 
                   <div className="text-right">
-                    <p className="font-semibold">{formatCurrency(item.line_total)}</p>
+                    <p className="font-semibold">{formatCurrency(item.lineTotal)}</p>
                     <button
                       onClick={() => handleRemove(item.id)}
                       className="text-red-500 text-sm hover:underline mt-1"

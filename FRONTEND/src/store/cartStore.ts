@@ -22,7 +22,7 @@ const defaultCart: CartDto = {
   subtotal: 0,
   discount: 0,
   total: 0,
-  applied_voucher: null,
+  appliedVoucher: null,
 }
 
 export const useCartStore = create<CartStore>()(
@@ -47,7 +47,7 @@ export const useCartStore = create<CartStore>()(
       addItem: async (userId: number, variantId: number, quantity: number) => {
         set({ loading: true, error: null })
         try {
-          const cart = await cartApi.addItem(userId, { variant_id: variantId, quantity })
+          const cart = await cartApi.addItem(userId, { variantId, quantity })
           set({ cart, loading: false })
           console.log('addItem result:', cart)
         } catch (error: any) {

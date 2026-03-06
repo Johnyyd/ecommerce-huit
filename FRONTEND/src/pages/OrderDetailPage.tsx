@@ -40,7 +40,7 @@ const OrderDetailPage = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Đơn hàng {order?.code}</h1>
-            <p className="text-gray-500">Ngày đặt: {new Date(order?.created_at).toLocaleDateString('vi-VN')}</p>
+            <p className="text-gray-500">Ngày đặt: {new Date(order?.createdAt).toLocaleDateString('vi-VN')}</p>
           </div>
           <div className="mt-4 md:mt-0">
             <span className={`inline-block px-4 py-2 rounded-full text-sm font-semibold ${
@@ -62,15 +62,15 @@ const OrderDetailPage = () => {
             {(order?.items || []).map((item: any) => (
               <div key={item.id} className="flex justify-between items-center">
                 <div>
-                  <p className="font-medium">{item.product_name}</p>
+                  <p className="font-medium">{item.productName}</p>
                   <p className="text-sm text-gray-500">{item.sku}</p>
-                  {item.serial_numbers && item.serial_numbers.length > 0 && (
-                    <p className="text-xs text-gray-400">Serial: {item.serial_numbers.join(', ')}</p>
+                  {item.serialNumbers && item.serialNumbers.length > 0 && (
+                    <p className="text-xs text-gray-400">Serial: {item.serialNumbers.join(', ')}</p>
                   )}
                 </div>
                 <div className="text-right">
-                  <p className="font-medium">{formatCurrency(item.unit_price)} x {item.quantity}</p>
-                  <p className="text-red-600 font-bold">{formatCurrency(item.total_price)}</p>
+                  <p className="font-medium">{formatCurrency(item.unitPrice)} x {item.quantity}</p>
+                  <p className="text-red-600 font-bold">{formatCurrency(item.totalPrice)}</p>
                 </div>
               </div>
             ))}
@@ -91,7 +91,7 @@ const OrderDetailPage = () => {
           )}
           <div className="flex justify-between text-sm">
             <span className="text-gray-600">Phí vận chuyển</span>
-            <span>{formatCurrency(order?.shipping_fee)}</span>
+            <span>{formatCurrency(order?.shippingFee)}</span>
           </div>
           <div className="flex justify-between text-lg font-bold pt-2 border-t">
             <span>Tổng cộng</span>
@@ -103,9 +103,9 @@ const OrderDetailPage = () => {
         <div className="border-t pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <h3 className="font-semibold mb-2">Địa chỉ giao hàng</h3>
-            {order?.shipping_address_json ? (
+            {order?.shippingAddressJson ? (
               <pre className="text-sm text-gray-600 whitespace-pre-wrap">
-                {JSON.stringify(JSON.parse(order.shipping_address_json), null, 2)}
+                {JSON.stringify(JSON.parse(order.shippingAddressJson), null, 2)}
               </pre>
             ) : (
               <p className="text-sm text-gray-500">Không có thông tin</p>
@@ -113,22 +113,22 @@ const OrderDetailPage = () => {
           </div>
           <div>
             <h3 className="font-semibold mb-2">Thanh toán</h3>
-            <p className="text-sm text-gray-600">{order?.payment_method}</p>
-            <p className="text-sm text-gray-600">Trạng thái: {order?.payment_status}</p>
+            <p className="text-sm text-gray-600">{order?.paymentMethod}</p>
+            <p className="text-sm text-gray-600">Trạng thái: {order?.paymentStatus}</p>
           </div>
         </div>
 
         {/* Status history */}
-        {order?.status_history && order.status_history.length > 0 && (
+        {order?.statusHistory && order.statusHistory.length > 0 && (
           <div className="border-t pt-6 mt-6">
             <h3 className="font-semibold mb-4">Lịch sử trạng thái</h3>
             <ul className="space-y-2">
-              {(order.status_history || []).map((history: any) => (
+              {(order.statusHistory || []).map((history: any) => (
                 <li key={history.id} className="text-sm text-gray-600">
                   <span className="font-medium">{history.status}</span>
                   {history.note && <span> - {history.note}</span>}
                   <span className="text-xs text-gray-400 ml-2">
-                    {new Date(history.created_at).toLocaleString('vi-VN')}
+                    {new Date(history.createdAt).toLocaleString('vi-VN')}
                   </span>
                 </li>
               ))}

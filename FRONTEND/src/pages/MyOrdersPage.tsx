@@ -50,7 +50,7 @@ const MyOrdersPage = () => {
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                   <div>
                     <p className="font-semibold text-gray-900">Mã đơn: {order.code}</p>
-                    <p className="text-sm text-gray-500">Ngày: {new Date(order.created_at).toLocaleDateString('vi-VN')}</p>
+                    <p className="text-sm text-gray-500">Ngày: {new Date(order.createdAt).toLocaleDateString('vi-VN')}</p>
                   </div>
                   <div className="mt-2 md:mt-0">
                     <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${
@@ -67,8 +67,8 @@ const MyOrdersPage = () => {
                 <div className="border-t pt-4">
                   {(order.items || []).slice(0, 3).map((item: any, idx: number) => (
                     <div key={idx} className="flex justify-between text-sm mb-2">
-                      <span>{item.product_name} x{item.quantity}</span>
-                      <span>{formatCurrency(item.total_price)}</span>
+                      <span>{item.productName} x{item.quantity}</span>
+                      <span>{formatCurrency(item.totalPrice)}</span>
                     </div>
                   ))}
                   {(order.items || []).length > 3 && (

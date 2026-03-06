@@ -33,7 +33,7 @@ export const useAuthStore = create<AuthStore>()(
       login: async (email: string, password: string) => {
         set({ loading: true, error: null })
         try {
-          const response: AuthResponseDto = await authApi.login({ email, password })
+          const response = await authApi.login({ email, password })
           set({
             user: {
               id: response.id,
@@ -58,7 +58,7 @@ export const useAuthStore = create<AuthStore>()(
       register: async (data) => {
         set({ loading: true, error: null })
         try {
-          const response: AuthResponseDto = await authApi.register(data)
+          const response = await authApi.register(data)
           set({
             user: {
               id: response.id,

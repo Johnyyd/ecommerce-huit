@@ -178,9 +178,9 @@ const CheckoutPage = () => {
               {(cart.items || []).map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
                   <span>
-                    {item.variant.variant_name || item.variant.sku} x {item.quantity}
+                    {item.variant.variantName || item.variant.sku} x {item.quantity}
                   </span>
-                  <span>{formatCurrency(item.line_total)}</span>
+                  <span>{formatCurrency(item.lineTotal)}</span>
                 </div>
               ))}
             </div>

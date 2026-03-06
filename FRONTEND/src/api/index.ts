@@ -12,7 +12,7 @@ export const authApi = {
     api.post('/api/auth/login', data),
 
   refresh: (data: { refresh_token: string }) =>
-    api.post('/api/auth/refresh', data),
+    api.post('/api/auth/refresh-token', data),
 
   logout: () => api.post('/api/auth/logout'),
 }
@@ -36,24 +36,21 @@ export const productApi = {
 }
 
 export const cartApi = {
-  getCart: (userId: number) => api.get(`/api/cart?userId=${userId}`),
+  getCart: (userId: number) => api.get('/api/cart'),
 
-  addItem: (userId: number, data: { variant_id: number; quantity: number }) =>
-    api.post(`/api/cart/items?userId=${userId}`, data),
+  addItem: (userId: number, data: { variantId: number; quantity: number }) =>
+    api.post('/api/cart/items', data),
 
-  updateItem: (
-    userId: number,
-    itemId: number,
-    data: { quantity: number }
-  ) => api.put(`/api/cart/items/${itemId}?userId=${userId}`, data),
+  updateItem: (userId: number, itemId: number, data: { quantity: number }) =>
+    api.put(`/api/cart/items/${itemId}`, data),
 
   removeItem: (userId: number, itemId: number) =>
-    api.delete(`/api/cart/items/${itemId}?userId=${userId}`),
+    api.delete(`/api/cart/items/${itemId}`),
 
   applyVoucher: (userId: number, code: string) =>
-    api.post(`/api/cart/apply-voucher?userId=${userId}&code=${code}`),
+    api.post('/api/cart/apply-voucher', { code }),
 
-  clearCart: (userId: number) => api.post(`/api/cart/clear?userId=${userId}`),
+  clearCart: (userId: number) => api.delete('/api/cart/clear'),
 }
 
 export const orderApi = {
@@ -64,16 +61,16 @@ export const orderApi = {
       shippingAddressJson: string
       note?: string
     }
-  ) => api.post(`/api/orders?userId=${userId}`, data),
+  ) => api.post('/api/orders', data),
 
   getOrders: (userId: number, params?: { page?: number; pageSize?: number }) =>
-    api.get(`/api/orders?userId=${userId}`, { params }),
+    api.get('/api/orders', { params }),
 
   getOrderByCode: (userId: number, orderCode: string) =>
-    api.get(`/api/orders/${orderCode}?userId=${userId}`),
+    api.get(`/api/orders/${orderCode}`),
 
   cancelOrder: (userId: number, orderId: number, reason: string) =>
-    api.put(`/api/orders/${orderId}/cancel?userId=${userId}&reason=${reason}`),
+    api.post(`/api/orders/${orderId}/cancel`, { reason }),
 
   // Admin only
   getAdminOrders: (params?: { status?: string; page?: number; pageSize?: number }) =>

@@ -91,7 +91,7 @@ const HomePage = () => {
                   id={product.id}
                   name={product.name}
                   price={product.priceFrom}
-                  imageUrl={product.thumbnail_url || 'https://via.placeholder.com/300'}
+                  imageUrl={product.thumbnailUrl || 'https://via.placeholder.com/300'}
                   brand={product.brand?.name}
                   category={product.category?.name}
                   onAddToCart={handleAddToCart}

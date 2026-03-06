@@ -38,7 +38,7 @@ const ProductDetailPage = () => {
   if (isLoading) return <div className="flex justify-center py-12"><LoadingSpinner size="lg" /></div>
   if (error || !product) return <div className="text-center py-12 text-red-600">Không tìm thấy sản phẩm</div>
 
-  const mainImage = product.variants[0]?.thumbnail_url || 'https://via.placeholder.com/600'
+  const mainImage = product.variants[0]?.thumbnailUrl || 'https://via.placeholder.com/600'
 
   const variants = product.variants || []
 
@@ -67,17 +67,17 @@ const ProductDetailPage = () => {
 
           <h1 className="text-3xl font-bold text-gray-900 mb-4">{product.name}</h1>
 
-          {product.brand_name && (
-            <p className="text-gray-600 mb-2">Thương hiệu: {product.brand_name}</p>
+          {product.brand && (
+            <p className="text-gray-600 mb-2">Thương hiệu: {product.brand.name}</p>
           )}
 
           <div className="flex items-center gap-4 mb-6">
             <span className="text-4xl font-bold text-red-600">
               {formatCurrency(variants[0]?.price || 0)}
             </span>
-            {variants[0]?.original_price && (
+            {variants[0]?.originalPrice && (
               <span className="text-xl text-gray-400 line-through">
-                {formatCurrency(variants[0].original_price)}
+                {formatCurrency(variants[0].originalPrice)}
               </span>
             )}
           </div>
@@ -99,7 +99,7 @@ const ProductDetailPage = () => {
                         : 'border-gray-300 hover:border-primary-300'
                     }`}
                   >
-                    {variant.variant_name || variant.sku}
+                    {variant.variantName || variant.sku}
                   </button>
                 ))}
               </div>
@@ -139,7 +139,7 @@ const ProductDetailPage = () => {
 
           {/* Stock info */}
           <p className="mt-4 text-sm text-gray-500">
-            Còn lại: {variants[0]?.quantity_available || 0} sản phẩm
+            Còn lại: {variants[0]?.quantityAvailable || 0} sản phẩm
           </p>
         </div>
       </div>

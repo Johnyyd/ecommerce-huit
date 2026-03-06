@@ -2,24 +2,26 @@
 export interface ProductVariantDto {
   id: number
   sku: string
-  variant_name?: string
+  variantName?: string
   price: number
-  original_price?: number
-  thumbnail_url?: string
-  quantity_available: number
+  originalPrice?: number
+  thumbnailUrl?: string
+  quantityAvailable: number
 }
 
 export interface ProductListDto {
   id: number
   name: string
   slug: string
-  brand_name?: string
-  category_name?: string
-  variant_name?: string
+  brand?: BrandDto
+  category?: CategoryDto
+  variantName?: string
   price: number
-  original_price?: number
-  thumbnail_url?: string
-  is_featured?: boolean
+  priceFrom?: number
+  priceTo?: number
+  originalPrice?: number
+  thumbnailUrl?: string
+  isFeatured?: boolean
 }
 
 export interface ProductDetailDto {
@@ -27,20 +29,20 @@ export interface ProductDetailDto {
   name: string
   slug: string
   description?: string
-  brand_name?: string
-  category_name?: string
+  brand?: BrandDto
+  category?: CategoryDto
   variants: ProductVariantDto[]
   images: string[]
-  is_featured?: boolean
-  created_at: string
+  isFeatured?: boolean
+  createdAt: string
 }
 
 export interface CategoryDto {
   id: number
   name: string
   slug: string
-  parent_id?: number
-  is_active: boolean
+  parentId?: number
+  isActive: boolean
 }
 
 export interface BrandDto {
@@ -66,7 +68,7 @@ export interface CartItemDto {
   id: number
   variant: ProductVariantDto
   quantity: number
-  line_total: number
+  lineTotal: number
 }
 
 export interface CartDto {
@@ -75,11 +77,11 @@ export interface CartDto {
   subtotal: number
   discount: number
   total: number
-  applied_voucher?: VoucherDto | null
+  appliedVoucher?: VoucherDto | null
 }
 
 export interface AddCartItemRequest {
-  variant_id: number
+  variantId: number
   quantity: number
 }
 
@@ -90,19 +92,19 @@ export interface UpdateCartItemRequest {
 // Order types
 export interface OrderItemDto {
   id: number
-  product_name: string
+  productName: string
   sku: string
   quantity: number
-  unit_price: number
-  total_price: number
-  serial_numbers?: string[]
+  unitPrice: number
+  totalPrice: number
+  serialNumbers?: string[]
 }
 
 export interface OrderStatusHistoryDto {
   id: number
   status: string
   note?: string
-  created_at: string
+  createdAt: string
 }
 
 export interface OrderResponseDto {
@@ -110,21 +112,21 @@ export interface OrderResponseDto {
   code: string
   subtotal: number
   discount: number
-  shipping_fee: number
+  shippingFee: number
   total: number
-  payment_method: string
-  payment_status: string
+  paymentMethod: string
+  paymentStatus: string
   status: string
-  shipping_address_json?: string
+  shippingAddressJson?: string
   note?: string
-  created_at: string
+  createdAt: string
   items: OrderItemDto[]
-  status_history: OrderStatusHistoryDto[]
+  statusHistory: OrderStatusHistoryDto[]
 }
 
 export interface CreateOrderRequest {
-  shipping_address_json: string
-  payment_method: string
+  shippingAddressJson: string
+  paymentMethod: string
   note?: string
 }
 
@@ -163,11 +165,11 @@ export interface UserDto {
 export interface VoucherDto {
   id: number
   code: string
-  discount_type: 'PERCENT' | 'FIXED'
-  discount_value: number
-  max_discount_amount?: number
-  min_order_amount?: number
-  expires_at?: string
+  discountType: 'PERCENT' | 'FIXED'
+  discountValue: number
+  maxDiscountAmount?: number
+  minOrderAmount?: number
+  expiresAt?: string
 }
 
 export interface ApplyVoucherRequest {
@@ -194,31 +196,31 @@ export interface ApiResponse<T> {
 export interface AddressDto {
   id: number
   label: string
-  receiver_name: string
-  receiver_phone: string
+  receiverName: string
+  receiverPhone: string
   province: string
   district: string
   ward: string
-  street_address: string
-  is_default: boolean
+  streetAddress: string
+  isDefault: boolean
 }
 
 // Admin/Inventory
 export interface InventoryDto {
-  product_name: string
-  variant_sku: string
-  warehouse_name: string
-  quantity_on_hand: number
-  quantity_reserved: number
+  productName: string
+  variantSku: string
+  warehouseName: string
+  quantityOnHand: number
+  quantityReserved: number
 }
 
 // Payment
 export interface PaymentDto {
   id: number
-  order_id: number
+  orderId: number
   method: string
   amount: number
   status: string
-  paid_at?: string
-  transaction_id?: string
+  paidAt?: string
+  transactionId?: string
 }
