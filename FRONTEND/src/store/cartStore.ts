@@ -14,6 +14,7 @@ interface CartStore {
   removeItem: (userId: number, itemId: number) => Promise<void>
   applyVoucher: (userId: number, code: string) => Promise<void>
   clearCart: (userId: number) => Promise<void>
+  setCart: (cart: CartDto) => void
 }
 
 const defaultCart: CartDto = {
@@ -99,6 +100,8 @@ export const useCartStore = create<CartStore>()(
           toast.error('Không thể xóa giỏ hàng')
         }
       },
+
+      setCart: (cart) => set({ cart }),
     }),
     {
       name: 'cart-storage',

@@ -11,7 +11,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Text;
-using System.Text.Json;
 using StackExchange.Redis;
 using ECommerce.Huit.Application.Services;
 using ECommerce.Huit.Application.Validators.Auth;
@@ -29,11 +28,7 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // Add services
-builder.Services.AddControllers()
-    .AddJsonOptions(options =>
-    {
-        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-    });
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 
 // Configure Swagger with JWT
@@ -200,7 +195,7 @@ using (var scope = app.Services.CreateScope())
             FullName = "Nguyễn Minh Trí",
             Email = "admin@huit.edu.vn",
             Phone = "0909000001",
-            PasswordHash = "admin123",
+            PasswordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes("admin123")),
             Role = ECommerce.Huit.Domain.Enums.UserRole.ADMIN,
             Status = ECommerce.Huit.Domain.Enums.UserStatus.ACTIVE,
             CreatedAt = DateTime.UtcNow
@@ -214,7 +209,7 @@ using (var scope = app.Services.CreateScope())
             FullName = "Phạm Khách Hàng A",
             Email = "customerA@gmail.com",
             Phone = "0909000004",
-            PasswordHash = "customer123",
+            PasswordHash = Convert.ToBase64String(Encoding.UTF8.GetBytes("customer123")),
             Role = ECommerce.Huit.Domain.Enums.UserRole.CUSTOMER,
             Status = ECommerce.Huit.Domain.Enums.UserStatus.ACTIVE,
             CreatedAt = DateTime.UtcNow

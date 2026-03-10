@@ -14,4 +14,5 @@ public class ProductListDto
     public decimal RatingAverage { get; set; }
     public int ReviewCount { get; set; }
     public bool IsFeatured { get; set; }
+    public int? DefaultVariantId { get; set; }
 }

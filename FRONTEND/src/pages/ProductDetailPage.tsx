@@ -23,13 +23,21 @@ const ProductDetailPage = () => {
 
   const product = data?.data
 
+  // Auto-select first variant if only one exists
+  useEffect(() => {
+    if (product?.variants?.length === 1 && !selectedVariantId) {
+      setSelectedVariantId(product.variants[0].id)
+    }
+  }, [product, selectedVariantId])
+
   const handleAddToCart = () => {
     if (!user) {
       toast.info('Vui lòng đăng nhập để thêm vào giỏ hàng')
       return
     }
-    if (!selectedVariantId) {
-      toast.error('Vui lòng chọn biến thể')
+    // Check if variantId is valid (> 0)
+    if (!selectedVariantId || selectedVariantId <= 0) {
+      toast.error('Vui lòng chọn biến thể sản phẩm')
       return
     }
     addItem(user.id, selectedVariantId, quantity)

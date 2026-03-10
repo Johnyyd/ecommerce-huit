@@ -179,7 +179,8 @@ public class ProductService : IProductService
             PriceFrom = variantWithStock.Any() ? variantWithStock.Min(v => v.Price) : 0,
             PriceTo = variantWithStock.Any() ? variantWithStock.Max(v => v.Price) : 0,
             ThumbnailUrl = product.Variants.FirstOrDefault()?.ThumbnailUrl,
-            IsFeatured = product.IsFeatured
+            IsFeatured = product.IsFeatured,
+            DefaultVariantId = product.Variants.OrderBy(v => v.DisplayOrder).FirstOrDefault()?.Id
         };
     }
 

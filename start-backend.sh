@@ -88,6 +88,10 @@ else
   cd ../..
 fi
 
+
+bash start-backend.sh
+
+
 echo ""
 echo "=== All services started! ==="
 echo "Frontend: http://localhost:5173"
