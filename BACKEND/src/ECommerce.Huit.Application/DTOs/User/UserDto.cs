@@ -1,20 +1,35 @@
-namespace ECommerce.Huit.Application.DTOs.User;
+using System;
 
-public class UserDto
+namespace ECommerce.Huit.Application.DTOs.User
 {
-    public int Id { get; set; }
-    public string FullName { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-    public string? Phone { get; set; }
-    public string Role { get; set; } = string.Empty;
-    public string? AvatarUrl { get; set; }
-    public string Status { get; set; } = string.Empty;
-    public DateTime? LastLogin { get; set; }
-    public DateTime CreatedAt { get; set; }
-}
+    public class UserDto
+    {
+        public UserDto()
+        {
+            FullName = string.Empty;
+            Email = string.Empty;
+            Role = string.Empty;
+            Status = string.Empty;
+        }
 
-public class UpdateProfileRequest
-{
-    public string? FullName { get; set; }
-    public string? AvatarUrl { get; set; }
+        public int Id { get; set; }
+        public string FullName { get; set; }
+        public string Email { get; set; }
+        public string Phone { get; set; }
+        public string Role { get; set; }
+        public string AvatarUrl { get; set; }
+        public string Status { get; set; }
+        public DateTime? LastLogin { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
+    public class UpdateProfileRequest
+    {
+        public UpdateProfileRequest()
+        {
+        }
+
+        public string FullName { get; set; }
+        public string AvatarUrl { get; set; }
+    }
 }

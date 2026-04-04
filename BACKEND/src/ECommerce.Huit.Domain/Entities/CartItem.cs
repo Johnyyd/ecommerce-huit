@@ -1,12 +1,15 @@
-namespace ECommerce.Huit.Domain.Entities;
+using System;
 
-public class CartItem : BaseEntity
+namespace ECommerce.Huit.Domain.Entities
 {
-    public int CartId { get; set; }
-    public int VariantId { get; set; }
-    public int Quantity { get; set; }
+    public class CartItem : BaseEntity
+    {
+        public int CartId { get; set; }
+        public int VariantId { get; set; }
+        public int Quantity { get; set; }
 
-    // Navigation properties
-    public virtual Cart Cart { get; set; } = null!;
-    public virtual ProductVariant Variant { get; set; } = null!;
+        // Navigation properties
+        public virtual Cart Cart { get; set; }
+        public virtual ProductVariant Variant { get; set; }
+    }
 }

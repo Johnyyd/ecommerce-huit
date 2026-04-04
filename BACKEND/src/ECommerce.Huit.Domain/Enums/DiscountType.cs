@@ -1,7 +1,8 @@
-namespace ECommerce.Huit.Domain.Enums;
-
-public enum DiscountType
+namespace ECommerce.Huit.Domain.Enums
 {
-    PERCENT,
-    FIXED
+    public enum DiscountType
+    {
+        PERCENT,
+        FIXED
+    }
 }

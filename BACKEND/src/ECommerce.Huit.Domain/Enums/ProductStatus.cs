@@ -1,8 +1,9 @@
-namespace ECommerce.Huit.Domain.Enums;
-
-public enum ProductStatus
+namespace ECommerce.Huit.Domain.Enums
 {
-    DRAFT,
-    ACTIVE,
-    HIDDEN
+    public enum ProductStatus
+    {
+        DRAFT,
+        ACTIVE,
+        INACTIVE
+    }
 }

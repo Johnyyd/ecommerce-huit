@@ -1,18 +1,28 @@
-namespace ECommerce.Huit.Domain.Entities;
+using System;
 
-public class Review : BaseEntity
+namespace ECommerce.Huit.Domain.Entities
 {
-    public int UserId { get; set; }
-    public int ProductId { get; set; }
-    public int? VariantId { get; set; }
-    public int Rating { get; set; } // 1-5
-    public string? Title { get; set; }
-    public string Content { get; set; } = string.Empty;
-    public bool IsVerifiedPurchase { get; set; } = false;
-    public bool IsApproved { get; set; } = false;
+    public class Review : BaseEntity
+    {
+        public Review()
+        {
+            Content = string.Empty;
+            IsVerifiedPurchase = false;
+            IsApproved = false;
+        }
 
-    // Navigation properties
-    public virtual User User { get; set; } = null!;
-    public virtual Product Product { get; set; } = null!;
-    public virtual ProductVariant? Variant { get; set; }
+        public int UserId { get; set; }
+        public int ProductId { get; set; }
+        public int? VariantId { get; set; }
+        public int Rating { get; set; } // 1-5
+        public string Title { get; set; }
+        public string Content { get; set; }
+        public bool IsVerifiedPurchase { get; set; }
+        public bool IsApproved { get; set; }
+
+        // Navigation properties
+        public virtual User User { get; set; }
+        public virtual Product Product { get; set; }
+        public virtual ProductVariant Variant { get; set; }
+    }
 }

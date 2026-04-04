@@ -1,10 +1,10 @@
-namespace ECommerce.Huit.Domain.Enums;
-
-public enum TicketStatus
+namespace ECommerce.Huit.Domain.Enums
 {
-    OPEN,
-    IN_PROGRESS,
-    WAITING_CUSTOMER,
-    RESOLVED,
-    CLOSED
+    public enum TicketStatus
+    {
+        OPEN,
+        IN_PROGRESS,
+        RESOLVED,
+        CLOSED
+    }
 }

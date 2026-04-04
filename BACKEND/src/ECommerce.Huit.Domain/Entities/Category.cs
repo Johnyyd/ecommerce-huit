@@ -1,15 +1,29 @@
-namespace ECommerce.Huit.Domain.Entities;
+using System;
+using System.Collections.Generic;
 
-public class Category : BaseEntity
+namespace ECommerce.Huit.Domain.Entities
 {
-    public int? ParentId { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string Slug { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public bool IsActive { get; set; } = true;
-    public int SortOrder { get; set; } = 0;
+    public class Category : BaseEntity
+    {
+        public Category()
+        {
+            Name = string.Empty;
+            Slug = string.Empty;
+            IsActive = true;
+            SortOrder = 0;
+            Children = new List<Category>();
+            Products = new List<Product>();
+        }
 
-    public virtual Category? Parent { get; set; }
-    public virtual ICollection<Category> Children { get; set; } = new List<Category>();
-    public virtual ICollection<Product> Products { get; set; } = new List<Product>();
+        public int? ParentId { get; set; }
+        public string Name { get; set; }
+        public string Slug { get; set; }
+        public string Description { get; set; }
+        public bool IsActive { get; set; }
+        public int SortOrder { get; set; }
+
+        public virtual Category Parent { get; set; }
+        public virtual ICollection<Category> Children { get; set; }
+        public virtual ICollection<Product> Products { get; set; }
+    }
 }

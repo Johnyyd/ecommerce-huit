@@ -1,11 +1,12 @@
-namespace ECommerce.Huit.Domain.Enums;
-
-public enum ReturnStatus
+namespace ECommerce.Huit.Domain.Enums
 {
-    REQUESTED,
-    APPROVED,
-    REJECTED,
-    RECEIVED,
-    REFUNDED,
-    COMPLETED
+    public enum ReturnStatus
+    {
+        REQUESTED,
+        RECEIVED,
+        INSPECTING,
+        APPROVED,
+        REJECTED,
+        REFUNDED
+    }
 }

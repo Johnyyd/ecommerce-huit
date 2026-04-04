@@ -1,61 +1,57 @@
-using System.IdentityModel.Tokens.Jwt;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using ECommerce.Huit.Application.Common.Interfaces;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
+using ECommerce.Huit.Domain.Entities;
 
-namespace ECommerce.Huit.Application.Services;
-
-public class JwtTokenGenerator : IJwtTokenGenerator
+namespace ECommerce.Huit.Application.Services
 {
-    private readonly IConfiguration _configuration;
-
-    public JwtTokenGenerator(IConfiguration configuration)
+    public class JwtTokenGenerator : IJwtTokenGenerator
     {
-        _configuration = configuration;
-    }
-
-    public string GenerateAccessToken(int userId, string email, string role)
-    {
-        var jwtSettings = _configuration.GetSection("Jwt");
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]!));
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var claims = new[]
+        public string GenerateToken(User user)
         {
-            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, email),
-            new Claim(ClaimTypes.Role, role),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
+            var keyStr = ConfigurationManager.AppSettings["Jwt:Key"] ?? "super_secret_key_placeholder_32_chars";
+            var issuer = ConfigurationManager.AppSettings["Jwt:Issuer"] ?? "ecommerce-huit";
+            var audience = ConfigurationManager.AppSettings["Jwt:Audience"] ?? "ecommerce-huit-client";
+            var durationMinutes = 1440;
+            int.TryParse(ConfigurationManager.AppSettings["Jwt:DurationInMinutes"], out durationMinutes);
 
-        var expires = DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["DurationInMinutes"] ?? "1440"));
+            var key = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(Encoding.UTF8.GetBytes(keyStr));
+            var credentials = new Microsoft.IdentityModel.Tokens.SigningCredentials(key, Microsoft.IdentityModel.Tokens.SecurityAlgorithms.HmacSha256);
 
-        var token = new JwtSecurityToken(
-            issuer: jwtSettings["Issuer"],
-            audience: jwtSettings["Audience"],
-            claims: claims,
-            expires: expires,
-            signingCredentials: credentials
-        );
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Email, user.Email),
+                new Claim(ClaimTypes.Role, user.Role.ToString()),
+                new Claim("jti", Guid.NewGuid().ToString())
+            };
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
+            var expires = DateTime.UtcNow.AddMinutes(durationMinutes);
 
-    public string GenerateRefreshToken()
-    {
-        var randomNumber = new byte[32];
-        using var rng = RandomNumberGenerator.Create();
-        rng.GetBytes(randomNumber);
-        return Convert.ToBase64String(randomNumber);
-    }
+            var token = new System.IdentityModel.Tokens.Jwt.JwtSecurityToken(
+                issuer: issuer,
+                audience: audience,
+                claims: claims,
+                expires: expires,
+                signingCredentials: credentials
+            );
 
-    public int? ValidateRefreshToken(string refreshToken)
-    {
-        // TODO: Validate refresh token against stored tokens (DB or Redis)
-        // For now, just return a dummy value
-        return 1;
+            return new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        public string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomNumber);
+                return Convert.ToBase64String(randomNumber);
+            }
+        }
     }
 }

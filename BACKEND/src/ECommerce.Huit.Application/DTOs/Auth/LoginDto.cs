@@ -1,16 +1,24 @@
+using System;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
-namespace ECommerce.Huit.Application.DTOs.Auth;
-
-public class LoginDto
+namespace ECommerce.Huit.Application.DTOs.Auth
 {
-    [Required]
-    [EmailAddress]
-    [JsonPropertyName("email")]
-    public string Email { get; set; } = string.Empty;
+    public class LoginDto
+    {
+        public LoginDto()
+        {
+            Email = string.Empty;
+            Password = string.Empty;
+        }
 
-    [Required]
-    [JsonPropertyName("password")]
-    public string Password { get; set; } = string.Empty;
+        [Required]
+        [EmailAddress]
+        [JsonProperty("email")]
+        public string Email { get; set; }
+
+        [Required]
+        [JsonProperty("password")]
+        public string Password { get; set; }
+    }
 }

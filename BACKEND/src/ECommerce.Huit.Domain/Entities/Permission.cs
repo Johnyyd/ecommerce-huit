@@ -1,11 +1,23 @@
-namespace ECommerce.Huit.Domain.Entities;
+using System;
+using System.Collections.Generic;
 
-public class Permission : BaseEntity
+namespace ECommerce.Huit.Domain.Entities
 {
-    public string Code { get; set; } = string.Empty; // e.g., 'products.read'
-    public string Name { get; set; } = string.Empty;
-    public string Module { get; set; } = string.Empty; // 'PRODUCT', 'ORDER', ...
+    public class Permission : BaseEntity
+    {
+        public Permission()
+        {
+            Code = string.Empty;
+            Name = string.Empty;
+            Module = string.Empty;
+            RolePermissions = new List<RolePermission>();
+        }
 
-    // Navigation properties
-    public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
+        public string Code { get; set; } // e.g., 'products.read'
+        public string Name { get; set; }
+        public string Module { get; set; } // 'PRODUCT', 'ORDER', ...
+
+        // Navigation properties
+        public virtual ICollection<RolePermission> RolePermissions { get; set; }
+    }
 }

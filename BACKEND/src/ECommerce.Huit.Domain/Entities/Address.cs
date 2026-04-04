@@ -1,16 +1,31 @@
-namespace ECommerce.Huit.Domain.Entities;
+using System;
 
-public class Address : BaseEntity
+namespace ECommerce.Huit.Domain.Entities
 {
-    public int UserId { get; set; }
-    public string Label { get; set; } = string.Empty; // 'Nhà', 'Văn phòng', ...
-    public string ReceiverName { get; set; } = string.Empty;
-    public string ReceiverPhone { get; set; } = string.Empty;
-    public string Province { get; set; } = string.Empty;
-    public string District { get; set; } = string.Empty;
-    public string Ward { get; set; } = string.Empty;
-    public string StreetAddress { get; set; } = string.Empty;
-    public bool IsDefault { get; set; } = false;
+    public class Address : BaseEntity
+    {
+        public Address()
+        {
+            Label = string.Empty;
+            ReceiverName = string.Empty;
+            ReceiverPhone = string.Empty;
+            Province = string.Empty;
+            District = string.Empty;
+            Ward = string.Empty;
+            StreetAddress = string.Empty;
+            IsDefault = false;
+        }
 
-    public virtual User User { get; set; } = null!;
+        public int UserId { get; set; }
+        public string Label { get; set; }
+        public string ReceiverName { get; set; }
+        public string ReceiverPhone { get; set; }
+        public string Province { get; set; }
+        public string District { get; set; }
+        public string Ward { get; set; }
+        public string StreetAddress { get; set; }
+        public bool IsDefault { get; set; }
+
+        public virtual User User { get; set; }
+    }
 }

@@ -1,8 +1,8 @@
-namespace ECommerce.Huit.Domain.Enums;
-
-public enum OrderType
+namespace ECommerce.Huit.Domain.Enums
 {
-    ONLINE,
-    POS,
-    B2B
+    public enum OrderType
+    {
+        ONLINE,
+        POS
+    }
 }

@@ -1,15 +1,24 @@
-namespace ECommerce.Huit.Domain.Entities;
+using System;
 
-public class AuditLog : BaseEntity
+namespace ECommerce.Huit.Domain.Entities
 {
-    public string TableName { get; set; } = string.Empty;
-    public int RecordId { get; set; }
-    public string Operation { get; set; } = string.Empty; // INSERT, UPDATE, DELETE
-    public string? OldValues { get; set; } // JSON
-    public string? NewValues { get; set; } // JSON
-    public int? ChangedBy { get; set; }
-    public string? IpAddress { get; set; }
+    public class AuditLog : BaseEntity
+    {
+        public AuditLog()
+        {
+            TableName = string.Empty;
+            Operation = string.Empty;
+        }
 
-    // Navigation properties
-    public virtual User? ChangedByUser { get; set; }
+        public string TableName { get; set; }
+        public int RecordId { get; set; }
+        public string Operation { get; set; } // INSERT, UPDATE, DELETE
+        public string OldValues { get; set; } // JSON
+        public string NewValues { get; set; } // JSON
+        public int? ChangedBy { get; set; }
+        public string IpAddress { get; set; }
+
+        // Navigation properties
+        public virtual User ChangedByUser { get; set; }
+    }
 }

@@ -1,170 +1,134 @@
-using System.Data.Common;
+using System;
+using System.Data.Entity;
+using System.Data.Entity.ModelConfiguration.Conventions;
+using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using ECommerce.Huit.Application.Common.Interfaces;
 using ECommerce.Huit.Domain.Entities;
-using ECommerce.Huit.Domain.Enums;
-using Microsoft.EntityFrameworkCore;
-using ECommerce.Huit.Infrastructure.Data.Configurations;
 
-namespace ECommerce.Huit.Infrastructure.Data;
-
-public class ApplicationDbContext : DbContext, IApplicationDbContext
+namespace ECommerce.Huit.Infrastructure.Data
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    public class ApplicationDbContext : DbContext, IApplicationDbContext
     {
-    }
-
-    // Users & Auth
-    public DbSet<User> Users => Set<User>();
-    public DbSet<Address> Addresses => Set<Address>();
-    public DbSet<Permission> Permissions => Set<Permission>();
-    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
-
-    // Catalog
-    public DbSet<Category> Categories => Set<Category>();
-    public DbSet<Brand> Brands => Set<Brand>();
-    public DbSet<Product> Products => Set<Product>();
-    public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
-    public DbSet<ProductImage> ProductImages => Set<ProductImage>();
-
-    // Warehouse & Inventory
-    public DbSet<Warehouse> Warehouses => Set<Warehouse>();
-    public DbSet<Supplier> Suppliers => Set<Supplier>();
-    public DbSet<Inventory> Inventories => Set<Inventory>();
-    public DbSet<ProductSerial> ProductSerials => Set<ProductSerial>();
-    public DbSet<StockMovement> StockMovements => Set<StockMovement>();
-
-    // Cart
-    public DbSet<Cart> Carts => Set<Cart>();
-    public DbSet<CartItem> CartItems => Set<CartItem>();
-
-    // Orders
-    public DbSet<Order> Orders => Set<Order>();
-    public DbSet<OrderItem> OrderItems => Set<OrderItem>();
-    public DbSet<OrderItemSerial> OrderItemSerials => Set<OrderItemSerial>();
-    public DbSet<OrderStatusHistory> OrderStatusHistories => Set<OrderStatusHistory>();
-    public DbSet<Payment> Payments => Set<Payment>();
-
-    // Marketing
-    public DbSet<Voucher> Vouchers => Set<Voucher>();
-    public DbSet<VoucherUsage> VoucherUsages => Set<VoucherUsage>();
-
-    // Support
-    public DbSet<Review> Reviews => Set<Review>();
-    public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
-    public DbSet<Return> Returns => Set<Return>();
-
-    // Audit
-    public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
-
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        base.OnModelCreating(modelBuilder);
-        // Ngan loi Multiple Cascade Paths cho bang Return
-        modelBuilder.Entity<Return>().HasOne(r => r.Order).WithMany().HasForeignKey(r => r.OrderId).OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.NoAction);
-        modelBuilder.Entity<Return>().HasOne(r => r.OrderItem).WithMany().HasForeignKey(r => r.OrderItemId).OnDelete(Microsoft.EntityFrameworkCore.DeleteBehavior.NoAction);
-
-        // Apply configurations
-        modelBuilder.ApplyConfiguration(new UserConfiguration());
-        modelBuilder.ApplyConfiguration(new ProductConfiguration());
-        modelBuilder.ApplyConfiguration(new OrderConfiguration());
-        // ... other configurations
-
-        // Seed permissions (from init.sql)
-        modelBuilder.Entity<ECommerce.Huit.Domain.Entities.Permission>().HasData(
-            new ECommerce.Huit.Domain.Entities.Permission { Id = 1, Code = "products.read", Name = "Xem sản phẩm", Module = "PRODUCT" },
-            new ECommerce.Huit.Domain.Entities.Permission { Id = 2, Code = "products.create", Name = "Tạo sản phẩm", Module = "PRODUCT" }
-            // ... add more
-        );
-
-        // Apply snake_case naming convention for columns and tables to match existing database schema
-        foreach (var entity in modelBuilder.Model.GetEntityTypes())
+        public ApplicationDbContext() : base("DefaultConnection")
         {
-            // Map columns to snake_case
-            foreach (var property in entity.GetProperties())
-            {
-                property.SetColumnName(ToSnakeCase(property.Name));
-            }
-
-            // Map tables to existing snake_case table names
-            var defaultTableName = entity.GetTableName(); // usually the DbSet property name or entity name
-            if (defaultTableName != null)
-            {
-                // Handle special cases where table name doesn't follow simple snake_case conversion of DbSet name
-                var snakeCaseTable = ToSnakeCase(defaultTableName);
-
-                // Special case: OrderStatusHistories -> order_status_history (singular)
-                if (defaultTableName == "OrderStatusHistories")
-                {
-                    entity.SetTableName("order_status_history");
-                }
-                else
-                {
-                    entity.SetTableName(snakeCaseTable);
-                }
-            }
+            // Set initializer to null for existing database
+            Database.SetInitializer<ApplicationDbContext>(null);
         }
-    }
 
-    private static string ToSnakeCase(string name)
-    {
-        if (string.IsNullOrEmpty(name))
-            return name;
-
-        var sb = new StringBuilder();
-        for (var i = 0; i < name.Length; i++)
+        public ApplicationDbContext(string connectionString) : base(connectionString)
         {
-            if (char.IsUpper(name[i]))
-            {
-                if (i > 0)
-                    sb.Append('_');
-                sb.Append(char.ToLowerInvariant(name[i]));
-            }
-            else
-            {
-                sb.Append(name[i]);
-            }
+            Database.SetInitializer<ApplicationDbContext>(null);
         }
-        return sb.ToString();
-    }
 
-    public override int SaveChanges()
-    {
-        UpdateTimestamps();
-        return base.SaveChanges();
-    }
+        // Users & Auth
+        public DbSet<User> Users { get; set; }
+        public DbSet<Address> Addresses { get; set; }
+        public DbSet<Permission> Permissions { get; set; }
+        public DbSet<RolePermission> RolePermissions { get; set; }
 
-    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        UpdateTimestamps();
-        return await base.SaveChangesAsync(cancellationToken);
-    }
+        // Catalog
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Brand> Brands { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<ProductVariant> ProductVariants { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
 
-    public Task<int> ExecuteSqlRawAsync(string sql, params object[] parameters)
-    {
-        return base.Database.ExecuteSqlRawAsync(sql, parameters);
-    }
+        // Warehouse & Inventory
+        public DbSet<Warehouse> Warehouses { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
+        public DbSet<Inventory> Inventories { get; set; }
+        public DbSet<ProductSerial> ProductSerials { get; set; }
+        public DbSet<StockMovement> StockMovements { get; set; }
 
-    public Task<int> ExecuteSqlRawAsync(string sql, System.Data.CommandBehavior behavior, params object[] parameters)
-    {
-        return base.Database.ExecuteSqlRawAsync(sql, behavior, parameters);
-    }
+        // Cart
+        public DbSet<Cart> Carts { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
 
-    private void UpdateTimestamps()
-    {
-        var entries = ChangeTracker.Entries()
-            .Where(e => e.Entity is BaseEntity && (
-                e.State == EntityState.Added ||
-                e.State == EntityState.Modified));
+        // Orders
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<OrderItemSerial> OrderItemSerials { get; set; }
+        public DbSet<OrderStatusHistory> OrderStatusHistories { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
-        foreach (var entityEntry in entries)
+        // Marketing
+        public DbSet<Voucher> Vouchers { get; set; }
+        public DbSet<VoucherUsage> VoucherUsages { get; set; }
+
+        // Support
+        public DbSet<Review> Reviews { get; set; }
+        public DbSet<SupportTicket> SupportTickets { get; set; }
+        public DbSet<Return> Returns { get; set; }
+
+        // Audit
+        public DbSet<AuditLog> AuditLogs { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            if (entityEntry.State == EntityState.Added)
-            {
-                ((BaseEntity)entityEntry.Entity).CreatedAt = DateTime.UtcNow;
-            }
+            base.OnModelCreating(modelBuilder);
 
-            ((BaseEntity)entityEntry.Entity).UpdatedAt = DateTime.UtcNow;
+            // EF6 uses singularized table names by default
+            modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
+
+            // Configure snake_case naming convention (Manual mapping for EF6)
+            // In EF6, the easiest way is to use EntityTypeConfiguration for each entity.
+            // For brevity in this migration, let's keep default EF6 naming or specific overrides.
+
+            // Example:
+            modelBuilder.Entity<OrderStatusHistory>().ToTable("order_status_history");
+            
+            // Fix Multiple Cascade Paths for Return
+            modelBuilder.Entity<Return>()
+                .HasRequired(r => r.Order)
+                .WithMany()
+                .HasForeignKey(r => r.OrderId)
+                .WillCascadeOnDelete(false);
+
+            modelBuilder.Entity<Return>()
+                .HasRequired(r => r.OrderItem)
+                .WithMany()
+                .HasForeignKey(r => r.OrderItemId)
+                .WillCascadeOnDelete(false);
+        }
+
+        public override int SaveChanges()
+        {
+            UpdateTimestamps();
+            return base.SaveChanges();
+        }
+
+        public override Task<int> SaveChangesAsync()
+        {
+            UpdateTimestamps();
+            return base.SaveChangesAsync();
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+        {
+            UpdateTimestamps();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void UpdateTimestamps()
+        {
+            var entries = ChangeTracker.Entries()
+                .Where(e => e.Entity is BaseEntity && (
+                    e.State == EntityState.Added ||
+                    e.State == EntityState.Modified));
+
+            foreach (var entityEntry in entries)
+            {
+                var entity = (BaseEntity)entityEntry.Entity;
+                if (entityEntry.State == EntityState.Added)
+                {
+                    entity.CreatedAt = DateTime.UtcNow;
+                }
+
+                entity.UpdatedAt = DateTime.UtcNow;
+            }
         }
     }
 }

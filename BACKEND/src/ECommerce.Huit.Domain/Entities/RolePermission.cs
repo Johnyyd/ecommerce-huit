@@ -1,10 +1,18 @@
-namespace ECommerce.Huit.Domain.Entities;
+using System;
 
-public class RolePermission : BaseEntity
+namespace ECommerce.Huit.Domain.Entities
 {
-    public string Role { get; set; } = string.Empty;
-    public int PermissionId { get; set; }
+    public class RolePermission : BaseEntity
+    {
+        public RolePermission()
+        {
+            Role = string.Empty;
+        }
 
-    // Navigation properties
-    public virtual Permission Permission { get; set; } = null!;
+        public string Role { get; set; }
+        public int PermissionId { get; set; }
+
+        // Navigation properties
+        public virtual Permission Permission { get; set; }
+    }
 }

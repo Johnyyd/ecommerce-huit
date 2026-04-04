@@ -1,8 +1,16 @@
-namespace ECommerce.Huit.Domain.Entities;
+using System;
 
-public abstract class BaseEntity
+namespace ECommerce.Huit.Domain.Entities
 {
-    public int Id { get; set; }
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime? UpdatedAt { get; set; }
+    public abstract class BaseEntity
+    {
+        public BaseEntity()
+        {
+            CreatedAt = DateTime.UtcNow;
+        }
+
+        public int Id { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+    }
 }

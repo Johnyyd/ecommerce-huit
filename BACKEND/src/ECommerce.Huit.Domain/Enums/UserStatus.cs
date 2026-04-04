@@ -1,7 +1,8 @@
-namespace ECommerce.Huit.Domain.Enums;
-
-public enum UserStatus
+namespace ECommerce.Huit.Domain.Enums
 {
-    ACTIVE,
-    BANNED
+    public enum UserStatus
+    {
+        ACTIVE,
+        BANNED
+    }
 }

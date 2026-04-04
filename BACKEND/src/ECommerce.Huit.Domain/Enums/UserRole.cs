@@ -1,9 +1,10 @@
-namespace ECommerce.Huit.Domain.Enums;
-
-public enum UserRole
+namespace ECommerce.Huit.Domain.Enums
 {
-    ADMIN,
-    STAFF,
-    WAREHOUSE,
-    CUSTOMER
+    public enum UserRole
+    {
+        ADMIN,
+        STAFF,
+        WAREHOUSE,
+        CUSTOMER
+    }
 }

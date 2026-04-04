@@ -1,12 +1,13 @@
-namespace ECommerce.Huit.Domain.Enums;
-
-public enum OrderStatus
+namespace ECommerce.Huit.Domain.Enums
 {
-    PENDING,
-    CONFIRMED,
-    PROCESSING,
-    SHIPPING,
-    COMPLETED,
-    CANCELLED,
-    RETURNED
+    public enum OrderStatus
+    {
+        PENDING,
+        CONFIRMED,
+        PROCESSING,
+        SHIPPING,
+        COMPLETED,
+        CANCELLED,
+        RETURNED
+    }
 }

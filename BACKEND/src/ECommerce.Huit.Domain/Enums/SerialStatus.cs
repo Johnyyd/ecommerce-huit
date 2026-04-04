@@ -1,11 +1,11 @@
-namespace ECommerce.Huit.Domain.Enums;
-
-public enum SerialStatus
+namespace ECommerce.Huit.Domain.Enums
 {
-    AVAILABLE,
-    RESERVED,
-    SOLD,
-    DEFECTIVE,
-    TRANSFERRING,
-    RETURNED
+    public enum SerialStatus
+    {
+        AVAILABLE,
+        RESERVED,
+        SOLD,
+        RETURNED,
+        ERROR
+    }
 }

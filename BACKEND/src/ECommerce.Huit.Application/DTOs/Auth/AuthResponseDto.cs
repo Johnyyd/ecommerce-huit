@@ -1,23 +1,34 @@
-using System.Text.Json.Serialization;
+using System;
+using Newtonsoft.Json;
 
-namespace ECommerce.Huit.Application.DTOs.Auth;
-
-public class AuthResponseDto
+namespace ECommerce.Huit.Application.DTOs.Auth
 {
-    public int Id { get; set; }
+    public class AuthResponseDto
+    {
+        public AuthResponseDto()
+        {
+            Email = string.Empty;
+            FullName = string.Empty;
+            Role = string.Empty;
+            AccessToken = string.Empty;
+            RefreshToken = string.Empty;
+        }
 
-    [JsonPropertyName("email")]
-    public string Email { get; set; } = string.Empty;
+        public int Id { get; set; }
 
-    [JsonPropertyName("full_name")]
-    public string FullName { get; set; } = string.Empty;
+        [JsonProperty("email")]
+        public string Email { get; set; }
 
-    [JsonPropertyName("role")]
-    public string Role { get; set; } = string.Empty;
+        [JsonProperty("full_name")]
+        public string FullName { get; set; }
 
-    [JsonPropertyName("access_token")]
-    public string AccessToken { get; set; } = string.Empty;
+        [JsonProperty("role")]
+        public string Role { get; set; }
 
-    [JsonPropertyName("refresh_token")]
-    public string RefreshToken { get; set; } = string.Empty;
+        [JsonProperty("access_token")]
+        public string AccessToken { get; set; }
+
+        [JsonProperty("refresh_token")]
+        public string RefreshToken { get; set; }
+    }
 }

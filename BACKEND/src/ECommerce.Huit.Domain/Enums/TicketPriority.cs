@@ -1,9 +1,10 @@
-namespace ECommerce.Huit.Domain.Enums;
-
-public enum TicketPriority
+namespace ECommerce.Huit.Domain.Enums
 {
-    LOW,
-    MEDIUM,
-    HIGH,
-    URGENT
+    public enum TicketPriority
+    {
+        LOW,
+        MEDIUM,
+        HIGH,
+        URGENT
+    }
 }

@@ -1,14 +1,24 @@
-namespace ECommerce.Huit.Domain.Entities;
+using System;
 
-public class Inventory : BaseEntity
+namespace ECommerce.Huit.Domain.Entities
 {
-    public int WarehouseId { get; set; }
-    public int VariantId { get; set; }
-    public int QuantityOnHand { get; set; } = 0;
-    public int QuantityReserved { get; set; } = 0;
-    public int ReorderPoint { get; set; } = 10;
+    public class Inventory : BaseEntity
+    {
+        public Inventory()
+        {
+            QuantityOnHand = 0;
+            QuantityReserved = 0;
+            ReorderPoint = 10;
+        }
 
-    // Navigation properties
-    public virtual Warehouse Warehouse { get; set; } = null!;
-    public virtual ProductVariant Variant { get; set; } = null!;
+        public int WarehouseId { get; set; }
+        public int VariantId { get; set; }
+        public int QuantityOnHand { get; set; }
+        public int QuantityReserved { get; set; }
+        public int ReorderPoint { get; set; }
+
+        // Navigation properties
+        public virtual Warehouse Warehouse { get; set; }
+        public virtual ProductVariant Variant { get; set; }
+    }
 }

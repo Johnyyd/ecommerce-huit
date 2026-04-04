@@ -1,9 +1,10 @@
-namespace ECommerce.Huit.Domain.Enums;
-
-public enum PaymentStatus
+namespace ECommerce.Huit.Domain.Enums
 {
-    PENDING,
-    PAID,
-    FAILED,
-    REFUNDED
+    public enum PaymentStatus
+    {
+        PENDING,
+        PAID,
+        FAILED,
+        REFUNDED
+    }
 }

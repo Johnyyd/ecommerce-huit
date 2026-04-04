@@ -1,8 +1,10 @@
-namespace ECommerce.Huit.Application.Common.Interfaces;
+using ECommerce.Huit.Domain.Entities;
 
-public interface IJwtTokenGenerator
+namespace ECommerce.Huit.Application.Common.Interfaces
 {
-    string GenerateAccessToken(int userId, string email, string role);
-    string GenerateRefreshToken();
-    int? ValidateRefreshToken(string refreshToken);
+    public interface IJwtTokenGenerator
+    {
+        string GenerateToken(User user);
+        string GenerateRefreshToken();
+    }
 }

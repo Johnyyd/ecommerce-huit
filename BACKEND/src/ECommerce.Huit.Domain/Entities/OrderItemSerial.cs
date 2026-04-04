@@ -1,10 +1,18 @@
-namespace ECommerce.Huit.Domain.Entities;
+using System;
 
-public class OrderItemSerial : BaseEntity
+namespace ECommerce.Huit.Domain.Entities
 {
-    public int OrderItemId { get; set; }
-    public string SerialNumber { get; set; } = string.Empty;
+    public class OrderItemSerial : BaseEntity
+    {
+        public OrderItemSerial()
+        {
+            SerialNumber = string.Empty;
+        }
 
-    // Navigation properties
-    public virtual OrderItem OrderItem { get; set; } = null!;
+        public int OrderItemId { get; set; }
+        public string SerialNumber { get; set; }
+
+        // Navigation properties
+        public virtual OrderItem OrderItem { get; set; }
+    }
 }

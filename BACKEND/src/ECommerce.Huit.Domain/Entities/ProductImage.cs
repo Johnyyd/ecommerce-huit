@@ -1,11 +1,20 @@
-namespace ECommerce.Huit.Domain.Entities;
+using System;
 
-public class ProductImage : BaseEntity
+namespace ECommerce.Huit.Domain.Entities
 {
-    public int VariantId { get; set; }
-    public string ImageUrl { get; set; } = string.Empty;
-    public string? AltText { get; set; }
-    public int SortOrder { get; set; } = 0;
+    public class ProductImage : BaseEntity
+    {
+        public ProductImage()
+        {
+            ImageUrl = string.Empty;
+            SortOrder = 0;
+        }
 
-    public virtual ProductVariant Variant { get; set; } = null!;
+        public int VariantId { get; set; }
+        public string ImageUrl { get; set; }
+        public string AltText { get; set; }
+        public int SortOrder { get; set; }
+
+        public virtual ProductVariant Variant { get; set; }
+    }
 }

@@ -1,24 +1,40 @@
-namespace ECommerce.Huit.Domain.Entities;
+using System;
+using System.Collections.Generic;
 
-public class ProductVariant : BaseEntity
+namespace ECommerce.Huit.Domain.Entities
 {
-    public int ProductId { get; set; }
-    public string Sku { get; set; } = string.Empty;
-    public string? VariantName { get; set; }
-    public decimal Price { get; set; }
-    public decimal? OriginalPrice { get; set; }
-    public decimal? CostPrice { get; set; }
-    public string? ThumbnailUrl { get; set; }
-    public int DisplayOrder { get; set; } = 0;
-    public bool IsActive { get; set; } = true;
-    public int? WeightGrams { get; set; }
-    public string? Dimensions { get; set; } // JSON: {"length":...,"width":...,"height":...}
+    public class ProductVariant : BaseEntity
+    {
+        public ProductVariant()
+        {
+            Sku = string.Empty;
+            DisplayOrder = 0;
+            IsActive = true;
+            Images = new List<ProductImage>();
+            Inventories = new List<Inventory>();
+            Serials = new List<ProductSerial>();
+            CartItems = new List<CartItem>();
+            OrderItems = new List<OrderItem>();
+        }
 
-    // Navigation properties
-    public virtual Product Product { get; set; } = null!;
-    public virtual ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
-    public virtual ICollection<Inventory> Inventories { get; set; } = new List<Inventory>();
-    public virtual ICollection<ProductSerial> Serials { get; set; } = new List<ProductSerial>();
-    public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
-    public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public int ProductId { get; set; }
+        public string Sku { get; set; }
+        public string VariantName { get; set; }
+        public decimal Price { get; set; }
+        public decimal? OriginalPrice { get; set; }
+        public decimal? CostPrice { get; set; }
+        public string ThumbnailUrl { get; set; }
+        public int DisplayOrder { get; set; }
+        public bool IsActive { get; set; }
+        public int? WeightGrams { get; set; }
+        public string Dimensions { get; set; } // JSON: {"length":...,"width":...,"height":...}
+
+        // Navigation properties
+        public virtual Product Product { get; set; }
+        public virtual ICollection<ProductImage> Images { get; set; }
+        public virtual ICollection<Inventory> Inventories { get; set; }
+        public virtual ICollection<ProductSerial> Serials { get; set; }
+        public virtual ICollection<CartItem> CartItems { get; set; }
+        public virtual ICollection<OrderItem> OrderItems { get; set; }
+    }
 }

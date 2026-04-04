@@ -1,10 +1,10 @@
-namespace ECommerce.Huit.Domain.Enums;
-
-public enum PaymentMethod
+namespace ECommerce.Huit.Domain.Enums
 {
-    CASH,
-    MOMO,
-    VNPAY,
-    BANKING,
-    COD
+    public enum PaymentMethod
+    {
+        CASH,
+        VNPAY,
+        MOMO,
+        BANK_TRANSFER
+    }
 }

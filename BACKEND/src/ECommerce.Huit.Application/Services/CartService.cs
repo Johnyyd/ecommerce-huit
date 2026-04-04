@@ -1,208 +1,222 @@
+using System;
+using System.Collections.Generic;
+using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
 using ECommerce.Huit.Application.Common.Interfaces;
 using ECommerce.Huit.Application.DTOs.Cart;
 using ECommerce.Huit.Application.DTOs.Product;
 using ECommerce.Huit.Domain.Entities;
-using Microsoft.EntityFrameworkCore;
 
-namespace ECommerce.Huit.Application.Services;
-
-public class CartService : ICartService
+namespace ECommerce.Huit.Application.Services
 {
-    private readonly IApplicationDbContext _context;
-
-    public CartService(IApplicationDbContext context)
+    public class CartService : ICartService
     {
-        _context = context;
-    }
+        private readonly IApplicationDbContext _context;
 
-    public async Task<CartDto> GetCartAsync(int userId)
-    {
-        var cart = await _context.Carts
-            .Include(c => c.Items)
-                .ThenInclude(ci => ci.Variant)
-                    .ThenInclude(v => v.Product)
-            .FirstOrDefaultAsync(c => c.UserId == userId);
-
-        if (cart == null)
+        public CartService(IApplicationDbContext context)
         {
-            // Create new cart if not exists
-            cart = new Cart { UserId = userId, CreatedAt = DateTime.UtcNow };
-            _context.Carts.Add(cart);
-            await _context.SaveChangesAsync();
+            _context = context;
         }
 
-        return MapToCartDto(cart);
-    }
-
-    public async Task<CartDto> AddItemAsync(int userId, AddCartItemRequest request)
-    {
-        var cart = await GetOrCreateCartAsync(userId);
-
-        // Check variant exists and is active
-        var variant = await _context.ProductVariants
-            .FirstOrDefaultAsync(v => v.Id == request.VariantId && v.IsActive);
-
-        if (variant == null)
-            throw new ArgumentException("Sản phẩm không tồn tại hoặc không khả dụng");
-
-        // Check stock
-        var availableStock = await _context.Inventories
-            .Where(i => i.VariantId == request.VariantId)
-            .SumAsync(i => i.QuantityOnHand - i.QuantityReserved);
-
-        if (availableStock < request.Quantity)
-            throw new InvalidOperationException("Số lượng tồn kho không đủ");
-
-        // Check if item already in cart
-        var existingItem = await _context.CartItems
-            .FirstOrDefaultAsync(ci => ci.CartId == cart.Id && ci.VariantId == request.VariantId);
-
-        if (existingItem != null)
+        public async Task<CartDto> GetCartByUserIdAsync(int userId)
         {
-            existingItem.Quantity += request.Quantity;
-        }
-        else
-        {
-            var cartItem = new CartItem
+            var cart = await _context.Carts
+                .Include(c => c.Items.Select(ci => ci.Variant.Product))
+                .FirstOrDefaultAsync(c => c.UserId == userId);
+
+            if (cart == null)
             {
-                CartId = cart.Id,
-                VariantId = request.VariantId,
-                Quantity = request.Quantity,
-                CreatedAt = DateTime.UtcNow
-            };
-            _context.CartItems.Add(cartItem);
+                // Create new cart if not exists
+                cart = new Cart();
+                cart.UserId = userId;
+                cart.CreatedAt = DateTime.UtcNow;
+                _context.Carts.Add(cart);
+                await _context.SaveChangesAsync();
+            }
+
+            return MapToCartDto(cart);
         }
 
-        cart.UpdatedAt = DateTime.UtcNow;
-        await _context.SaveChangesAsync();
-
-        return await GetCartAsync(userId);
-    }
-
-    public async Task<CartDto> UpdateItemAsync(int userId, int itemId, int quantity)
-    {
-        var cart = await GetOrCreateCartAsync(userId);
-
-        var cartItem = await _context.CartItems
-            .FirstOrDefaultAsync(ci => ci.Id == itemId && ci.CartId == cart.Id);
-
-        if (cartItem == null)
-            throw new ArgumentException("Sản phẩm không có trong giỏ hàng");
-
-        if (quantity <= 0)
+        public async Task<bool> AddItemToCartAsync(int userId, AddCartItemRequest request)
         {
-            // Remove item
-            _context.CartItems.Remove(cartItem);
-        }
-        else
-        {
+            var cart = await GetOrCreateCartAsync(userId);
+
+            // Check variant exists and is active
+            var variant = await _context.ProductVariants
+                .FirstOrDefaultAsync(v => v.Id == request.VariantId && v.IsActive);
+
+            if (variant == null)
+                throw new ArgumentException("Sản phẩm không tồn tại hoặc không khả dụng");
+
             // Check stock
-            var availableStock = await _context.Inventories
-                .Where(i => i.VariantId == cartItem.VariantId)
-                .SumAsync(i => i.QuantityOnHand - i.QuantityReserved);
+            var inventoryList = await _context.Inventories
+                .Where(i => i.VariantId == request.VariantId)
+                .ToListAsync();
+            
+            var availableStock = inventoryList.Sum(i => i.QuantityOnHand - i.QuantityReserved);
 
-            if (availableStock < quantity)
+            if (availableStock < request.Quantity)
                 throw new InvalidOperationException("Số lượng tồn kho không đủ");
 
-            cartItem.Quantity = quantity;
-            cartItem.UpdatedAt = DateTime.UtcNow;
-        }
+            // Check if item already in cart
+            var existingItem = await _context.CartItems
+                .FirstOrDefaultAsync(ci => ci.CartId == cart.Id && ci.VariantId == request.VariantId);
 
-        cart.UpdatedAt = DateTime.UtcNow;
-        await _context.SaveChangesAsync();
-
-        return await GetCartAsync(userId);
-    }
-
-    public async Task<bool> RemoveItemAsync(int userId, int itemId)
-    {
-        var cart = await GetOrCreateCartAsync(userId);
-
-        var cartItem = await _context.CartItems
-            .FirstOrDefaultAsync(ci => ci.Id == itemId && ci.CartId == cart.Id);
-
-        if (cartItem == null) return false;
-
-        _context.CartItems.Remove(cartItem);
-        cart.UpdatedAt = DateTime.UtcNow;
-        await _context.SaveChangesAsync();
-
-        return true;
-    }
-
-    public async Task<CartDto> ApplyVoucherAsync(int userId, string voucherCode)
-    {
-        var cart = await GetOrCreateCartAsync(userId);
-
-        // TODO: Validate voucher and calculate discount
-        // For now: simple placeholder
-        cart.VoucherCode = voucherCode;
-        cart.UpdatedAt = DateTime.UtcNow;
-        await _context.SaveChangesAsync();
-
-        return await GetCartAsync(userId);
-    }
-
-    public async Task<CartDto> ClearCartAsync(int userId)
-    {
-        var cart = await GetOrCreateCartAsync(userId);
-
-        var items = await _context.CartItems
-            .Where(ci => ci.CartId == cart.Id)
-            .ToListAsync();
-
-        _context.CartItems.RemoveRange(items);
-        cart.VoucherCode = null;
-        cart.UpdatedAt = DateTime.UtcNow;
-        await _context.SaveChangesAsync();
-
-        return await GetCartAsync(userId);
-    }
-
-    private async Task<Cart> GetOrCreateCartAsync(int userId)
-    {
-        var cart = await _context.Carts
-            .FirstOrDefaultAsync(c => c.UserId == userId);
-
-        if (cart == null)
-        {
-            cart = new Cart { UserId = userId, CreatedAt = DateTime.UtcNow };
-            _context.Carts.Add(cart);
-            await _context.SaveChangesAsync();
-        }
-
-        return cart;
-    }
-
-    private CartDto MapToCartDto(Cart cart)
-    {
-        var subtotal = cart.Items.Sum(i => i.Variant.Price * i.Quantity);
-        // TODO: calculate discount based on voucher
-        var discount = 0m;
-        var total = subtotal - discount;
-
-        return new CartDto
-        {
-            Id = cart.Id,
-            Items = cart.Items.Select(ci => new CartItemDto
+            if (existingItem != null)
             {
-                Id = ci.Id,
-                Variant = new ProductVariantDto
+                existingItem.Quantity += request.Quantity;
+            }
+            else
+            {
+                var cartItem = new CartItem();
+                cartItem.CartId = cart.Id;
+                cartItem.VariantId = request.VariantId;
+                cartItem.Quantity = request.Quantity;
+                cartItem.CreatedAt = DateTime.UtcNow;
+                _context.CartItems.Add(cartItem);
+            }
+
+            cart.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> UpdateCartItemQuantityAsync(int userId, int cartItemId, int quantity)
+        {
+            var cart = await GetOrCreateCartAsync(userId);
+
+            var cartItem = await _context.CartItems
+                .FirstOrDefaultAsync(ci => ci.Id == cartItemId && ci.CartId == cart.Id);
+
+            if (cartItem == null)
+                throw new ArgumentException("Sản phẩm không có trong giỏ hàng");
+
+            if (quantity <= 0)
+            {
+                // Remove item
+                _context.CartItems.Remove(cartItem);
+            }
+            else
+            {
+                // Check stock
+                var inventoryList = await _context.Inventories
+                    .Where(i => i.VariantId == cartItem.VariantId)
+                    .ToListAsync();
+
+                var availableStock = inventoryList.Sum(i => i.QuantityOnHand - i.QuantityReserved);
+
+                if (availableStock < quantity)
+                    throw new InvalidOperationException("Số lượng tồn kho không đủ");
+
+                cartItem.Quantity = quantity;
+                cartItem.UpdatedAt = DateTime.UtcNow;
+            }
+
+            cart.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> RemoveCartItemAsync(int userId, int cartItemId)
+        {
+            var cart = await GetOrCreateCartAsync(userId);
+
+            var cartItem = await _context.CartItems
+                .FirstOrDefaultAsync(ci => ci.Id == cartItemId && ci.CartId == cart.Id);
+
+            if (cartItem == null) return false;
+
+            _context.CartItems.Remove(cartItem);
+            cart.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        public async Task<bool> ClearCartAsync(int userId)
+        {
+            var cart = await GetOrCreateCartAsync(userId);
+
+            var items = await _context.CartItems
+                .Where(ci => ci.CartId == cart.Id)
+                .ToListAsync();
+
+            foreach (var item in items)
+            {
+                _context.CartItems.Remove(item);
+            }
+
+            cart.VoucherCode = null;
+            cart.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        private async Task<Cart> GetOrCreateCartAsync(int userId)
+        {
+            var cart = await _context.Carts
+                .FirstOrDefaultAsync(c => c.UserId == userId);
+
+            if (cart == null)
+            {
+                cart = new Cart();
+                cart.UserId = userId;
+                cart.CreatedAt = DateTime.UtcNow;
+                _context.Carts.Add(cart);
+                await _context.SaveChangesAsync();
+            }
+
+            return cart;
+        }
+
+        private CartDto MapToCartDto(Cart cart)
+        {
+            decimal subtotal = 0;
+            if (cart.Items != null)
+            {
+                foreach (var item in cart.Items)
                 {
-                    Id = ci.Variant.Id,
-                    Sku = ci.Variant.Sku,
-                    VariantName = ci.Variant.VariantName,
-                    Price = ci.Variant.Price,
-                    OriginalPrice = ci.Variant.OriginalPrice,
-                    ThumbnailUrl = ci.Variant.ThumbnailUrl
-                },
-                Quantity = ci.Quantity,
-                LineTotal = ci.Variant.Price * ci.Quantity
-            }).ToList(),
-            Subtotal = subtotal,
-            Discount = discount,
-            Total = total
-            // AppliedVoucher: TODO
-        };
+                    subtotal += item.Variant.Price * item.Quantity;
+                }
+            }
+
+            var discount = 0m;
+            var total = subtotal - discount;
+
+            var dto = new CartDto();
+            dto.Id = cart.Id;
+            dto.Subtotal = subtotal;
+            dto.Discount = discount;
+            dto.Total = total;
+            dto.Items = new List<CartItemDto>();
+
+            if (cart.Items != null)
+            {
+                foreach (var ci in cart.Items)
+                {
+                    var itemDto = new CartItemDto();
+                    itemDto.Id = ci.Id;
+                    itemDto.Quantity = ci.Quantity;
+                    itemDto.LineTotal = ci.Variant.Price * ci.Quantity;
+
+                    var variantDto = new ProductVariantDto();
+                    variantDto.Id = ci.Variant.Id;
+                    variantDto.Sku = ci.Variant.Sku;
+                    variantDto.VariantName = ci.Variant.VariantName;
+                    variantDto.Price = ci.Variant.Price;
+                    variantDto.OriginalPrice = ci.Variant.OriginalPrice;
+                    variantDto.ThumbnailUrl = ci.Variant.ThumbnailUrl;
+
+                    itemDto.Variant = variantDto;
+                    dto.Items.Add(itemDto);
+                }
+            }
+
+            return dto;
+        }
     }
 }
