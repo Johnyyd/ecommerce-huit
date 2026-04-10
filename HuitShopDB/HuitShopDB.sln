@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HuitShopDB", "HuitShopDB\HuitShopDB.csproj", "{8696C06A-1170-4E0B-B3AC-818E066A026D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HuitShopDB", "HuitShopDB\HuitShopDB.csproj", "{B9B4D658-0CFE-46CB-9AE9-7E913EA2DB1C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{8696C06A-1170-4E0B-B3AC-818E066A026D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8696C06A-1170-4E0B-B3AC-818E066A026D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8696C06A-1170-4E0B-B3AC-818E066A026D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8696C06A-1170-4E0B-B3AC-818E066A026D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9B4D658-0CFE-46CB-9AE9-7E913EA2DB1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9B4D658-0CFE-46CB-9AE9-7E913EA2DB1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9B4D658-0CFE-46CB-9AE9-7E913EA2DB1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9B4D658-0CFE-46CB-9AE9-7E913EA2DB1C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

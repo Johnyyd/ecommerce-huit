@@ -1,1 +1,481 @@
-﻿
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ordesignerObjectsDiagram dslVersion="1.0.0.0" absoluteBounds="0, 0, 17.25, 48.75" name="HuitShopDB">
+  <DataContextMoniker Name="/HuitShopDBDataContext" />
+  <nestedChildShapes>
+    <classShape Id="ed475ed9-aba5-4de9-aa34-91382d3453df" absoluteBounds="3.5, 25.125, 2, 1.5785953776041666">
+      <DataClassMoniker Name="/HuitShopDBDataContext/wishlist" />
+      <nestedChildShapes>
+        <elementListCompartment Id="2c5ef31d-0e97-4a12-a0be-6833c07e7743" absoluteBounds="3.515, 25.585, 1.9700000000000002, 1.0185953776041665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="1683b330-4310-4684-bbdd-6499ec7f0fcd" absoluteBounds="3.5, 31.125, 2, 3.1170068359375023">
+      <DataClassMoniker Name="/HuitShopDBDataContext/address" />
+      <nestedChildShapes>
+        <elementListCompartment Id="1df5079b-236c-4f73-bb2a-1923382eb5b9" absoluteBounds="3.515, 31.585, 1.9700000000000002, 2.5570068359375" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="60160509-6ad1-4c8a-aad3-d20da294c7e6" absoluteBounds="3.5, 27.75, 2, 2.5401025390625023">
+      <DataClassMoniker Name="/HuitShopDBDataContext/audit_log" />
+      <nestedChildShapes>
+        <elementListCompartment Id="cba7a175-b40c-41f1-811b-e3d4c9bdda67" absoluteBounds="3.515, 28.21, 1.9700000000000002, 1.9801025390625" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="47c663e6-9118-4704-91f8-fe60e13891fd" absoluteBounds="3.75, 19.125, 2, 2.3478011067708309">
+      <DataClassMoniker Name="/HuitShopDBDataContext/brand" />
+      <nestedChildShapes>
+        <elementListCompartment Id="52b3c2e5-7261-461b-ae24-f9cc7e46c204" absoluteBounds="3.765, 19.585, 1.9700000000000002, 1.7878011067708335" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="8e9a86d7-58a9-40b6-a92b-c761ec7fe60e" absoluteBounds="6.25, 22.25, 2, 1.9631982421875023">
+      <DataClassMoniker Name="/HuitShopDBDataContext/cart_item" />
+      <nestedChildShapes>
+        <elementListCompartment Id="cc73fe51-6000-451a-9789-558d9041c304" absoluteBounds="6.265, 22.71, 1.9700000000000002, 1.4031982421875" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="5b3002cf-56fd-46c2-b28f-beef2c11814a" absoluteBounds="3.5, 22.375, 2, 1.7708968098958309">
+      <DataClassMoniker Name="/HuitShopDBDataContext/cart" />
+      <nestedChildShapes>
+        <elementListCompartment Id="16d8bc23-5bbb-4f61-a678-6d4e3e6b923e" absoluteBounds="3.515, 22.835, 1.9700000000000002, 1.2108968098958333" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="c398f181-ce16-4e42-a9b7-35069b7eaf44" absoluteBounds="3.75, 15.25, 2, 2.5401025390625005">
+      <DataClassMoniker Name="/HuitShopDBDataContext/category" />
+      <nestedChildShapes>
+        <elementListCompartment Id="20459d05-aae2-41cc-8b11-7ed50d6f6a91" absoluteBounds="3.765, 15.71, 1.9700000000000002, 1.9801025390625" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="2e9e240c-9d1f-4d06-a853-bf8f4d928e53" absoluteBounds="12, 25, 2, 1.9631982421875023">
+      <DataClassMoniker Name="/HuitShopDBDataContext/inventory" />
+      <nestedChildShapes>
+        <elementListCompartment Id="8568b7ad-38f8-4faf-abc7-2e3d9153353a" absoluteBounds="12.015, 25.46, 1.9700000000000002, 1.4031982421875" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="f98a6dc5-dc16-4477-a271-d9092de8c343" absoluteBounds="9, 39.625, 2, 1.1939925130208309">
+      <DataClassMoniker Name="/HuitShopDBDataContext/order_item_serial" />
+      <nestedChildShapes>
+        <elementListCompartment Id="8f35ae19-f5d0-4c89-b6af-eeb0444a584a" absoluteBounds="9.015, 40.085, 1.9700000000000002, 0.63399251302083326" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="83ce8cd2-911b-408f-b14f-781973f36701" absoluteBounds="6.25, 38.625, 2, 3.1170068359375023">
+      <DataClassMoniker Name="/HuitShopDBDataContext/order_item" />
+      <nestedChildShapes>
+        <elementListCompartment Id="cbcb62c0-a1d1-4d92-ac88-d3b651a7a9ec" absoluteBounds="6.265, 39.085, 1.9700000000000002, 2.5570068359375" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="eb5c2d54-a9a8-4b91-8e4d-c012972630cd" absoluteBounds="6.25, 33.25, 2, 2.1554996744791737">
+      <DataClassMoniker Name="/HuitShopDBDataContext/order_status_history" />
+      <nestedChildShapes>
+        <elementListCompartment Id="4a429342-0a19-4ada-8d85-98a70f1f3a5b" absoluteBounds="6.265, 33.71, 1.9700000000000002, 1.5954996744791665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="d3c892c9-2c7c-44a7-890d-3d4e567cad33" absoluteBounds="3.5, 39.25, 2, 4.0785139973958309">
+      <DataClassMoniker Name="/HuitShopDBDataContext/order" />
+      <nestedChildShapes>
+        <elementListCompartment Id="05bb3ecb-36eb-46dc-91a6-f38cad11fa38" absoluteBounds="3.515, 39.71, 1.9700000000000002, 3.518513997395833" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="f448f27b-91c4-4bfc-954b-587daaed98ab" absoluteBounds="6.25, 42.75, 2, 2.9247054036458309">
+      <DataClassMoniker Name="/HuitShopDBDataContext/payment" />
+      <nestedChildShapes>
+        <elementListCompartment Id="34489068-1321-40ed-bfbf-1af0c4dfbba0" absoluteBounds="6.265, 43.21, 1.9700000000000002, 2.364705403645833" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="712f8833-a322-42e1-a167-2804c0ee00ee" absoluteBounds="0.75, 0.875, 2, 1.5785953776041664">
+      <DataClassMoniker Name="/HuitShopDBDataContext/permission" />
+      <nestedChildShapes>
+        <elementListCompartment Id="bc6c6519-f08d-4819-978e-95e318d4f174" absoluteBounds="0.765, 1.335, 1.9700000000000002, 1.0185953776041665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="3e6c985e-7541-4144-9393-48c50cf330d7" absoluteBounds="12, 28.5, 2, 2.1554996744791666">
+      <DataClassMoniker Name="/HuitShopDBDataContext/product_image" />
+      <nestedChildShapes>
+        <elementListCompartment Id="ceb0bbc6-9b13-4283-8078-1622da5bc405" absoluteBounds="12.015, 28.96, 1.9700000000000002, 1.5954996744791665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="22a4bc0b-b91f-4f25-8511-ea926ff97153" absoluteBounds="15, 25.5, 2, 2.9247054036458309">
+      <DataClassMoniker Name="/HuitShopDBDataContext/product_serial" />
+      <nestedChildShapes>
+        <elementListCompartment Id="bed4b05c-124b-4dc7-bb09-5036a9f7f859" absoluteBounds="15.015, 25.96, 1.9700000000000002, 2.364705403645833" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="94826321-934f-46f2-aefb-06465ead50a9" absoluteBounds="9.25, 25.125, 2, 3.5016097005208309">
+      <DataClassMoniker Name="/HuitShopDBDataContext/product_variant" />
+      <nestedChildShapes>
+        <elementListCompartment Id="4b15a3a0-e0df-4833-ab36-22b118e041f1" absoluteBounds="9.265, 25.585, 1.9700000000000002, 2.941609700520833" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="5f372dee-69b8-48e9-9783-626ba1a034ea" absoluteBounds="6.5, 25.25, 2, 3.3093082682291666">
+      <DataClassMoniker Name="/HuitShopDBDataContext/product" />
+      <nestedChildShapes>
+        <elementListCompartment Id="cd498c0d-ee9c-4d05-b4a4-94da2c032905" absoluteBounds="6.515, 25.71, 1.9700000000000002, 2.7493082682291665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="97ceb426-86b9-4a74-ad4f-50de7d78fdc7" absoluteBounds="12, 33.875, 2, 3.1170068359375023">
+      <DataClassMoniker Name="/HuitShopDBDataContext/return" />
+      <nestedChildShapes>
+        <elementListCompartment Id="61d62814-cf3b-45b3-8d73-baf9bcd36dd6" absoluteBounds="12.015, 34.335, 1.9700000000000002, 2.5570068359375" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="7fa9e551-b0f6-41bf-b351-7bfe5ea9406c" absoluteBounds="15, 21.5, 2, 2.9247054036458309">
+      <DataClassMoniker Name="/HuitShopDBDataContext/review" />
+      <nestedChildShapes>
+        <elementListCompartment Id="4475f292-2f83-4737-94ea-39c363590e7b" absoluteBounds="15.015, 21.96, 1.9700000000000002, 2.364705403645833" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="976d547c-af8c-400d-9588-949c38d04a29" absoluteBounds="3.5, 1.125, 2, 1.1939925130208335">
+      <DataClassMoniker Name="/HuitShopDBDataContext/role_permission" />
+      <nestedChildShapes>
+        <elementListCompartment Id="1d70be53-82ae-485b-82d8-e58f09829bfc" absoluteBounds="3.515, 1.585, 1.9700000000000002, 0.63399251302083326" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="14d9596b-219c-473d-820b-84e436fc7547" absoluteBounds="12.25, 22.25, 2, 1.5785953776041666">
+      <DataClassMoniker Name="/HuitShopDBDataContext/stock_movement_type" />
+      <nestedChildShapes>
+        <elementListCompartment Id="e9daa81b-0be4-4a51-a0ac-741c05c54af5" absoluteBounds="12.265, 22.71, 1.9700000000000002, 1.0185953776041665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="dc80813e-a051-42de-84af-856ddf832497" absoluteBounds="15, 29.375, 2, 3.1170068359374987">
+      <DataClassMoniker Name="/HuitShopDBDataContext/stock_movement" />
+      <nestedChildShapes>
+        <elementListCompartment Id="2252af75-a012-4d0c-8c3f-cf5e52d669d2" absoluteBounds="15.015, 29.835, 1.9700000000000002, 2.5570068359375" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="13819e16-563d-48d1-b859-6c3e8ad6ac1f" absoluteBounds="12.25, 38.625, 2, 2.9247054036458309">
+      <DataClassMoniker Name="/HuitShopDBDataContext/supplier" />
+      <nestedChildShapes>
+        <elementListCompartment Id="9a448670-859a-44e2-977d-a2db04462da9" absoluteBounds="12.265, 39.085, 1.9700000000000002, 2.364705403645833" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="3b4e52ee-6b36-4750-90ef-9f7a0641f40c" absoluteBounds="9.25, 32.75, 2, 3.1170068359375023">
+      <DataClassMoniker Name="/HuitShopDBDataContext/support_ticket" />
+      <nestedChildShapes>
+        <elementListCompartment Id="6fde932f-3714-4504-ac9b-26e42ebf6a68" absoluteBounds="9.265, 33.21, 1.9700000000000002, 2.5570068359375" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="8d031956-2a5d-4cdb-8b6b-6fb4fcd51ced" absoluteBounds="0.75, 25.5, 2, 2.9247054036458309">
+      <DataClassMoniker Name="/HuitShopDBDataContext/user" />
+      <nestedChildShapes>
+        <elementListCompartment Id="c7068d30-62f0-4988-a86e-58aaec62f798" absoluteBounds="0.765, 25.96, 1.9700000000000002, 2.364705403645833" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="539104c4-b385-4e48-8bb7-ecebf169610f" absoluteBounds="6.25, 30.25, 2, 2.15549967447917">
+      <DataClassMoniker Name="/HuitShopDBDataContext/voucher_usage" />
+      <nestedChildShapes>
+        <elementListCompartment Id="63f73224-b57c-4866-846f-d19b578fd719" absoluteBounds="6.265, 30.71, 1.9700000000000002, 1.5954996744791665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="9611869b-4517-437a-bdf0-174ec6c48bdd" absoluteBounds="3.5, 44.25, 2, 4.2708154296875023">
+      <DataClassMoniker Name="/HuitShopDBDataContext/voucher" />
+      <nestedChildShapes>
+        <elementListCompartment Id="59ce3c8e-90cf-48bf-86ae-83dbbefc9c26" absoluteBounds="3.515, 44.71, 1.9700000000000002, 3.7108154296875" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <classShape Id="3943d921-e6e7-4d98-999f-f0cf9c15810f" absoluteBounds="9.25, 21.5, 2, 2.7324039713541666">
+      <DataClassMoniker Name="/HuitShopDBDataContext/warehouse" />
+      <nestedChildShapes>
+        <elementListCompartment Id="2f23bd51-8d1d-4436-b9cc-a9207fc798ee" absoluteBounds="9.265, 21.96, 1.9700000000000002, 2.1724039713541665" name="DataPropertiesCompartment" titleTextColor="Black" itemTextColor="Black" />
+      </nestedChildShapes>
+    </classShape>
+    <associationConnector edgePoints="[(5.5 : 23.2604484049479); (5.57291666666667 : 23.2604484049479 : JumpStart); (5.73958333333333 : 23.2604484049479 : JumpEnd); (6.25 : 23.2604484049479)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/cart/cart_cart_item" />
+      <nodes>
+        <classShapeMoniker Id="5b3002cf-56fd-46c2-b28f-beef2c11814a" />
+        <classShapeMoniker Id="8e9a86d7-58a9-40b6-a92b-c761ec7fe60e" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(4.45923076923077 : 17.7901025390625); (4.45923076923077 : 18.0401025390625); (5.05461538461539 : 18.0401025390625); (5.05461538461539 : 17.7901025390625)]" fixedFrom="NotFixed" fixedTo="NotFixed">
+      <AssociationMoniker Name="/HuitShopDBDataContext/category/category_category" />
+      <nodes>
+        <classShapeMoniker Id="c398f181-ce16-4e42-a9b7-35069b7eaf44" />
+        <classShapeMoniker Id="c398f181-ce16-4e42-a9b7-35069b7eaf44" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(8.25 : 40.2219962565104); (9 : 40.2219962565104)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/order_item/order_item_order_item_serial" />
+      <nodes>
+        <classShapeMoniker Id="83ce8cd2-911b-408f-b14f-781973f36701" />
+        <classShapeMoniker Id="f98a6dc5-dc16-4477-a271-d9092de8c343" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(5.5 : 40.4960034179688); (5.85416666666667 : 40.4960034179688 : JumpStart); (6.02083333333333 : 40.4960034179688 : JumpEnd); (6.25 : 40.4960034179688)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/order/order_order_item" />
+      <nodes>
+        <classShapeMoniker Id="d3c892c9-2c7c-44a7-890d-3d4e567cad33" />
+        <classShapeMoniker Id="83ce8cd2-911b-408f-b14f-781973f36701" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(5.5 : 39.3453836153846); (5.87857443490112 : 38.9668091804835 : JumpStart); (5.99642556509888 : 38.8489580502857 : JumpEnd); (6.0625 : 38.7828836153846); (6.0625 : 34.3277498372396); (6.25 : 34.3277498372396)]" fixedFrom="NotFixed" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/order/order_order_status_history" />
+      <nodes>
+        <classShapeMoniker Id="d3c892c9-2c7c-44a7-890d-3d4e567cad33" />
+        <classShapeMoniker Id="eb5c2d54-a9a8-4b91-8e4d-c012972630cd" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(5.5 : 43.0392569986979); (5.85416666666667 : 43.0392569986979 : JumpStart); (6.02083333333333 : 43.0392569986979 : JumpEnd); (6.25 : 43.0392569986979)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/order/order_payment" />
+      <nodes>
+        <classShapeMoniker Id="d3c892c9-2c7c-44a7-890d-3d4e567cad33" />
+        <classShapeMoniker Id="f448f27b-91c4-4bfc-954b-587daaed98ab" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(9.25 : 25.15625); (8.52083583333333 : 25.15625 : JumpStart); (8.32291666666667 : 25.15625 : JumpEnd); (6.34375 : 25.15625); (6.34375 : 24.2131982421875)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/product_variant/product_variant_cart_item" />
+      <nodes>
+        <classShapeMoniker Id="94826321-934f-46f2-aefb-06465ead50a9" />
+        <classShapeMoniker Id="8e9a86d7-58a9-40b6-a92b-c761ec7fe60e" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(11.25 : 26.0440991210938); (11.5416666666667 : 26.0440991210938 : JumpStart); (11.8333333333333 : 26.0440991210938 : JumpEnd); (12 : 26.0440991210938)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/product_variant/product_variant_inventory" />
+      <nodes>
+        <classShapeMoniker Id="94826321-934f-46f2-aefb-06465ead50a9" />
+        <classShapeMoniker Id="2e9e240c-9d1f-4d06-a853-bf8f4d928e53" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(9.25 : 28.6266097005208); (8.875 : 29.0016097005208); (8.875 : 38.25); (8.625 : 38.25); (8.25 : 38.625)]" fixedFrom="NotFixed" fixedTo="NotFixed">
+      <AssociationMoniker Name="/HuitShopDBDataContext/product_variant/product_variant_order_item" />
+      <nodes>
+        <classShapeMoniker Id="94826321-934f-46f2-aefb-06465ead50a9" />
+        <classShapeMoniker Id="83ce8cd2-911b-408f-b14f-781973f36701" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(10.2812525 : 28.6266097005208); (10.2812525 : 29.6723071875); (10.7135454166667 : 29.6723071875 : JumpStart); (10.8802120833333 : 29.6723071875 : JumpEnd); (11.5416666666667 : 29.6723071875 : JumpStart); (11.7083333333333 : 29.6723071875 : JumpEnd); (12 : 29.6723071875)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/product_variant/product_variant_product_image" />
+      <nodes>
+        <classShapeMoniker Id="94826321-934f-46f2-aefb-06465ead50a9" />
+        <classShapeMoniker Id="3e6c985e-7541-4144-9393-48c50cf330d7" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(11.25 : 27.7252018229167); (11.5416666666667 : 27.7252018229167 : JumpStart); (11.7083333333333 : 27.7252018229167 : JumpEnd); (14.0729166666667 : 27.7252018229167 : JumpStart); (14.2395833333333 : 27.7252018229167 : JumpEnd); (15 : 27.7252018229167)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/product_variant/product_variant_product_serial" />
+      <nodes>
+        <classShapeMoniker Id="94826321-934f-46f2-aefb-06465ead50a9" />
+        <classShapeMoniker Id="22a4bc0b-b91f-4f25-8511-ea926ff97153" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(6.5 : 25.9767976888021); (5.73958333333333 : 25.9767976888021 : JumpStart); (5.57291666666667 : 25.9767976888021 : JumpEnd); (5.5 : 25.9767976888021)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/product/product_wishlist" />
+      <nodes>
+        <classShapeMoniker Id="5f372dee-69b8-48e9-9783-626ba1a034ea" />
+        <classShapeMoniker Id="ed475ed9-aba5-4de9-aa34-91382d3453df" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(8.5 : 26.9046541341146); (9.25 : 26.9046541341146)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/product/product_product_variant" />
+      <nodes>
+        <classShapeMoniker Id="5f372dee-69b8-48e9-9783-626ba1a034ea" />
+        <classShapeMoniker Id="94826321-934f-46f2-aefb-06465ead50a9" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(5.65625 : 21.4728011067708); (5.65625 : 27.2267976888021); (6.5 : 27.2267976888021)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/brand/brand_product" />
+      <nodes>
+        <classShapeMoniker Id="47c663e6-9118-4704-91f8-fe60e13891fd" />
+        <classShapeMoniker Id="5f372dee-69b8-48e9-9783-626ba1a034ea" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(5.75 : 16.5200512695313); (8.40625 : 16.5200512695313); (8.40625 : 25.25)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/category/category_product" />
+      <nodes>
+        <classShapeMoniker Id="c398f181-ce16-4e42-a9b7-35069b7eaf44" />
+        <classShapeMoniker Id="5f372dee-69b8-48e9-9783-626ba1a034ea" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(5.5 : 42.2460034179688); (5.85416666666667 : 42.2460034179688 : JumpStart); (6.02083333333333 : 42.2460034179688 : JumpEnd); (12.09375 : 42.2460034179688); (12.09375 : 36.9920068359375)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/order/order_return" />
+      <nodes>
+        <classShapeMoniker Id="d3c892c9-2c7c-44a7-890d-3d4e567cad33" />
+        <classShapeMoniker Id="97ceb426-86b9-4a74-ad4f-50de7d78fdc7" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(8.25 : 41.6771061197917); (11.0729166666667 : 41.6771061197917 : JumpStart); (11.2395833333333 : 41.6771061197917 : JumpEnd); (12.0624975 : 41.6771061197917); (12.0624975 : 36.9920068359375)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/order_item/order_item_return" />
+      <nodes>
+        <classShapeMoniker Id="83ce8cd2-911b-408f-b14f-781973f36701" />
+        <classShapeMoniker Id="97ceb426-86b9-4a74-ad4f-50de7d78fdc7" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(8.4375025 : 25.25); (8.4375025 : 24.3598046875); (11.2617596905048 : 24.3598046875 : JumpStart); (11.4961196648638 : 24.3598046875 : JumpEnd); (12.0104166666667 : 24.3598046875 : JumpStart); (12.1770833333333 : 24.3598046875 : JumpEnd); (14.0729166666667 : 24.3598046875 : JumpStart); (14.2395833333333 : 24.3598046875 : JumpEnd); (15 : 24.3598046875)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/product/product_review" />
+      <nodes>
+        <classShapeMoniker Id="5f372dee-69b8-48e9-9783-626ba1a034ea" />
+        <classShapeMoniker Id="7fa9e551-b0f6-41bf-b351-7bfe5ea9406c" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(11.25 : 26.8846504720052); (11.5416666666667 : 26.8846504720052 : JumpStart); (11.7083333333333 : 26.8846504720052 : JumpEnd); (11.75 : 26.8846504720052); (11.75 : 24.75); (12.0104166666667 : 24.75 : JumpStart); (12.1770833333333 : 24.75 : JumpEnd); (14.0729166666667 : 24.75 : JumpStart); (14.2395833333333 : 24.75 : JumpEnd); (14.5416666666667 : 24.75 : JumpStart); (14.7083333333333 : 24.75 : JumpEnd); (16 : 24.75); (16 : 24.4247054036458)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/product_variant/product_variant_review" />
+      <nodes>
+        <classShapeMoniker Id="94826321-934f-46f2-aefb-06465ead50a9" />
+        <classShapeMoniker Id="7fa9e551-b0f6-41bf-b351-7bfe5ea9406c" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(2.75 : 1.72199625651042); (3.5 : 1.72199625651042)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/permission/permission_role_permission" />
+      <nodes>
+        <classShapeMoniker Id="712f8833-a322-42e1-a167-2804c0ee00ee" />
+        <classShapeMoniker Id="976d547c-af8c-400d-9588-949c38d04a29" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(14.15625 : 23.8285953776042); (14.15625 : 31.6050032552083); (15 : 31.6050032552083)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/stock_movement_type/stock_movement_type_stock_movement" />
+      <nodes>
+        <classShapeMoniker Id="14d9596b-219c-473d-820b-84e436fc7547" />
+        <classShapeMoniker Id="dc80813e-a051-42de-84af-856ddf832497" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(10.79687875 : 28.6266097005208); (10.79687875 : 31.1302489648438); (14.0729166666667 : 31.1302489648438 : JumpStart); (14.2395833333333 : 31.1302489648438 : JumpEnd); (15 : 31.1302489648438)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/product_variant/product_variant_stock_movement" />
+      <nodes>
+        <classShapeMoniker Id="94826321-934f-46f2-aefb-06465ead50a9" />
+        <classShapeMoniker Id="dc80813e-a051-42de-84af-856ddf832497" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(14.203125 : 38.625); (14.203125 : 32.0797575455729); (15 : 32.0797575455729)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/supplier/supplier_stock_movement" />
+      <nodes>
+        <classShapeMoniker Id="13819e16-563d-48d1-b859-6c3e8ad6ac1f" />
+        <classShapeMoniker Id="dc80813e-a051-42de-84af-856ddf832497" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(5.5 : 41.9940026269531); (5.85416666666667 : 41.9940026269531 : JumpStart); (6.02083333333333 : 41.9940026269531 : JumpEnd); (11.15625 : 41.9940026269531); (11.15625 : 35.8670068359375)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/order/order_support_ticket" />
+      <nodes>
+        <classShapeMoniker Id="d3c892c9-2c7c-44a7-890d-3d4e567cad33" />
+        <classShapeMoniker Id="3b4e52ee-6b36-4750-90ef-9f7a0641f40c" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(8.40625 : 28.5593082682292); (8.40625 : 32.96875); (8.79166666666667 : 32.96875 : JumpStart); (8.95833333333333 : 32.96875 : JumpEnd); (9.25 : 32.96875)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/product/product_support_ticket" />
+      <nodes>
+        <classShapeMoniker Id="5f372dee-69b8-48e9-9783-626ba1a034ea" />
+        <classShapeMoniker Id="3b4e52ee-6b36-4750-90ef-9f7a0641f40c" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(2.75 : 26.1017976888021); (3.5 : 26.1017976888021)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/user/user_wishlist" />
+      <nodes>
+        <classShapeMoniker Id="8d031956-2a5d-4cdb-8b6b-6fb4fcd51ced" />
+        <classShapeMoniker Id="ed475ed9-aba5-4de9-aa34-91382d3453df" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(1.75 : 28.4247054036458); (1.75 : 32.6835034179688); (1.93229291666667 : 32.6835034179688 : JumpStart); (2.09895958333333 : 32.6835034179688 : JumpEnd); (2.19791916666667 : 32.6835034179688 : JumpStart); (2.36458583333333 : 32.6835034179688 : JumpEnd); (2.46354541666667 : 32.6835034179688 : JumpStart); (2.63021208333333 : 32.6835034179688 : JumpEnd); (3.5 : 32.6835034179688)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/user/user_address" />
+      <nodes>
+        <classShapeMoniker Id="8d031956-2a5d-4cdb-8b6b-6fb4fcd51ced" />
+        <classShapeMoniker Id="1683b330-4310-4684-bbdd-6499ec7f0fcd" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(2.75 : 28.0873527018229); (3.5 : 28.0873527018229)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/user/user_audit_log" />
+      <nodes>
+        <classShapeMoniker Id="8d031956-2a5d-4cdb-8b6b-6fb4fcd51ced" />
+        <classShapeMoniker Id="60160509-6ad1-4c8a-aad3-d20da294c7e6" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(1.75 : 25.5); (1.75 : 23.2604484049479); (3.5 : 23.2604484049479)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/user/user_cart" />
+      <nodes>
+        <classShapeMoniker Id="8d031956-2a5d-4cdb-8b6b-6fb4fcd51ced" />
+        <classShapeMoniker Id="5b3002cf-56fd-46c2-b28f-beef2c11814a" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(2.2812525 : 28.4247054036458); (2.2812525 : 34.8978772558594); (2.46354541666667 : 34.8978772558594 : JumpStart); (2.63021208333333 : 34.8978772558594 : JumpEnd); (5.79166666666667 : 34.8978772558594 : JumpStart); (6.14583333333333 : 34.8978772558594 : JumpEnd); (6.25 : 34.8978772558594)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/user/user_order_status_history" />
+      <nodes>
+        <classShapeMoniker Id="8d031956-2a5d-4cdb-8b6b-6fb4fcd51ced" />
+        <classShapeMoniker Id="eb5c2d54-a9a8-4b91-8e4d-c012972630cd" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(1.2187475 : 28.4247054036458); (1.2187475 : 41.2892569986979); (3.5 : 41.2892569986979)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/user/user_order" />
+      <nodes>
+        <classShapeMoniker Id="8d031956-2a5d-4cdb-8b6b-6fb4fcd51ced" />
+        <classShapeMoniker Id="d3c892c9-2c7c-44a7-890d-3d4e567cad33" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(2.75 : 26.9339465332031); (5.57291666666667 : 26.9339465332031 : JumpStart); (5.73958333333333 : 26.9339465332031 : JumpEnd); (6.5 : 26.9339465332031)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/user/user_product" />
+      <nodes>
+        <classShapeMoniker Id="8d031956-2a5d-4cdb-8b6b-6fb4fcd51ced" />
+        <classShapeMoniker Id="5f372dee-69b8-48e9-9783-626ba1a034ea" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(2.54687875 : 28.4247054036458); (2.54687875 : 36.4607568359375); (5.79166666666667 : 36.4607568359375 : JumpStart); (6.14583333333333 : 36.4607568359375 : JumpEnd); (8.79166666666667 : 36.4607568359375 : JumpStart); (8.95833333333333 : 36.4607568359375 : JumpEnd); (11.0729166666667 : 36.4607568359375 : JumpStart); (11.2395833333333 : 36.4607568359375 : JumpEnd); (12 : 36.4607568359375)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/user/user_return" />
+      <nodes>
+        <classShapeMoniker Id="8d031956-2a5d-4cdb-8b6b-6fb4fcd51ced" />
+        <classShapeMoniker Id="97ceb426-86b9-4a74-ad4f-50de7d78fdc7" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(2.2812525 : 25.5); (2.2812525 : 24.3910571875); (5.57291666666667 : 24.3910571875 : JumpStart); (5.73958333333333 : 24.3910571875 : JumpEnd); (6.26041666666667 : 24.3910571875 : JumpStart); (6.42708333333333 : 24.3910571875 : JumpEnd); (8.32291666666667 : 24.3910571875 : JumpStart); (8.48958333333333 : 24.3910571875 : JumpEnd); (11.2930121905048 : 24.3910571875 : JumpStart); (11.5273721648638 : 24.3910571875 : JumpEnd); (12.0104166666667 : 24.3910571875 : JumpStart); (12.1770833333333 : 24.3910571875 : JumpEnd); (14.0729166666667 : 24.3910571875 : JumpStart); (14.2395833333333 : 24.3910571875 : JumpEnd); (15 : 24.3910571875)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/user/user_review" />
+      <nodes>
+        <classShapeMoniker Id="8d031956-2a5d-4cdb-8b6b-6fb4fcd51ced" />
+        <classShapeMoniker Id="7fa9e551-b0f6-41bf-b351-7bfe5ea9406c" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(2.75 : 27.457148844401); (6.25 : 27.457148844401); (6.25 : 28.8766097005208); (8.32291666666667 : 28.8766097005208 : JumpStart); (8.48958333333333 : 28.8766097005208 : JumpEnd); (8.91666666666667 : 28.8766097005208 : JumpStart); (9.08333333333333 : 28.8766097005208 : JumpEnd); (10.1979191666667 : 28.8766097005208 : JumpStart); (10.3645858333333 : 28.8766097005208 : JumpEnd); (10.7135454166667 : 28.8766097005208 : JumpStart); (10.8802120833333 : 28.8766097005208 : JumpEnd); (11.5416666666667 : 28.8766097005208 : JumpStart); (11.7083333333333 : 28.8766097005208 : JumpEnd); (11.75 : 28.8766097005208); (11.75 : 28.25); (14.0729166666667 : 28.25 : JumpStart); (14.2395833333333 : 28.25 : JumpEnd); (14.75 : 28.25); (14.75 : 28.6747054036458); (16 : 28.6747054036458); (16 : 29.375)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/user/user_stock_movement" />
+      <nodes>
+        <classShapeMoniker Id="8d031956-2a5d-4cdb-8b6b-6fb4fcd51ced" />
+        <classShapeMoniker Id="dc80813e-a051-42de-84af-856ddf832497" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(2.01562625 : 28.4247054036458); (2.01562625 : 35.6675032552083); (2.46354541666667 : 35.6675032552083 : JumpStart); (2.63021208333333 : 35.6675032552083 : JumpEnd); (5.79166666666667 : 35.6675032552083 : JumpStart); (6.14583333333333 : 35.6675032552083 : JumpEnd); (8.79166666666667 : 35.6675032552083 : JumpStart); (8.95833333333333 : 35.6675032552083 : JumpEnd); (9.25 : 35.6675032552083)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/user/user_support_ticket" />
+      <nodes>
+        <classShapeMoniker Id="8d031956-2a5d-4cdb-8b6b-6fb4fcd51ced" />
+        <classShapeMoniker Id="3b4e52ee-6b36-4750-90ef-9f7a0641f40c" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(1.48437375 : 28.4247054036458); (1.48437375 : 35.5364989648438); (1.93229291666667 : 35.5364989648438 : JumpStart); (2.09895958333333 : 35.5364989648438 : JumpEnd); (2.46354541666667 : 35.5364989648438 : JumpStart); (2.63021208333333 : 35.5364989648438 : JumpEnd); (5.79166666666667 : 35.5364989648438 : JumpStart); (6.14583333333333 : 35.5364989648438 : JumpEnd); (8.79166666666667 : 35.5364989648438 : JumpStart); (8.95833333333333 : 35.5364989648438 : JumpEnd); (9.25 : 35.5364989648438)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/user/user_support_ticket1" />
+      <nodes>
+        <classShapeMoniker Id="8d031956-2a5d-4cdb-8b6b-6fb4fcd51ced" />
+        <classShapeMoniker Id="3b4e52ee-6b36-4750-90ef-9f7a0641f40c" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(5.46769230769231 : 39.25); (5.875 : 38.8426923076923); (5.875 : 31.3277498372396); (6.25 : 31.3277498372396)]" fixedFrom="NotFixed" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/order/order_voucher_usage" />
+      <nodes>
+        <classShapeMoniker Id="d3c892c9-2c7c-44a7-890d-3d4e567cad33" />
+        <classShapeMoniker Id="539104c4-b385-4e48-8bb7-ecebf169610f" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(0.95312125 : 28.4247054036458); (0.95312125 : 30.7075512695313); (1.13541416666667 : 30.7075512695313 : JumpStart); (1.30208083333333 : 30.7075512695313 : JumpEnd); (1.40104041666667 : 30.7075512695313 : JumpStart); (1.56770708333333 : 30.7075512695313 : JumpEnd); (1.66666666666667 : 30.7075512695313 : JumpStart); (1.83333333333333 : 30.7075512695313 : JumpEnd); (1.93229291666667 : 30.7075512695313 : JumpStart); (2.09895958333333 : 30.7075512695313 : JumpEnd); (2.19791916666667 : 30.7075512695313 : JumpStart); (2.36458583333333 : 30.7075512695313 : JumpEnd); (2.46354541666667 : 30.7075512695313 : JumpStart); (2.63021208333333 : 30.7075512695313 : JumpEnd); (6.25 : 30.7075512695313)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/user/user_voucher_usage" />
+      <nodes>
+        <classShapeMoniker Id="8d031956-2a5d-4cdb-8b6b-6fb4fcd51ced" />
+        <classShapeMoniker Id="539104c4-b385-4e48-8bb7-ecebf169610f" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(5.5 : 44.3115374615385); (5.9375 : 43.8740374615385); (5.9375 : 31.8978767558594); (6.25 : 31.8978767558594)]" fixedFrom="NotFixed" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/voucher/voucher_voucher_usage" />
+      <nodes>
+        <classShapeMoniker Id="9611869b-4517-437a-bdf0-174ec6c48bdd" />
+        <classShapeMoniker Id="539104c4-b385-4e48-8bb7-ecebf169610f" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(11.25 : 21.84375); (12.09375 : 21.84375); (12.09375 : 25)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/warehouse/warehouse_inventory" />
+      <nodes>
+        <classShapeMoniker Id="3943d921-e6e7-4d98-999f-f0cf9c15810f" />
+        <classShapeMoniker Id="2e9e240c-9d1f-4d06-a853-bf8f4d928e53" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(11.25 : 24.1970183559696); (11.6603856153846 : 24.6074039713542); (12.0104166666667 : 24.6074039713542 : JumpStart); (12.1770833333333 : 24.6074039713542 : JumpEnd); (14.0729166666667 : 24.6074039713542 : JumpStart); (14.2395833333333 : 24.6074039713542 : JumpEnd); (14.625 : 24.6074039713542); (14.625 : 25.125); (15 : 25.5)]" fixedFrom="NotFixed" fixedTo="NotFixed">
+      <AssociationMoniker Name="/HuitShopDBDataContext/warehouse/warehouse_product_serial" />
+      <nodes>
+        <classShapeMoniker Id="3943d921-e6e7-4d98-999f-f0cf9c15810f" />
+        <classShapeMoniker Id="22a4bc0b-b91f-4f25-8511-ea926ff97153" />
+      </nodes>
+    </associationConnector>
+    <associationConnector edgePoints="[(11.2176923076923 : 24.2324039713542); (11.625 : 24.6397116636619); (11.625 : 30.8928718196615); (14.0729166666667 : 30.8928718196615 : JumpStart); (14.2395833333333 : 30.8928718196615 : JumpEnd); (15 : 30.8928718196615)]" fixedFrom="NotFixed" fixedTo="Algorithm">
+      <AssociationMoniker Name="/HuitShopDBDataContext/warehouse/warehouse_stock_movement" />
+      <nodes>
+        <classShapeMoniker Id="3943d921-e6e7-4d98-999f-f0cf9c15810f" />
+        <classShapeMoniker Id="dc80813e-a051-42de-84af-856ddf832497" />
+      </nodes>
+    </associationConnector>
+  </nestedChildShapes>
+</ordesignerObjectsDiagram>

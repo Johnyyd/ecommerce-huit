@@ -28,6 +28,7 @@ build/
 .idea/
 *.swp
 *.swo
+*.vs
 
 # OS
 .DS_Store
