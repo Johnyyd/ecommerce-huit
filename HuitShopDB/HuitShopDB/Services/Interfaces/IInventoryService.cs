@@ -1,0 +1,16 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using HuitShopDB.Models.DTOs.Admin;
+
+namespace HuitShopDB.Services.Interfaces
+{
+    public interface IInventoryService
+    {
+        Task<IEnumerable<InventoryDto>> GetStockLevelByWarehouseAsync(int warehouseId);
+        Task<IEnumerable<LowStockDto>> GetLowStockVariantsAsync(int? warehouseId);
+        Task<bool> ImportStockAsync(ImportStockRequest request);
+        Task<bool> TransferStockAsync(TransferStockRequest request);
+        Task<bool> AdjustStockAsync(AdjustStockRequest request);
+    }
+}
+

@@ -1,0 +1,56 @@
+@model HuitShopDB.Models.DTOs.Product.ProductDetailDto
+
+@{
+    ViewBag.Title = Model.Name;
+}
+
+<div class="row mt-4 mb-5">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="/Product">Sản phẩm</a></li>
+                <li class="breadcrumb-item active" aria-current="page">@Model.Name</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="col-md-6 mt-3">
+        @{
+            var firstImage = (Model.Images != null && Model.Images.Count > 0) ? Model.Images[0].ImageUrl : "";
+        }
+        <img src="@(string.IsNullOrEmpty(firstImage) ? "https://via.placeholder.com/600x600?text=No+Image" : firstImage)" class="img-fluid rounded shadow" alt="@Model.Name" style="object-fit: cover; width: 100%; height: auto;" />
+    </div>
+    <div class="col-md-6 mt-3">
+        <h2 class="display-6 fw-bold">@Model.Name</h2>
+        <div class="mb-3">
+            <span class="badge bg-secondary">Danh mục: @(Model.Category != null ? Model.Category.Name : "Không xác định")</span>
+            <span class="badge bg-info text-dark">Thương hiệu: @(Model.Brand != null ? Model.Brand.Name : "Không xác định")</span>
+        </div>
+        <h3 class="text-danger fw-bold mb-4">
+            @(Model.Variants != null && Model.Variants.Count > 0 ? Model.Variants[0].Price.ToString("N0") : "0") ₫
+        </h3>
+        
+        <div class="card bg-light border-0 mt-4 mb-4">
+            <div class="card-body">
+                <form action="/Cart/Add" method="post">
+                    <input type="hidden" name="productId" value="@Model.Id" />
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-success btn-lg">
+                            <i class="bi bi-cart-plus"></i> Thêm vào giỏ hàng
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <h4 class="border-bottom pb-2">Mô tả sản phẩm</h4>
+        <div class="mt-4">
+            @Html.Raw(Model.Description)
+        </div>
+    </div>
+</div>
+

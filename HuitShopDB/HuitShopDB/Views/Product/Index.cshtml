@@ -1,0 +1,63 @@
+@model IEnumerable<HuitShopDB.Models.DTOs.Product.ProductListDto>
+
+@{
+    ViewBag.Title = "Danh sách Sản phẩm";
+}
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <h2 class="display-4 text-center mt-3">Danh sách Sản phẩm</h2>
+        <p class="text-center text-muted">Khám phá các sản phẩm tuyệt vời của chúng tôi</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3">
+        <!-- Sidebar filters -->
+        <div class="card mb-4 shadow-sm border-0">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Danh mục</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><a href="/Product" class="text-decoration-none">Tất cả sản phẩm</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <div class="row">
+            @if (Model != null && Model.Any())
+            {
+                foreach (var item in Model)
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 shadow-sm border-0">
+                            <img src="@(string.IsNullOrEmpty(item.ThumbnailUrl) ? "https://via.placeholder.com/300x200?text=No+Image" : item.ThumbnailUrl)" class="card-img-top" alt="@item.Name" style="height: 200px; object-fit: cover;">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title text-truncate">@item.Name</h5>
+                                <p class="card-text text-danger fw-bold">
+                                    @item.PriceFrom.ToString("N0") ₫
+                                    @if(item.PriceTo.HasValue && item.PriceTo.Value > item.PriceFrom)
+                                    {
+                                        <span> - @item.PriceTo.Value.ToString("N0") ₫</span>
+                                    }
+                                </p>
+                                <div class="mt-auto">
+                                    <a href="/Product/Detail/@item.Id" class="btn btn-outline-primary w-100 mb-2">Xem chi tiết</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center py-5">
+                    <h4 class="text-muted">Không tìm thấy sản phẩm nào.</h4>
+                    <p>Hãy thử xóa bộ lọc hoặc tìm kiếm lại.</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
