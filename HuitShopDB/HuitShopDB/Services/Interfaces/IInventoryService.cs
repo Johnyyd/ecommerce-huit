@@ -11,6 +11,7 @@ namespace HuitShopDB.Services.Interfaces
         Task<bool> ImportStockAsync(ImportStockRequest request);
         Task<bool> TransferStockAsync(TransferStockRequest request);
         Task<bool> AdjustStockAsync(AdjustStockRequest request);
+        Task<IEnumerable<Models.warehouse>> GetWarehousesAsync();
     }
 }
 

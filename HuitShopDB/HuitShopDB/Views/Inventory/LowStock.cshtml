@@ -1,0 +1,80 @@
+@model IEnumerable<HuitShopDB.Models.DTOs.Admin.LowStockDto>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var warehouses = ViewBag.Warehouses as IEnumerable<HuitShopDB.Models.warehouse>;
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Cảnh báo hết hàng</h2>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Quay lại Tổng quan</a>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light">
+            <form method="get" action="@Url.Action("Index")" class="row g-3">
+                <input type="hidden" name="lowStock" value="true" />
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Chọn kho hàng</label>
+                    <select name="warehouseId" class="form-select" onchange="this.form.submit()">
+                        <option value="0">Tất cả kho</option>
+                        @foreach (var w in warehouses)
+                        {
+                            <option value="@w.id" @(ViewBag.CurrentWarehouseId == w.id ? "selected" : "")>@w.name (@w.code)</option>
+                        }
+                    </select>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 border-start border-danger border-5">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>SKU</th>
+                        <th>Sản phẩm</th>
+                        <th>Kho</th>
+                        <th class="text-center">Số lượng</th>
+                        <th class="text-center">Mức tối thiểu</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">@item.Sku</td>
+                                <td>
+                                    <div>@item.ProductName</div>
+                                    <small class="text-muted">@item.VariantName</small>
+                                </td>
+                                <td><span class="badge bg-secondary">@item.WarehouseCode</span></td>
+                                <td class="text-center fw-bold text-danger">@item.QuantityOnHand</td>
+                                <td class="text-center">@item.ReorderPoint</td>
+                                <td class="text-center">
+                                    <span class="badge bg-danger">Cần nhập thêm</span>
+                                </td>
+                                <td class="text-end">
+                                    <a href="@Url.Action("Import", new { variantId = item.VariantId, warehouseId = item.WarehouseId })" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-cart-plus"></i> Nhập hàng
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">Tuyệt vời! Không có sản phẩm nào ở mức báo động.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

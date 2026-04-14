@@ -1,0 +1,60 @@
+@model HuitShopDB.Models.DTOs.Admin.ImportStockRequest
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var warehouses = ViewBag.Warehouses as IEnumerable<HuitShopDB.Models.warehouse>;
+    
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0"><i class="bi bi-box-arrow-in-down me-2"></i>Nhập kho sản phẩm</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form action="@Url.Action("Import")" method="post">
+                        @Html.AntiForgeryToken()
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Chọn kho hàng</label>
+                            <select name="WarehouseId" class="form-select" required>
+                                <option value="">-- Chọn kho --</option>
+                                @foreach (var w in warehouses)
+                                {
+                                    <option value="@w.id">@w.name (@w.code)</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ID Biến thể sản phẩm (Variant ID)</label>
+                            <input type="number" name="VariantId" class="form-control" placeholder="Nhập ID từ danh sách sản phẩm" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Số lượng nhập</label>
+                            <input type="number" name="Quantity" class="form-control" value="1" min="1" required />
+                            <small class="text-muted">Nếu không nhập mã serial, hệ thống sẽ sử dụng số lượng này.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Giá nhập (VNĐ)</label>
+                            <input type="number" name="CostPrice" class="form-control" value="0" step="1000" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Mã Serial (Mỗi mã 1 dòng)</label>
+                            <textarea name="SerialsRaw" class="form-control" rows="5" placeholder="Nhập danh sách mã serial nếu có..."></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Xác nhận nhập kho</button>
+                            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Hủy bỏ</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

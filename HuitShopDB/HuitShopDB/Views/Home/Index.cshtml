@@ -7,19 +7,64 @@
     <p class="lead">Chào mừng bạn đến với hệ thống bán hàng điện tử được chuyển đổi sang định dạng <strong>Visual Studio 2013 (ASP.NET MVC 5)</strong>.</p>
     <p><a href="/Product" class="btn btn-primary btn-lg">Xem danh sách Sản phẩm &raquo;</a></p>
 </div>
+<hr />
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Kiến trúc MVC</h2>
-        <p>Hệ thống đã được chuyển đổi từ ASP.NET Core API sang ASP.NET MVC 5, sử dụng Razor Views để hiển thị trực tiếp từ máy chủ thay vì dùng Vite/React.</p>
+<div class="row mt-5">
+    <div class="col-12 mb-4 text-center">
+        <h2 class="fw-bold"><i class="bi bi-grid-3x3-gap me-2"></i>Quản lý hệ thống</h2>
+        <p class="text-muted">Các module chức năng dành cho quản trị viên và người dùng</p>
     </div>
-    <div class="col-md-4">
-        <h2>Visual Studio 2013</h2>
-        <p>Tương thích hoàn toàn với Visual Studio 2013 và .NET Framework 4.5.1.</p>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card h-100 shadow-sm border-0 text-center p-3 hover-shadow">
+            <div class="card-body">
+                <i class="bi bi-box-seam text-primary display-4 mb-3"></i>
+                <h4 class="card-title">Kho hàng</h4>
+                <p class="card-text text-muted small">Quản lý tồn kho, nhập xuất và cảnh báo hết hàng.</p>
+                <a href="/Inventory" class="btn btn-outline-primary btn-sm stretched-link">Truy cập</a>
+            </div>
+        </div>
     </div>
-    <div class="col-md-4">
-        <h2>Entity Framework 6</h2>
-        <p>Dữ liệu được quản lý thông qua Entity Framework 6 (EF6) truyền thống.</p>
+
+    <div class="col-md-3 mb-4">
+        <div class="card h-100 shadow-sm border-0 text-center p-3">
+            <div class="card-body">
+                <i class="bi bi-people text-success display-4 mb-3"></i>
+                <h4 class="card-title">Người dùng</h4>
+                <p class="card-text text-muted small">Quản lý tài khoản, hồ sơ và quyền hạn khách hàng.</p>
+                <a href="/User" class="btn btn-outline-success btn-sm stretched-link">Truy cập</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card h-100 shadow-sm border-0 text-center p-3">
+            <div class="card-body">
+                <i class="bi bi-chat-left-text text-warning display-4 mb-3"></i>
+                <h4 class="card-title">Đánh giá</h4>
+                <p class="card-text text-muted small">Phản hồi khách hàng và đánh giá sản phẩm.</p>
+                <a href="/Review" class="btn btn-outline-warning btn-sm stretched-link">Truy cập</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-4">
+        <div class="card h-100 shadow-sm border-0 text-center p-3">
+            <div class="card-body">
+                <i class="bi bi-shield-check text-info display-4 mb-3"></i>
+                <h4 class="card-title">Bảo hành</h4>
+                <p class="card-text text-muted small">Quản lý và tra cứu thông tin bảo hành thiết bị.</p>
+                <a href="/Warranty" class="btn btn-outline-info btn-sm stretched-link">Truy cập</a>
+            </div>
+        </div>
     </div>
 </div>
+
+<style>
+    .card:hover { 
+        transform: translateY(-5px);
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+</style>
 
