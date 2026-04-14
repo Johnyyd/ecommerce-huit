@@ -1,0 +1,106 @@
+@model HuitShopDB.Models.DTOs.Warranty.WarrantyDto
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <div class="card shadow-lg border-0 overflow-hidden">
+                <div class="card-header bg-primary text-white p-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-0 fw-bold"><i class="bi bi-shield-check me-2"></i>Thông tin bảo hành điện tử</h4>
+                        <small class="opacity-75">Hệ thống ECommerce HUIT</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge @(Model.Status == "ACTIVE" ? "bg-success" : "bg-danger") px-3 py-2 fs-6">
+                            @(Model.Status == "ACTIVE" ? "ĐANG CÒN HẠN" : "HẾT HẠN BẢO HÀNH")
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-body p-0">
+                    <div class="row g-0">
+                        <!-- Left Info Column -->
+                        <div class="col-md-7 p-4 border-end">
+                            <h5 class="fw-bold border-bottom pb-2 mb-4 text-primary">Thông tin sản phẩm</h5>
+                            <div class="mb-3">
+                                <label class="text-muted small d-block">Mã Serial:</label>
+                                <span class="fs-4 fw-bold font-monospace text-uppercase">@Model.SerialNumber</span>
+                            </div>
+                            <div class="mb-3">
+                                <label class="text-muted small d-block">Tên sản phẩm:</label>
+                                <span class="fw-bold">@Model.ProductName</span>
+                            </div>
+                            <div class="mb-4">
+                                <label class="text-muted small d-block">Phân loại:</label>
+                                <span>@(string.IsNullOrEmpty(Model.VariantName) ? "Tiêu chuẩn" : Model.VariantName)</span>
+                            </div>
+
+                            <h5 class="fw-bold border-bottom pb-2 mb-4 text-primary">Thông tin khách hàng</h5>
+                            <div class="mb-3">
+                                <label class="text-muted small d-block">Chủ sở hữu:</label>
+                                <span class="fw-bold">@(string.IsNullOrEmpty(Model.CustomerName) ? "Chưa đăng ký thông tin" : Model.CustomerName)</span>
+                            </div>
+                            <div class="mb-0">
+                                <label class="text-muted small d-block">Mã đơn hàng:</label>
+                                <span class="fw-bold">@(string.IsNullOrEmpty(Model.OrderCode) ? "-" : Model.OrderCode)</span>
+                            </div>
+                        </div>
+
+                        <!-- Right Stats Column -->
+                        <div class="col-md-5 bg-light p-4 text-center d-flex flex-column justify-content-center">
+                            <div class="mb-4">
+                                <div class="text-muted small mb-2 text-uppercase fw-bold">Thời hạn bảo hành</div>
+                                <h2 class="fw-bold text-dark">@(Model.ExpireDate.HasValue ? Model.ExpireDate.Value.ToString("dd/MM/yyyy") : "Vĩnh viễn")</h2>
+                            </div>
+
+                            @if (Model.Status == "ACTIVE")
+                            {
+                                <div class="mb-4">
+                                    @{
+                                        int totalDays = 365; // Placeholder for total warranty period
+                                        var percent = Math.Max(0, Math.Min(100, (Model.DaysRemaining * 100) / totalDays));
+                                    }
+                                    <div class="text-muted small mb-3">Còn lại <strong class="text-primary">@Model.DaysRemaining ngày</strong></div>
+                                    <div class="progress rounded-pill bg-white" style="height: 15px; box-shadow: inset 0 1px 2px rgba(0,0,0,.1);">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated rounded-pill" role="progressbar" style="width: @(percent)%"></div>
+                                    </div>
+                                </div>
+                                <div class="alert alert-success-subtle border border-success-subtle small">
+                                    <i class="bi bi-info-circle me-1"></i> Thiết bị của bạn vẫn đang trong thời gian hỗ trợ chính hãng.
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-danger-subtle border border-danger-subtle small">
+                                    <i class="bi bi-x-circle me-1"></i> Thiết bị này đã hết thời hạn hỗ trợ bảo hành.
+                                </div>
+                            }
+
+                            <div class="mt-4 pt-3 border-top">
+                                <p class="text-muted x-small">Quét mã QR tại cửa hàng để làm thủ tục sửa chữa nhanh chóng.</p>
+                                <div class="text-center py-2">
+                                    <i class="bi bi-qr-code-scan display-1 text-secondary opacity-25"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer bg-white py-3 text-center border-0">
+                    <button class="btn btn-outline-secondary btn-sm px-4 me-2" onclick="window.print()">
+                        <i class="bi bi-printer me-1"></i> In chứng nhận
+                    </button>
+                    <a href="@Url.Action("Index")" class="btn btn-primary btn-sm px-4">
+                        Quay lại tra cứu
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .x-small { font-size: 0.75rem; }
+</style>

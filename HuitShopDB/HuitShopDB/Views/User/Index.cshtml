@@ -1,11 +1,126 @@
+@model IEnumerable<HuitShopDB.Models.DTOs.User.UserDto>
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container mt-4">
-    <h2>@ViewBag.Title</h2>
-    <hr />
-    <div class="alert alert-info">
-        Đây là giao diện quản lý người dùng. Đang trong quá trình phát triển.
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-people me-2"></i>@ViewBag.Title</h2>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light">
+            <form method="get" class="row g-3">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="text" name="search" class="form-control" placeholder="Tìm tên hoặc email..." value="@ViewBag.Search" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="role" class="form-select">
+                        <option value="">Tất cả vai trò</option>
+                        <option value="ADMIN" @(ViewBag.Role == "ADMIN" ? "selected" : "")>ADMIN</option>
+                        <option value="USER" @(ViewBag.Role == "USER" ? "selected" : "")>USER</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="ACTIVE" @(ViewBag.Status == "ACTIVE" ? "selected" : "")>Đang hoạt động</option>
+                        <option value="SUSPENDED" @(ViewBag.Status == "SUSPENDED" ? "selected" : "")>Đã khóa</option>
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <button type="submit" class="btn btn-primary w-100">Lọc</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Người dùng</th>
+                        <th>Email</th>
+                        <th>Vai trò</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var user in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar me-3 bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            @if (!string.IsNullOrEmpty(user.AvatarUrl))
+                                            {
+                                                <img src="@user.AvatarUrl" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;" />
+                                            }
+                                            else
+                                            {
+                                                @(user.FullName.Substring(0, 1).ToUpper())
+                                            }
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">@user.FullName</div>
+                                            <small class="text-muted">ID: @user.Id</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>@user.Email</td>
+                                <td>
+                                    <span class="badge @(user.Role == "ADMIN" ? "bg-primary" : "bg-info")">@user.Role</span>
+                                </td>
+                                <td>
+                                    <span class="badge @(user.Status == "ACTIVE" ? "bg-success" : "bg-danger")">
+                                        @(user.Status == "ACTIVE" ? "Đang hoạt động" : "Đã khóa")
+                                    </span>
+                                </td>
+                                <td>@user.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                <td class="text-end">
+                                    <div class="btn-group">
+                                        <a href="@Url.Action("Details", new { id = user.Id })" class="btn btn-sm btn-outline-secondary" title="Chi tiết">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="@Url.Action("Edit", new { id = user.Id })" class="btn btn-sm btn-outline-primary" title="Sửa">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form action="@Url.Action("ToggleStatus")" method="post" style="display:inline;">
+                                            <input type="hidden" name="id" value="@user.Id" />
+                                            <input type="hidden" name="currentStatus" value="@user.Status" />
+                                            <button type="submit" class="btn btn-sm @(user.Status == "ACTIVE" ? "btn-outline-danger" : "btn-outline-success")" title="@(user.Status == "ACTIVE" ? "Khóa" : "Kích hoạt")">
+                                                <i class="bi @(user.Status == "ACTIVE" ? "bi-lock" : "bi-unlock")"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">Không tìm thấy người dùng nào.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>

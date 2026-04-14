@@ -45,11 +45,107 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row pt-5">
     <div class="col-12">
         <h4 class="border-bottom pb-2">Mô tả sản phẩm</h4>
         <div class="mt-4">
             @Html.Raw(Model.Description)
+        </div>
+    </div>
+</div>
+
+<div class="row pt-5 mb-5">
+    <div class="col-12">
+        <h4 class="border-bottom pb-2">Đánh giá sản phẩm</h4>
+        
+        @{
+            var summary = ViewBag.ReviewSummary as HuitShopDB.Models.DTOs.Review.ProductReviewSummaryDto;
+        }
+
+        <div class="row mt-4">
+            <!-- Review Summary Stats -->
+            <div class="col-md-4 text-center border-end">
+                <h1 class="display-3 fw-bold text-warning mb-0">@(summary != null ? summary.AverageRating.ToString("0.0") : "0.0")</h1>
+                <div class="mb-2 text-warning fs-4">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <i class="bi @(summary != null && i <= Math.Round(summary.AverageRating) ? "bi-star-fill" : "bi-star")"></i>
+                    }
+                </div>
+                <p class="text-muted">@(summary != null ? summary.TotalReviews : 0) đánh giá</p>
+            </div>
+
+            <!-- Submit Review Form -->
+            <div class="col-md-8 px-5">
+                <h5 class="fw-bold mb-3">Gửi đánh giá của bạn</h5>
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+                }
+                <form action="/Product/SubmitReview" method="post">
+                    <input type="hidden" name="ProductId" value="@Model.Id" />
+                    <div class="mb-3">
+                        <label class="form-label">Số sao</label>
+                        <select name="Rating" class="form-select w-25" required>
+                            <option value="5">5 Sao</option>
+                            <option value="4">4 Sao</option>
+                            <option value="3">3 Sao</option>
+                            <option value="2">2 Sao</option>
+                            <option value="1">1 Sao</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tiêu đề</label>
+                        <input type="text" name="Title" class="form-control" placeholder="Tóm tắt nhận xét của bạn" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nội dung</label>
+                        <textarea name="Content" class="form-control" rows="3" placeholder="Chia sẻ trải nghiệm của bạn về sản phẩm này" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary px-4">Gửi đánh giá</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Review List -->
+        <div class="mt-5">
+            <h5 class="fw-bold mb-4">Các đánh giá gần đây</h5>
+            @if (summary != null && summary.LatestReviews.Any())
+            {
+                foreach (var review in summary.LatestReviews)
+                {
+                    <div class="card border-0 bg-light mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                        @(review.UserName.Substring(0,1).ToUpper())
+                                    </div>
+                                    <span class="fw-bold">@review.UserName</span>
+                                    @if(review.IsVerifiedPurchase) {
+                                        <span class="ms-2 badge bg-success-subtle text-success p-1" style="font-size: 0.6rem;">Đã mua hàng</span>
+                                    }
+                                </div>
+                                <small class="text-muted">@review.CreatedAt.ToString("dd/MM/yyyy")</small>
+                            </div>
+                            <div class="text-warning mb-1" style="font-size: 0.8rem;">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="bi @(i <= review.Rating ? "bi-star-fill" : "bi-star")"></i>
+                                }
+                            </div>
+                            <h6 class="fw-bold">@review.Title</h6>
+                            <p class="mb-0 text-muted small">@review.Content</p>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center py-4 bg-light rounded text-muted">
+                    Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên đánh giá!
+                </div>
+            }
         </div>
     </div>
 </div>

@@ -148,20 +148,28 @@
     <Compile Include="Models\DTOs\Product\ProductDetailDto.cs" />
     <Compile Include="Models\DTOs\Product\ProductListDto.cs" />
     <Compile Include="Models\DTOs\Product\ProductQueryParams.cs" />
+    <Compile Include="Models\DTOs\Review\ReviewDto.cs" />
     <Compile Include="Models\DTOs\User\UserDto.cs" />
     <Compile Include="Models\DTOs\Voucher\VoucherDto.cs" />
+    <Compile Include="Models\DTOs\Warranty\WarrantyDto.cs" />
     <Compile Include="Services\AuthService.cs" />
     <Compile Include="Services\CartService.cs" />
     <Compile Include="Services\JwtTokenGenerator.cs" />
     <Compile Include="Services\OrderService.cs" />
+    <Compile Include="Services\Interfaces\IProductService.cs" />
+    <Compile Include="Services\Interfaces\IWarrantyService.cs" />
     <Compile Include="Services\ProductService.cs" />
     <Compile Include="Services\InventoryService.cs" />
+    <Compile Include="Services\UserService.cs" />
+    <Compile Include="Services\ReviewService.cs" />
+    <Compile Include="Services\WarrantyService.cs" />
     <Compile Include="Services\Interfaces\IAuthService.cs" />
     <Compile Include="Services\Interfaces\ICartService.cs" />
     <Compile Include="Services\Interfaces\IInventoryService.cs" />
+    <Compile Include="Services\Interfaces\IUserService.cs" />
+    <Compile Include="Services\Interfaces\IReviewService.cs" />
     <Compile Include="Services\Interfaces\IJwtTokenGenerator.cs" />
     <Compile Include="Services\Interfaces\IOrderService.cs" />
-    <Compile Include="Services\Interfaces\IProductService.cs" />
     <Compile Include="Controllers\ProductController.cs" />
     <Compile Include="Controllers\InventoryController.cs" />
     <Compile Include="Controllers\UserController.cs" />
@@ -263,8 +271,11 @@
     <Content Include="Views\Inventory\LowStock.cshtml" />
     <Content Include="Views\Inventory\Import.cshtml" />
     <Content Include="Views\User\Index.cshtml" />
+    <Content Include="Views\User\Edit.cshtml" />
+    <Content Include="Views\User\Details.cshtml" />
     <Content Include="Views\Review\Index.cshtml" />
     <Content Include="Views\Warranty\Index.cshtml" />
+    <Content Include="Views\Warranty\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

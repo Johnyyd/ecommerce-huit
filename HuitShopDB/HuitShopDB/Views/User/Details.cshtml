@@ -1,0 +1,108 @@
+@model HuitShopDB.Models.DTOs.User.UserDto
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body text-center p-4">
+                    <div class="avatar bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px; font-size: 3rem;">
+                        @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                        {
+                            <img src="@Model.AvatarUrl" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            @(Model.FullName.Substring(0, 1).ToUpper())
+                        }
+                    </div>
+                    <h3 class="fw-bold mb-1">@Model.FullName</h3>
+                    <p class="text-muted mb-3">@Model.Email</p>
+                    <span class="badge @(Model.Status == "ACTIVE" ? "bg-success" : "bg-danger") px-3 py-2 mb-2">
+                        @(Model.Status == "ACTIVE" ? "Đang hoạt động" : "Đã khóa")
+                    </span>
+                </div>
+            </div>
+
+            <div class="list-group shadow-sm border-0 rounded-3 overflow-hidden">
+                <div class="list-group-item bg-dark text-white fw-bold py-3">Thông tin nhanh</div>
+                <div class="list-group-item d-flex justify-content-between">
+                    <span>ID tài khoản:</span>
+                    <span class="fw-bold">@Model.Id</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between">
+                    <span>Ngày tham gia:</span>
+                    <span class="fw-bold">@Model.CreatedAt.ToString("dd/MM/yyyy")</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between">
+                    <span>Đăng nhập cuối:</span>
+                    <span class="fw-bold">@(Model.LastLogin.HasValue ? Model.LastLogin.Value.ToString("dd/MM HH:mm") : "Chưa từng")</span>
+                </div>
+                <div class="list-group-item d-flex justify-content-between">
+                    <span>Số điện thoại:</span>
+                    <span class="fw-bold">@(string.IsNullOrEmpty(Model.Phone) ? "Chưa cập nhật" : Model.Phone)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold text-primary">Cấu hình vai trò & Quyền hạn</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-sm-8 text-white-50">
+                            Hiện tại người dùng đang có vai trò <strong class="text-dark">@Model.Role</strong>.
+                            Hành động này sẽ thay đổi khả năng truy cập vào trang Admin của người dùng.
+                        </div>
+                        <div class="col-sm-4 text-end">
+                            <a href="@Url.Action("Edit", new { id = Model.Id })" class="btn btn-primary btn-sm">
+                                <i class="bi bi-pencil me-1"></i> Thay đổi vai trò
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold text-primary">Hoạt động gần đây</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-flush mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>Hoạt động</th>
+                                    <th>Thời gian</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="py-3">Tham gia hệ thống</td>
+                                    <td>@Model.CreatedAt.ToString("g")</td>
+                                    <td><span class="badge bg-success">Hoàn thành</span></td>
+                                </tr>
+                                @if (Model.LastLogin.HasValue)
+                                {
+                                    <tr>
+                                        <td class="py-3">Đăng nhập hệ thống</td>
+                                        <td>@Model.LastLogin.Value.ToString("g")</td>
+                                        <td><span class="badge bg-info">Xác thực</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-light text-center py-3">
+                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary btn-sm">Quay lại danh sách</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
