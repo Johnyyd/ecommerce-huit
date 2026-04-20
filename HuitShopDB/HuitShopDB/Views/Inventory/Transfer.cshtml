@@ -1,0 +1,79 @@
+@model HuitShopDB.Models.DTOs.Admin.TransferStockRequest
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-info text-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-arrow-left-right me-2"></i>@ViewBag.Title</h5>
+                    <a href="@Url.Action("Index")" class="btn btn-sm btn-light">Quay lại kho hàng</a>
+                </div>
+                <div class="card-body p-4">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <form action="@Url.Action("Transfer")" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Kho nguồn</label>
+                                <select name="FromWarehouseId" class="form-select" required>
+                                    <option value="">-- Chọn kho nguồn --</option>
+                                    @foreach (var w in ViewBag.Warehouses as IEnumerable<HuitShopDB.Models.warehouse>)
+                                    {
+                                        <option value="@w.id" @(Model.FromWarehouseId == w.id ? "selected" : "")>@w.name (@w.code)</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Kho đích</label>
+                                <select name="ToWarehouseId" class="form-select" required>
+                                    <option value="">-- Chọn kho đích --</option>
+                                    @foreach (var w in ViewBag.Warehouses as IEnumerable<HuitShopDB.Models.warehouse>)
+                                    {
+                                        <option value="@w.id" @(Model.ToWarehouseId == w.id ? "selected" : "")>@w.name (@w.code)</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">ID biến thể sản phẩm</label>
+                                <input type="number" name="VariantId" class="form-control" value="@Model.VariantId" required />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Số lượng</label>
+                                <input type="number" name="Quantity" class="form-control" min="1" value="@(Model.Quantity > 0 ? Model.Quantity : 1)" required />
+                            </div>
+
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Ghi chú</label>
+                                <textarea name="Note" class="form-control" rows="3" placeholder="Ghi chú cho lô chuyển kho">@Model.Note</textarea>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="@Url.Action("Index")" class="btn btn-outline-secondary">Hủy</a>
+                            <button type="submit" class="btn btn-primary">Xác nhận chuyển kho</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

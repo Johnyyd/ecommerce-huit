@@ -33,9 +33,10 @@
         <div class="card bg-light border-0 mt-4 mb-4">
             <div class="card-body">
                 <form action="/Cart/Add" method="post">
+                    @Html.AntiForgeryToken()
                     <input type="hidden" name="productId" value="@Model.Id" />
                     <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-success btn-lg">
+                        <button type="submit" class="btn btn-success btn-lg">
                             <i class="bi bi-cart-plus"></i> Thêm vào giỏ hàng
                         </button>
                     </div>

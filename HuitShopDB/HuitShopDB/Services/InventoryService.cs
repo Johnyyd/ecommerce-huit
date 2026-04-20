@@ -206,6 +206,29 @@ namespace HuitShopDB.Services
             return await Task.FromResult(true);
         }
 
+        public async Task<IEnumerable<StockMovementDto>> GetStockMovementsAsync(int warehouseId = 0, int? variantId = null)
+        {
+            var query = from m in _context.stock_movements
+                        where (warehouseId == 0 || m.warehouse_id == warehouseId)
+                              && (!variantId.HasValue || m.variant_id == variantId.Value)
+                        orderby m.created_at descending
+                        select new StockMovementDto
+                        {
+                            WarehouseId = m.warehouse_id,
+                            WarehouseName = m.warehouse.name,
+                            VariantId = m.variant_id,
+                            Sku = m.product_variant.sku,
+                            ProductName = m.product_variant.product.name,
+                            VariantName = m.product_variant.variant_name,
+                            Quantity = m.quantity,
+                            MovementType = m.movement_type,
+                            Note = m.note,
+                            CreatedAt = m.created_at
+                        };
+
+            return await Task.FromResult(query.ToList());
+        }
+
         // Additional helper for UI
         public async Task<IEnumerable<warehouse>> GetWarehousesAsync()
         {

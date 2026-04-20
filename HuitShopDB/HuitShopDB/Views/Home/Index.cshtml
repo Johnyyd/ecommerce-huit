@@ -2,69 +2,62 @@
     ViewBag.Title = "Trang chủ";
 }
 
-<div class="jumbotron">
-    <h1>ECommerce HUIT</h1>
-    <p class="lead">Chào mừng bạn đến với hệ thống bán hàng điện tử được chuyển đổi sang định dạng <strong>Visual Studio 2013 (ASP.NET MVC 5)</strong>.</p>
-    <p><a href="/Product" class="btn btn-primary btn-lg">Xem danh sách Sản phẩm &raquo;</a></p>
-</div>
-<hr />
-
-<div class="row mt-5">
-    <div class="col-12 mb-4 text-center">
-        <h2 class="fw-bold"><i class="bi bi-grid-3x3-gap me-2"></i>Quản lý hệ thống</h2>
-        <p class="text-muted">Các module chức năng dành cho quản trị viên và người dùng</p>
+<div class="bg-white shadow-sm rounded-4 p-5 mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-7">
+            <h1 class="display-5 fw-bold">ECommerce HUIT</h1>
+            <p class="lead text-muted mb-4">Nền tảng bán hàng và quản trị kho hàng được thiết kế để giúp bạn quản lý sản phẩm, người dùng, đánh giá và bảo hành một cách trực quan và hiệu quả.</p>
+            <div class="d-flex flex-column flex-sm-row gap-3">
+                <a href="/Product" class="btn btn-primary btn-lg px-4">Xem sản phẩm</a>
+                <a href="/Inventory" class="btn btn-outline-primary btn-lg px-4">Quản lý kho</a>
+            </div>
+        </div>
+        <div class="col-lg-5 text-center mt-4 mt-lg-0">
+            <img src="https://via.placeholder.com/520x360?text=HUIT+Shop" class="img-fluid rounded-4 shadow" alt="ECommerce HUIT" />
+        </div>
     </div>
-    
-    <div class="col-md-3 mb-4">
-        <div class="card h-100 shadow-sm border-0 text-center p-3 hover-shadow">
-            <div class="card-body">
+</div>
+
+<div class="row gy-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body text-center p-4">
                 <i class="bi bi-box-seam text-primary display-4 mb-3"></i>
-                <h4 class="card-title">Kho hàng</h4>
-                <p class="card-text text-muted small">Quản lý tồn kho, nhập xuất và cảnh báo hết hàng.</p>
-                <a href="/Inventory" class="btn btn-outline-primary btn-sm stretched-link">Truy cập</a>
+                <h5 class="fw-bold">Quản lý kho</h5>
+                <p class="text-muted small">Kiểm soát tồn kho, cảnh báo hàng sắp hết và nhập kho nhanh chóng.</p>
+                <a href="/Inventory" class="btn btn-outline-primary btn-sm">Mở ngay</a>
             </div>
         </div>
     </div>
-
-    <div class="col-md-3 mb-4">
-        <div class="card h-100 shadow-sm border-0 text-center p-3">
-            <div class="card-body">
+    <div class="col-md-6 col-xl-3">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body text-center p-4">
                 <i class="bi bi-people text-success display-4 mb-3"></i>
-                <h4 class="card-title">Người dùng</h4>
-                <p class="card-text text-muted small">Quản lý tài khoản, hồ sơ và quyền hạn khách hàng.</p>
-                <a href="/User" class="btn btn-outline-success btn-sm stretched-link">Truy cập</a>
+                <h5 class="fw-bold">Quản lý người dùng</h5>
+                <p class="text-muted small">Quản lý tài khoản admin và người dùng, khóa/mở khóa, thay đổi vai trò.</p>
+                <a href="/User" class="btn btn-outline-success btn-sm">Mở ngay</a>
             </div>
         </div>
     </div>
-
-    <div class="col-md-3 mb-4">
-        <div class="card h-100 shadow-sm border-0 text-center p-3">
-            <div class="card-body">
+    <div class="col-md-6 col-xl-3">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body text-center p-4">
                 <i class="bi bi-chat-left-text text-warning display-4 mb-3"></i>
-                <h4 class="card-title">Đánh giá</h4>
-                <p class="card-text text-muted small">Phản hồi khách hàng và đánh giá sản phẩm.</p>
-                <a href="/Review" class="btn btn-outline-warning btn-sm stretched-link">Truy cập</a>
+                <h5 class="fw-bold">Đánh giá & Phản hồi</h5>
+                <p class="text-muted small">Duyệt đánh giá, phản hồi khách hàng và cải thiện chất lượng sản phẩm.</p>
+                <a href="/Review" class="btn btn-outline-warning btn-sm">Mở ngay</a>
             </div>
         </div>
     </div>
-
-    <div class="col-md-3 mb-4">
-        <div class="card h-100 shadow-sm border-0 text-center p-3">
-            <div class="card-body">
+    <div class="col-md-6 col-xl-3">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body text-center p-4">
                 <i class="bi bi-shield-check text-info display-4 mb-3"></i>
-                <h4 class="card-title">Bảo hành</h4>
-                <p class="card-text text-muted small">Quản lý và tra cứu thông tin bảo hành thiết bị.</p>
-                <a href="/Warranty" class="btn btn-outline-info btn-sm stretched-link">Truy cập</a>
+                <h5 class="fw-bold">Bảo hành</h5>
+                <p class="text-muted small">Tra cứu bảo hành nhanh, xem tình trạng và chi tiết thời hạn.</p>
+                <a href="/Warranty" class="btn btn-outline-info btn-sm">Mở ngay</a>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-    .card:hover { 
-        transform: translateY(-5px);
-        transition: all 0.3s ease;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-    }
-</style>
 

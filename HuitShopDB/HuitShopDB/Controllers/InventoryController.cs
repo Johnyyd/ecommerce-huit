@@ -89,5 +89,50 @@ namespace HuitShopDB.Controllers
             ViewBag.Warehouses = await _inventoryService.GetWarehousesAsync();
             return View(request);
         }
+
+        // GET: /Inventory/Transfer
+        public async Task<ActionResult> Transfer(int warehouseId = 0, int variantId = 0)
+        {
+            ViewBag.Title = "Chuyển kho";
+            ViewBag.Warehouses = await _inventoryService.GetWarehousesAsync();
+            var model = new TransferStockRequest
+            {
+                FromWarehouseId = warehouseId,
+                VariantId = variantId,
+                Quantity = 1
+            };
+            return View(model);
+        }
+
+        // POST: /Inventory/Transfer
+        [HttpPost]
+        public async Task<ActionResult> Transfer(TransferStockRequest request)
+        {
+            if (ModelState.IsValid)
+            {
+                bool success = await _inventoryService.TransferStockAsync(request);
+                if (success)
+                {
+                    TempData["SuccessMessage"] = "Chuyển kho thành công.";
+                    return RedirectToAction("Index", new { warehouseId = request.FromWarehouseId });
+                }
+                TempData["ErrorMessage"] = "Chuyển kho thất bại. Vui lòng kiểm tra lại số lượng và kho đích.";
+            }
+
+            ViewBag.Warehouses = await _inventoryService.GetWarehousesAsync();
+            return View(request);
+        }
+
+        // GET: /Inventory/History
+        public async Task<ActionResult> History(int warehouseId = 0, int? variantId = null)
+        {
+            ViewBag.Title = "Lịch sử tồn kho";
+            ViewBag.Warehouses = await _inventoryService.GetWarehousesAsync();
+            ViewBag.CurrentWarehouseId = warehouseId;
+            ViewBag.CurrentVariantId = variantId;
+
+            var movements = await _inventoryService.GetStockMovementsAsync(warehouseId, variantId);
+            return View(movements);
+        }
     }
 }
