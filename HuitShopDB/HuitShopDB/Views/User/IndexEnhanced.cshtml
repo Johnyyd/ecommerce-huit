@@ -1,0 +1,233 @@
+@model IEnumerable<HuitShopDB.Models.DTOs.User.UserDto>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-people me-2"></i>@ViewBag.Title</h2>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light">
+            <form method="get" class="row g-3">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                        <input type="text" name="search" class="form-control" placeholder="Tìm tên hoặc email..." value="@ViewBag.Search" />
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="role" class="form-select">
+                        <option value="">Tất cả vai trò</option>
+                        <option value="ADMIN" @(ViewBag.Role == "ADMIN" ? "selected" : "")>ADMIN</option>
+                        <option value="STAFF" @(ViewBag.Role == "STAFF" ? "selected" : "")>STAFF</option>
+                        <option value="WAREHOUSE" @(ViewBag.Role == "WAREHOUSE" ? "selected" : "")>WAREHOUSE</option>
+                        <option value="CUSTOMER" @(ViewBag.Role == "CUSTOMER" ? "selected" : "")>CUSTOMER</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <select name="status" class="form-select">
+                        <option value="">Tất cả trạng thái</option>
+                        <option value="ACTIVE" @(ViewBag.Status == "ACTIVE" ? "selected" : "")>Đang hoạt động</option>
+                        <option value="BANNED" @(ViewBag.Status == "BANNED" ? "selected" : "")>Đã khóa</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Lọc</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th width="5%">
+                            <input type="checkbox" class="form-check-input" id="selectAll" onchange="toggleSelectAll(this)">
+                        </th>
+                        <th>Người dùng</th>
+                        <th>Email</th>
+                        <th>Vai trò</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Lần đăng nhập cuối</th>
+                        <th class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var user in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <input type="checkbox" class="form-check-input user-checkbox" value="@user.Id">
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar me-3 bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            @if (!string.IsNullOrEmpty(user.AvatarUrl))
+                                            {
+                                                <img src="@user.AvatarUrl" class="rounded-circle" style="width: 100%; height: 100%; object-fit: cover;" />
+                                            }
+                                            else
+                                            {
+                                                @(user.FullName.Substring(0, 1).ToUpper())
+                                            }
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold">@user.FullName</div>
+                                            <small class="text-muted">ID: @user.Id</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="mailto:@user.Email" class="text-decoration-none">@user.Email</a>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">@user.Role</span>
+                                </td>
+                                <td>
+                                    @if (user.Status == "ACTIVE")
+                                    {
+                                        <span class="badge bg-success">Đang hoạt động</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Đã khóa</span>
+                                    }
+                                </td>
+                                <td class="text-nowrap">@user.CreatedAt.ToString("dd/MM/yyyy")</td>
+                                <td class="text-nowrap">
+                                    @if (user.LastLogin.HasValue)
+                                    {
+                                        @user.LastLogin.Value.ToString("dd/MM/yyyy HH:mm")
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="@Url.Action("Edit", new { id = user.Id })" class="btn btn-outline-primary" title="Chỉnh sửa">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="@Url.Action("Details", new { id = user.Id })" class="btn btn-outline-info" title="Chi tiết">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">Không tìm thấy người dùng nào.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Bulk Actions Section -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-light py-3">
+                <h6 class="mb-0 fw-bold">
+                    <i class="bi bi-gear me-2"></i>Thao tác hàng loạt
+                    <span class="badge bg-secondary ms-2" id="selectedCount">0</span>
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <select class="form-select" id="bulkOperation">
+                            <option value="">Chọn thao tác</option>
+                            <option value="ban">Khóa tài khoản</option>
+                            <option value="unban">Mở khóa tài khoản</option>
+                            <option value="role">Thay đổi vai trò</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4" id="roleSelectContainer" style="display: none;">
+                        <select class="form-select" id="newRole">
+                            <option value="">Chọn vai trò mới</option>
+                            <option value="ADMIN">ADMIN</option>
+                            <option value="STAFF">STAFF</option>
+                            <option value="WAREHOUSE">WAREHOUSE</option>
+                            <option value="CUSTOMER">CUSTOMER</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-primary w-100" onclick="executeBulkAction()" id="executeBulkBtn">
+                            <i class="bi bi-check-lg me-1"></i>Thực hiện
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<script>
+function toggleSelectAll(checkbox) {
+    const checkboxes = document.querySelectorAll('.user-checkbox');
+    checkboxes.forEach(cb => cb.checked = checkbox.checked);
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    const checked = document.querySelectorAll('.user-checkbox:checked').length;
+    document.getElementById('selectedCount').textContent = checked;
+}
+
+document.querySelectorAll('.user-checkbox').forEach(cb => {
+    cb.addEventListener('change', updateSelectedCount);
+});
+
+document.getElementById('bulkOperation').addEventListener('change', function() {
+    const roleSelectContainer = document.getElementById('roleSelectContainer');
+    if (this.value === 'role') {
+        roleSelectContainer.style.display = 'block';
+    } else {
+        roleSelectContainer.style.display = 'none';
+    }
+});
+
+function executeBulkAction() {
+    const selectedIds = Array.from(document.querySelectorAll('.user-checkbox:checked'))
+        .map(cb => cb.value);
+    
+    if (selectedIds.length === 0) {
+        alert('Vui lòng chọn ít nhất một người dùng');
+        return;
+    }
+    
+    const operation = document.getElementById('bulkOperation').value;
+    if (!operation) {
+        alert('Vui lòng chọn thao tác');
+        return;
+    }
+    
+    if (!confirm('Bạn có chắc muốn thực hiện thao tác này?')) {
+        return;
+    }
+    
+    // Implementation for bulk operations would go here
+    alert('Thao tác: ' + operation + ', IDs: ' + selectedIds.join(','));
+}
+</script>

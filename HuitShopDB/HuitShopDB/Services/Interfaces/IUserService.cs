@@ -10,5 +10,12 @@ namespace HuitShopDB.Services.Interfaces
         Task<UserDto> GetUserByIdAsync(int id);
         Task<bool> UpdateUserStatusAsync(int id, string status);
         Task<bool> UpdateUserRoleAsync(int id, string role);
+        
+        // New methods for enhanced features
+        Task<UserDetailDto> GetUserDetailsAsync(int id);
+        Task<bool> BulkUpdateUserStatusAsync(List<int> userIds, string status);
+        Task<bool> BulkUpdateUserRoleAsync(List<int> userIds, string role);
+        Task<IEnumerable<UserActivityDto>> GetUserActivitiesAsync(int userId);
+        Task AddUserActivityAsync(int userId, string activityType, string description, string ipAddress = null);
     }
 }

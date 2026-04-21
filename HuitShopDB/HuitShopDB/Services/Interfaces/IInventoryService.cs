@@ -13,6 +13,11 @@ namespace HuitShopDB.Services.Interfaces
         Task<bool> AdjustStockAsync(AdjustStockRequest request);
         Task<IEnumerable<StockMovementDto>> GetStockMovementsAsync(int warehouseId = 0, int? variantId = null);
         Task<IEnumerable<Models.warehouse>> GetWarehousesAsync();
+        
+        // New analytics methods
+        Task<WarehouseAnalyticsDto> GetWarehouseAnalyticsAsync();
+        Task<IEnumerable<InventoryReorderReportDto>> GetReorderReportAsync();
+        Task<IEnumerable<StockMovementDto>> GetStockMovementsFilteredAsync(StockMovementFilterRequest filter);
     }
 }
 

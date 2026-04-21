@@ -234,5 +234,131 @@ namespace HuitShopDB.Services
         {
             return await Task.FromResult(_context.warehouses.ToList());
         }
+
+        public async Task<WarehouseAnalyticsDto> GetWarehouseAnalyticsAsync()
+        {
+            var analytics = new WarehouseAnalyticsDto();
+
+            // Get warehouse count
+            var warehouses = _context.warehouses.ToList();
+            analytics.TotalWarehouses = warehouses.Count;
+
+            // Get inventory stats
+            var inventories = _context.inventories.ToList();
+            analytics.TotalSKUs = inventories.Select(i => i.product_variant.sku).Distinct().Count();
+            analytics.TotalItemsInStock = inventories.Sum(i => i.quantity_on_hand);
+            analytics.TotalItemsReserved = inventories.Sum(i => i.quantity_reserved);
+            analytics.LowStockItemsCount = inventories.Count(i => i.quantity_on_hand <= i.reorder_point);
+
+            // Get warehouse stats
+            foreach (var warehouse in warehouses)
+            {
+                var warehouseInventories = inventories.Where(i => i.warehouse_id == warehouse.id).ToList();
+                var stats = new WarehouseStatsDto
+                {
+                    WarehouseId = warehouse.id,
+                    WarehouseName = warehouse.name,
+                    WarehouseCode = warehouse.code,
+                    TotalItems = warehouseInventories.Sum(i => i.quantity_on_hand),
+                    ReservedItems = warehouseInventories.Sum(i => i.quantity_reserved),
+                    AvailableItems = warehouseInventories.Sum(i => i.quantity_on_hand - i.quantity_reserved),
+                    SKUCount = warehouseInventories.Select(i => i.product_variant.sku).Distinct().Count(),
+                    LowStockCount = warehouseInventories.Count(i => i.quantity_on_hand <= i.reorder_point)
+                };
+                analytics.WarehouseStats.Add(stats);
+            }
+
+            return await Task.FromResult(analytics);
+        }
+
+        public async Task<IEnumerable<InventoryReorderReportDto>> GetReorderReportAsync()
+        {
+            var report = new List<InventoryReorderReportDto>();
+            
+            var lowStockItems = _context.inventories
+                .Where(i => i.quantity_on_hand <= i.reorder_point)
+                .GroupBy(i => i.variant_id)
+                .ToList();
+
+            foreach (var group in lowStockItems)
+            {
+                var variant = group.First().product_variant;
+                var reportItem = new InventoryReorderReportDto
+                {
+                    ProductId = variant.product_id,
+                    ProductName = variant.product.name,
+                    Sku = variant.sku,
+                    VariantId = variant.id,
+                    VariantName = variant.variant_name,
+                    TotalQuantityAcrossWarehouses = group.Sum(i => i.quantity_on_hand),
+                    ReorderPoint = group.First().reorder_point
+                };
+
+                // Determine status
+                if (reportItem.TotalQuantityAcrossWarehouses <= reportItem.ReorderPoint / 2)
+                    reportItem.ReorderStatus = "URGENT";
+                else if (reportItem.TotalQuantityAcrossWarehouses <= reportItem.ReorderPoint)
+                    reportItem.ReorderStatus = "WARNING";
+                else
+                    reportItem.ReorderStatus = "OK";
+
+                foreach (var inv in group)
+                {
+                    reportItem.StockByWarehouse.Add(new WarehouseStockDto
+                    {
+                        WarehouseId = inv.warehouse_id,
+                        WarehouseName = inv.warehouse.name,
+                        Quantity = inv.quantity_on_hand,
+                        Reserved = inv.quantity_reserved
+                    });
+                }
+
+                report.Add(reportItem);
+            }
+
+            return await Task.FromResult(report);
+        }
+
+        public async Task<IEnumerable<StockMovementDto>> GetStockMovementsFilteredAsync(StockMovementFilterRequest filter)
+        {
+            var query = _context.stock_movements.AsQueryable();
+
+            if (filter.WarehouseId.HasValue)
+                query = query.Where(m => m.warehouse_id == filter.WarehouseId.Value);
+
+            if (filter.VariantId.HasValue)
+                query = query.Where(m => m.variant_id == filter.VariantId.Value);
+
+            if (!string.IsNullOrEmpty(filter.MovementType))
+                query = query.Where(m => m.movement_type == filter.MovementType);
+
+            if (filter.FromDate.HasValue)
+                query = query.Where(m => m.created_at >= filter.FromDate.Value);
+
+            if (filter.ToDate.HasValue)
+                query = query.Where(m => m.created_at <= filter.ToDate.Value.AddDays(1));
+
+            var movements = query
+                .OrderByDescending(m => m.created_at)
+                .Skip((filter.PageNumber - 1) * filter.PageSize)
+                .Take(filter.PageSize)
+                .ToList();
+
+            var result = movements.Select(m => new StockMovementDto
+            {
+                WarehouseId = m.warehouse_id,
+                WarehouseName = m.warehouse.name,
+                VariantId = m.variant_id,
+                Sku = m.product_variant.sku,
+                ProductName = m.product_variant.product.name,
+                VariantName = m.product_variant.variant_name,
+                Quantity = m.quantity,
+                MovementType = m.movement_type,
+                Note = m.note,
+                CreatedAt = m.created_at
+            }).ToList();
+
+            return await Task.FromResult(result);
+        }
     }
 }

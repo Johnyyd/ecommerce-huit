@@ -40,6 +40,17 @@ namespace HuitShopDB.Controllers
             return View(inventory);
         }
 
+        // GET: /Inventory/Dashboard
+        public async Task<ActionResult> Dashboard()
+        {
+            ViewBag.Title = "Dashboard - Quản lý kho";
+            var analytics = await _inventoryService.GetWarehouseAnalyticsAsync();
+            var reorderReport = await _inventoryService.GetReorderReportAsync();
+            
+            ViewBag.ReorderReport = reorderReport;
+            return View(analytics);
+        }
+
         // POST: /Inventory/Adjust
         [HttpPost]
         public async Task<ActionResult> Adjust(AdjustStockRequest request)
@@ -133,6 +144,14 @@ namespace HuitShopDB.Controllers
 
             var movements = await _inventoryService.GetStockMovementsAsync(warehouseId, variantId);
             return View(movements);
+        }
+
+        // GET: /Inventory/ReorderReport
+        public async Task<ActionResult> ReorderReport()
+        {
+            ViewBag.Title = "Báo cáo hàng cần đặt lại";
+            var report = await _inventoryService.GetReorderReportAsync();
+            return View(report);
         }
     }
 }

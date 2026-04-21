@@ -1,0 +1,147 @@
+@model IEnumerable<HuitShopDB.Models.DTOs.Warranty.WarrantyClaimDto>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-file-earmark-check me-2"></i>Yêu cầu bảo hành của tôi</h2>
+        <a href="@Url.Action("Index", "Warranty")" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Gửi yêu cầu mới</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card border-0 shadow-sm">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-inbox" style="font-size: 3rem; color: #ccc;"></i>
+                <h5 class="mt-3 text-muted">Chưa có yêu cầu bảo hành nào</h5>
+                <p class="text-muted mb-3">Bạn chưa gửi yêu cầu bảo hành nào cho sản phẩm của mình.</p>
+                <a href="@Url.Action("Index", "Warranty")" class="btn btn-primary">Gửi yêu cầu bảo hành</a>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-3">
+            @foreach (var claim in Model.OrderByDescending(c => c.SubmittedAt))
+            {
+                <div class="col-md-6">
+                    <div class="card shadow-sm border-0 h-100">
+                        <div class="card-header @GetStatusColor(claim.Status) text-white py-3">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">#@claim.Id</h6>
+                                    <small>@claim.ProductName</small>
+                                </div>
+                                <span class="badge bg-light text-dark">@GetStatusLabel(claim.Status)</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <div class="row text-sm">
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Serial Number</small>
+                                        <strong>@claim.SerialNumber</strong>
+                                    </div>
+                                    <div class="col-6">
+                                        <small class="text-muted d-block">Loại yêu cầu</small>
+                                        <strong>@claim.ClaimType</strong>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <small class="text-muted d-block">Mô tả vấn đề</small>
+                                <p class="mb-0 text-truncate" style="max-width: 100%;">
+                                    @claim.IssueDescription
+                                </p>
+                            </div>
+
+                            @if (!string.IsNullOrEmpty(claim.AdminNotes))
+                            {
+                                <div class="alert alert-info alert-sm mb-3">
+                                    <strong>Ghi chú từ bộ phận hỗ trợ:</strong>
+                                    <p class="mb-0 mt-2">@claim.AdminNotes</p>
+                                </div>
+                            }
+
+                            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                                <small class="text-muted">
+                                    Gửi: @claim.SubmittedAt.ToString("dd/MM/yyyy HH:mm")
+                                </small>
+                                <a href="@Url.Action("ClaimDetails", new { id = claim.Id })" class="btn btn-sm btn-outline-primary">
+                                    Xem chi tiết <i class="bi bi-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Timeline/Progress Section -->
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-light py-3">
+                <h6 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2"></i>Các giai đoạn xử lý</h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <div class="badge bg-success rounded-circle p-3 mb-2" style="width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-check-lg" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <h6>Gửi</h6>
+                        <small class="text-muted">Yêu cầu được gửi</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="badge bg-primary rounded-circle p-3 mb-2" style="width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-hourglass-split" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <h6>Kiểm duyệt</h6>
+                        <small class="text-muted">Đang được xem xét</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="badge bg-secondary rounded-circle p-3 mb-2" style="width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-check2-circle" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <h6>Phê duyệt</h6>
+                        <small class="text-muted">Được chấp thuận</small>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <div class="badge bg-secondary rounded-circle p-3 mb-2" style="width: 60px; height: 60px; display: inline-flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-flag-fill" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <h6>Hoàn thành</h6>
+                        <small class="text-muted">Xử lý xong</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@functions {
+    private string GetStatusColor(string status)
+    {
+        return status switch
+        {
+            "SUBMITTED" => "bg-info",
+            "APPROVED" => "bg-success",
+            "REJECTED" => "bg-danger",
+            "COMPLETED" => "bg-success",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetStatusLabel(string status)
+    {
+        return status switch
+        {
+            "SUBMITTED" => "Chờ duyệt",
+            "APPROVED" => "Đã phê duyệt",
+            "REJECTED" => "Bị từ chối",
+            "COMPLETED" => "Hoàn thành",
+            _ => status
+        };
+    }
+}

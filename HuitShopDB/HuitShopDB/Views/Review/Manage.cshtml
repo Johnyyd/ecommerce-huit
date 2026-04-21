@@ -1,0 +1,178 @@
+@model IEnumerable<HuitShopDB.Models.DTOs.Review.ReviewDto>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-chat-left-dots me-2"></i>@ViewBag.Title</h2>
+        <a href="@Url.Action("Analytics")" class="btn btn-outline-primary"><i class="bi bi-graph-up me-1"></i>Thống kê</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Trạng thái duyệt</label>
+                    <select name="approved" class="form-select" onchange="this.form.submit()">
+                        <option value="">Tất cả</option>
+                        <option value="true" @(ViewBag.ApprovedFilter == true ? "selected" : "")>Đã duyệt</option>
+                        <option value="false" @(ViewBag.ApprovedFilter == false ? "selected" : "")>Chờ duyệt</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Điểm đánh giá (từ)</label>
+                    <select name="minRating" class="form-select" onchange="this.form.submit()">
+                        <option value="">Tất cả sao</option>
+                        @for (int i = 5; i >= 1; i--)
+                        {
+                            <option value="@i" @(ViewBag.MinRating == i ? "selected" : "")>@i Sao trở lên</option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Tìm kiếm</label>
+                    <input type="text" name="search" class="form-control" placeholder="Tên sản phẩm, người dùng..." value="@ViewBag.Search" />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100 mt-4">Lọc</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width: 20%">Sản phẩm</th>
+                        <th style="width: 15%">Người dùng</th>
+                        <th style="width: 10%">Đánh giá</th>
+                        <th style="width: 35%">Nội dung</th>
+                        <th class="text-center">Ngày gửi</th>
+                        <th class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var review in Model)
+                        {
+                            <tr class="@(!review.IsApproved ? "table-light" : "")">
+                                <td>
+                                    <div class="fw-bold text-truncate" style="max-width: 200px;">@review.ProductName</div>
+                                    @if (!string.IsNullOrEmpty(review.VariantName))
+                                    {
+                                        <small class="text-muted">Phân loại: @review.VariantName</small>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="fw-bold">@review.UserName</div>
+                                    @if (review.IsVerifiedPurchase)
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size: 0.7rem;">Đã mua hàng</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="text-warning">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <i class="bi @(i <= review.Rating ? "bi-star-fill" : "bi-star")"></i>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(review.Title))
+                                    {
+                                        <div class="fw-bold">@review.Title</div>
+                                    }
+                                    <div class="small text-muted text-wrap" style="max-width: 300px;">@review.Content</div>
+                                </td>
+                                <td class="text-center small">@review.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="@Url.Action("Details", new { id = review.Id })" class="btn btn-outline-info" title="Chi tiết">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        @if (!review.IsApproved)
+                                        {
+                                            <form action="@Url.Action("Approve")" method="post" style="display:inline;">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@review.Id" />
+                                                <button type="submit" class="btn btn-sm btn-success" title="Duyệt" onclick="return confirm('Duyệt đánh giá này?')">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                        <form action="@Url.Action("Delete")" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn xóa đánh giá này?')">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@review.Id" />
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">Không có đánh giá nào phù hợp với bộ lọc.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-3 mt-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="bi bi-chat-dots text-info" style="font-size: 2rem;"></i>
+                    <h6 class="text-muted mt-2 mb-1">Tổng đánh giá</h6>
+                    <h3 class="mb-0 fw-bold">@ViewBag.TotalReviews</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="bi bi-hourglass-split text-warning" style="font-size: 2rem;"></i>
+                    <h6 class="text-muted mt-2 mb-1">Chờ duyệt</h6>
+                    <h3 class="mb-0 fw-bold">@ViewBag.PendingReviews</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+                    <h6 class="text-muted mt-2 mb-1">Đã duyệt</h6>
+                    <h3 class="mb-0 fw-bold">@ViewBag.ApprovedReviews</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="bi bi-star-fill text-warning" style="font-size: 2rem;"></i>
+                    <h6 class="text-muted mt-2 mb-1">Đánh giá trung bình</h6>
+                    <h3 class="mb-0 fw-bold">@ViewBag.AverageRating.ToString("F1")</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

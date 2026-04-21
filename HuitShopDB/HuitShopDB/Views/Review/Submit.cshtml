@@ -1,0 +1,169 @@
+@model HuitShopDB.Models.DTOs.Review.SubmitReviewRequest
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white py-4">
+                    <h4 class="mb-0"><i class="bi bi-star me-2"></i>Viết đánh giá sản phẩm</h4>
+                    <small>Chia sẻ trải nghiệm của bạn với cộng đồng</small>
+                </div>
+
+                <div class="card-body p-4">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle me-2"></i>
+                            Vui lòng kiểm tra lại thông tin nhập vào.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form action="@Url.Action("Submit")" method="post" enctype="multipart/form-data">
+                        @Html.AntiForgeryToken()
+
+                        <!-- Product Info -->
+                        <div class="alert alert-light border-1">
+                            <div class="row align-items-center">
+                                <div class="col-md-3">
+                                    <img src="@ViewBag.ProductImage" class="img-fluid rounded" style="max-height: 100px;">
+                                </div>
+                                <div class="col-md-9">
+                                    <h6 class="fw-bold mb-1">@ViewBag.ProductName</h6>
+                                    <small class="text-muted">@ViewBag.VariantName</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        @Html.HiddenFor(m => m.ProductId)
+                        @Html.HiddenFor(m => m.VariantId)
+
+                        <!-- Rating Stars -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold mb-3">Đánh giá của bạn</label>
+                            <div class="rating-input mb-3">
+                                @for (int i = 5; i >= 1; i--)
+                                {
+                                    <input type="radio" id="rating-@i" name="Rating" value="@i" class="rating-radio" />
+                                    <label for="rating-@i" class="rating-label me-3">
+                                        @for (int j = 1; j <= 5; j++)
+                                        {
+                                            <i class="bi @(j <= i ? "bi-star-fill" : "bi-star") text-warning" style="font-size: 2rem;"></i>
+                                        }
+                                        <span class="ms-2">@(i == 1 ? "Rất tệ" : i == 2 ? "Tệ" : i == 3 ? "Bình thường" : i == 4 ? "Tốt" : "Rất tốt")</span>
+                                    </label>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Title -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Tiêu đề đánh giá</label>
+                            <input type="text" name="Title" class="form-control form-control-lg" 
+                                   placeholder="Ví dụ: Sản phẩm rất tốt, giao hàng nhanh"
+                                   value="@Model.Title" maxlength="100" required />
+                            <small class="text-muted">Tối đa 100 ký tự</small>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Nội dung đánh giá chi tiết</label>
+                            <textarea name="Content" class="form-control" rows="6" 
+                                      placeholder="Hãy mô tả chi tiết trải nghiệm của bạn về sản phẩm này..."
+                                      required>@Model.Content</textarea>
+                            <small class="text-muted">Tối thiểu 20 ký tự</small>
+                        </div>
+
+                        <!-- Images -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Hình ảnh (Tối đa 5 ảnh)</label>
+                            <div class="input-group input-group-lg mb-3">
+                                <input type="file" class="form-control" accept="image/*" multiple id="imageUpload" />
+                            </div>
+                            <div id="imagePreview" class="row g-2"></div>
+                        </div>
+
+                        <!-- Verified Purchase Badge -->
+                        <div class="mb-4">
+                            <div class="alert alert-info alert-sm">
+                                <i class="bi bi-info-circle me-2"></i>
+                                @if (ViewBag.IsVerifiedPurchase)
+                                {
+                                    <strong>✓ Đã xác minh mua hàng</strong>
+                                }
+                                else
+                                {
+                                    <span>Đánh giá của bạn sẽ được duyệt trước khi hiển thị công khai</span>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-send me-2"></i>Gửi đánh giá
+                            </button>
+                            <a href="@ViewBag.ReturnUrl" class="btn btn-outline-secondary">Hủy bỏ</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Tips Section -->
+            <div class="card border-0 mt-4 bg-light">
+                <div class="card-body">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-lightbulb me-2"></i>Mẹo viết đánh giá tốt</h6>
+                    <ul class="small mb-0">
+                        <li>Hãy chi tiết và cụ thể về các tính năng</li>
+                        <li>So sánh với các sản phẩm tương tự (nếu có)</li>
+                        <li>Nêu cả ưu điểm lẫn nhược điểm</li>
+                        <li>Đăng ảnh/video thực tế của sản phẩm</li>
+                        <li>Tránh viết tắt hay lỗi chính tả</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.rating-radio {
+    display: none;
+}
+
+.rating-label {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s;
+}
+
+.rating-label:hover i {
+    opacity: 0.7;
+}
+
+.rating-radio:checked + .rating-label i {
+    opacity: 1;
+}
+</style>
+
+<script>
+document.getElementById('imageUpload').addEventListener('change', function(e) {
+    const preview = document.getElementById('imagePreview');
+    preview.innerHTML = '';
+    
+    Array.from(this.files).slice(0, 5).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const col = document.createElement('div');
+            col.className = 'col-md-3';
+            col.innerHTML = `<img src="${e.target.result}" class="img-fluid rounded">`;
+            preview.appendChild(col);
+        };
+        reader.readAsDataURL(file);
+    });
+});
+</script>

@@ -37,6 +37,67 @@ namespace HuitShopDB.Services
             return await Task.FromResult(result);
         }
 
+        public async Task<bool> SubmitWarrantyClaimAsync(int userId, WarrantyClaimRequest request)
+        {
+            // Implementation depends on your returns/warranty_claims table structure
+            // This is a placeholder
+            return await Task.FromResult(true);
+        }
+
+        public async Task<WarrantyClaimDto> GetWarrantyClaimAsync(int claimId)
+        {
+            // Implementation depends on your warranty_claims table
+            return await Task.FromResult<WarrantyClaimDto>(null);
+        }
+
+        public async Task<IEnumerable<WarrantyClaimDto>> GetUserClaimsAsync(int userId)
+        {
+            // Get user's warranty claims
+            return await Task.FromResult(new List<WarrantyClaimDto>());
+        }
+
+        public async Task<IEnumerable<WarrantyClaimDto>> GetAllClaimsAsync(string status = null)
+        {
+            // Get all warranty claims, optionally filtered by status
+            return await Task.FromResult(new List<WarrantyClaimDto>());
+        }
+
+        public async Task<bool> UpdateWarrantyClaimAsync(int claimId, WarrantyClaimUpdateRequest request, int adminId)
+        {
+            // Update warranty claim status and notes
+            return await Task.FromResult(true);
+        }
+
+        public async Task<bool> ApproveClaimAsync(int claimId, int adminId, string notes = null)
+        {
+            // Approve warranty claim
+            return await Task.FromResult(true);
+        }
+
+        public async Task<bool> RejectClaimAsync(int claimId, int adminId, string reason)
+        {
+            // Reject warranty claim
+            return await Task.FromResult(true);
+        }
+
+        public async Task<WarrantyAnalyticsDto> GetWarrantyAnalyticsAsync()
+        {
+            // Get warranty analytics
+            return await Task.FromResult(new WarrantyAnalyticsDto());
+        }
+
+        public async Task<IEnumerable<WarrantyPolicyDto>> GetPoliciesAsync()
+        {
+            // Get warranty policies
+            return await Task.FromResult(new List<WarrantyPolicyDto>());
+        }
+
+        public async Task<bool> CreatePolicyAsync(WarrantyPolicyDto policy)
+        {
+            // Create new warranty policy
+            return await Task.FromResult(true);
+        }
+
         private WarrantyDto MapToDto(product_serial s)
         {
             // Try to find the order associated with this serial

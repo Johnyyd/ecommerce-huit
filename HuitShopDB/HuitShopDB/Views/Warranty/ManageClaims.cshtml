@@ -1,0 +1,215 @@
+@model IEnumerable<HuitShopDB.Models.DTOs.Warranty.WarrantyClaimDto>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-wrench me-2"></i>Quản lý yêu cầu bảo hành</h2>
+        <a href="@Url.Action("Analytics")" class="btn btn-outline-primary"><i class="bi bi-graph-up me-1"></i>Thống kê</a>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Trạng thái</label>
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="">Tất cả</option>
+                        <option value="SUBMITTED" @(ViewBag.Status == "SUBMITTED" ? "selected" : "")>Chờ duyệt</option>
+                        <option value="APPROVED" @(ViewBag.Status == "APPROVED" ? "selected" : "")>Đã phê duyệt</option>
+                        <option value="REJECTED" @(ViewBag.Status == "REJECTED" ? "selected" : "")>Bị từ chối</option>
+                        <option value="COMPLETED" @(ViewBag.Status == "COMPLETED" ? "selected" : "")>Hoàn thành</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Loại yêu cầu</label>
+                    <select name="claimType" class="form-select" onchange="this.form.submit()">
+                        <option value="">Tất cả</option>
+                        <option value="REPAIR" @(ViewBag.ClaimType == "REPAIR" ? "selected" : "")>Sửa chữa</option>
+                        <option value="REPLACEMENT" @(ViewBag.ClaimType == "REPLACEMENT" ? "selected" : "")>Thay thế</option>
+                        <option value="REFUND" @(ViewBag.ClaimType == "REFUND" ? "selected" : "")>Hoàn tiền</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Tìm kiếm</label>
+                    <input type="text" name="search" class="form-control" placeholder="Serial, tên khách hàng, email..." value="@ViewBag.Search" />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100">Lọc</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Khách hàng</th>
+                        <th>Serial / Sản phẩm</th>
+                        <th>Loại</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày gửi</th>
+                        <th>Người xử lý</th>
+                        <th class="text-end">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var claim in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">#@claim.Id</td>
+                                <td>
+                                    <div>@claim.UserName</div>
+                                    <small class="text-muted">@claim.UserEmail</small>
+                                </td>
+                                <td>
+                                    <div class="fw-bold">@claim.SerialNumber</div>
+                                    <small class="text-muted">@claim.ProductName</small>
+                                </td>
+                                <td>
+                                    <span class="badge @GetTypeColor(claim.ClaimType)">@claim.ClaimType</span>
+                                </td>
+                                <td>
+                                    <span class="badge @GetStatusColor(claim.Status)">@GetStatusLabel(claim.Status)</span>
+                                </td>
+                                <td class="text-nowrap">@claim.SubmittedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(claim.AssignedToStaffName))
+                                    {
+                                        <small>@claim.AssignedToStaffName</small>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="@Url.Action("ClaimDetails", new { id = claim.Id })" class="btn btn-outline-info" title="Chi tiết">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        @if (claim.Status == "SUBMITTED")
+                                        {
+                                            <button class="btn btn-outline-success" onclick="approveClaim(@claim.Id)" title="Phê duyệt">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                            <button class="btn btn-outline-danger" onclick="rejectClaim(@claim.Id)" title="Từ chối">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">Không có yêu cầu bảo hành nào.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- KPI Stats -->
+    <div class="row g-3 mt-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="bi bi-inbox text-info" style="font-size: 2rem;"></i>
+                    <h6 class="text-muted mt-2 mb-1">Chờ duyệt</h6>
+                    <h3 class="mb-0 fw-bold">@ViewBag.PendingCount</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+                    <h6 class="text-muted mt-2 mb-1">Đã phê duyệt</h6>
+                    <h3 class="mb-0 fw-bold">@ViewBag.ApprovedCount</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="bi bi-x-circle text-danger" style="font-size: 2rem;"></i>
+                    <h6 class="text-muted mt-2 mb-1">Bị từ chối</h6>
+                    <h3 class="mb-0 fw-bold">@ViewBag.RejectedCount</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center">
+                    <i class="bi bi-flag-fill text-success" style="font-size: 2rem;"></i>
+                    <h6 class="text-muted mt-2 mb-1">Hoàn thành</h6>
+                    <h3 class="mb-0 fw-bold">@ViewBag.CompletedCount</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function approveClaim(claimId) {
+    if (confirm('Bạn có chắc muốn phê duyệt yêu cầu này?')) {
+        // Implementation would call the approve action
+        alert('Phê duyệt yêu cầu #' + claimId);
+    }
+}
+
+function rejectClaim(claimId) {
+    const reason = prompt('Nhập lý do từ chối:');
+    if (reason !== null) {
+        // Implementation would call the reject action
+        alert('Từ chối yêu cầu #' + claimId + ' với lý do: ' + reason);
+    }
+}
+</script>
+
+@functions {
+    private string GetStatusColor(string status)
+    {
+        return status switch
+        {
+            "SUBMITTED" => "bg-warning",
+            "APPROVED" => "bg-success",
+            "REJECTED" => "bg-danger",
+            "COMPLETED" => "bg-info",
+            _ => "bg-secondary"
+        };
+    }
+
+    private string GetStatusLabel(string status)
+    {
+        return status switch
+        {
+            "SUBMITTED" => "Chờ duyệt",
+            "APPROVED" => "Đã phê duyệt",
+            "REJECTED" => "Bị từ chối",
+            "COMPLETED" => "Hoàn thành",
+            _ => status
+        };
+    }
+
+    private string GetTypeColor(string type)
+    {
+        return type switch
+        {
+            "REPAIR" => "bg-info",
+            "REPLACEMENT" => "bg-warning",
+            "REFUND" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}

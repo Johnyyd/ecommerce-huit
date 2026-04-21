@@ -1,0 +1,173 @@
+@model HuitShopDB.Models.DTOs.Admin.WarehouseAnalyticsDto
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var reorderReport = ViewBag.ReorderReport as IEnumerable<HuitShopDB.Models.DTOs.Admin.InventoryReorderReportDto>;
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-graph-up me-2"></i>@ViewBag.Title</h2>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Quay lại</a>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 text-center">
+                <div class="card-body">
+                    <i class="bi bi-building text-primary" style="font-size: 2rem;"></i>
+                    <h6 class="text-muted mt-2 mb-1">Tổng kho</h6>
+                    <h3 class="mb-0 fw-bold">@Model.TotalWarehouses</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 text-center">
+                <div class="card-body">
+                    <i class="bi bi-box-seam text-info" style="font-size: 2rem;"></i>
+                    <h6 class="text-muted mt-2 mb-1">SKU</h6>
+                    <h3 class="mb-0 fw-bold">@Model.TotalSKUs</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 text-center">
+                <div class="card-body">
+                    <i class="bi bi-basket-fill text-success" style="font-size: 2rem;"></i>
+                    <h6 class="text-muted mt-2 mb-1">Sản phẩm trong kho</h6>
+                    <h3 class="mb-0 fw-bold">@Model.TotalItemsInStock.ToString("N0")</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm border-0 text-center border-danger">
+                <div class="card-body">
+                    <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 2rem;"></i>
+                    <h6 class="text-muted mt-2 mb-1">Sắp hết hàng</h6>
+                    <h3 class="mb-0 fw-bold text-danger">@Model.LowStockItemsCount</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warehouse Stats -->
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-header bg-white py-3 border-0">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-pie-chart me-2"></i>Thống kê theo kho</h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Kho hàng</th>
+                        <th class="text-center">Số SKU</th>
+                        <th class="text-center">Tổng hàng</th>
+                        <th class="text-center">Khả dụng</th>
+                        <th class="text-center">Đặt trước</th>
+                        <th class="text-center">Sắp hết</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.WarehouseStats.Any())
+                    {
+                        foreach (var warehouse in Model.WarehouseStats)
+                        {
+                            <tr>
+                                <td class="fw-bold">
+                                    @warehouse.WarehouseName
+                                    <span class="badge bg-secondary">@warehouse.WarehouseCode</span>
+                                </td>
+                                <td class="text-center">@warehouse.SKUCount</td>
+                                <td class="text-center fw-bold">@warehouse.TotalItems.ToString("N0")</td>
+                                <td class="text-center"><span class="badge bg-success">@warehouse.AvailableItems.ToString("N0")</span></td>
+                                <td class="text-center">@warehouse.ReservedItems.ToString("N0")</td>
+                                <td class="text-center">
+                                    @if (warehouse.LowStockCount > 0)
+                                    {
+                                        <span class="badge bg-danger">@warehouse.LowStockCount</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">0</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Reorder Report -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-exclamation-lg me-2"></i>Sản phẩm cần đặt lại hàng</h5>
+            <a href="@Url.Action("ReorderReport")" class="btn btn-sm btn-outline-primary">Xem báo cáo đầy đủ</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th class="text-center">SKU</th>
+                        <th class="text-center">Tổng tồn</th>
+                        <th class="text-center">Mức tối thiểu</th>
+                        <th class="text-center">Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (reorderReport != null && reorderReport.Any())
+                    {
+                        foreach (var item in reorderReport.OrderByDescending(x => x.ReorderStatus == "URGENT" ? 2 : x.ReorderStatus == "WARNING" ? 1 : 0).Take(10))
+                        {
+                            <tr class="@(item.ReorderStatus == "URGENT" ? "table-danger" : item.ReorderStatus == "WARNING" ? "table-warning" : "")">
+                                <td>
+                                    <div class="fw-bold">@item.ProductName</div>
+                                    <small class="text-muted">@item.VariantName</small>
+                                </td>
+                                <td class="text-center">@item.Sku</td>
+                                <td class="text-center fw-bold">@item.TotalQuantityAcrossWarehouses</td>
+                                <td class="text-center">@item.ReorderPoint</td>
+                                <td class="text-center">
+                                    @if (item.ReorderStatus == "URGENT")
+                                    {
+                                        <span class="badge bg-danger">CẤP TÍNH</span>
+                                    }
+                                    else if (item.ReorderStatus == "WARNING")
+                                    {
+                                        <span class="badge bg-warning">CẢNH BÁO</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">OK</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">Không có sản phẩm cần đặt lại.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row g-3 mt-4">
+        <div class="col-md-6">
+            <a href="@Url.Action("Import")" class="btn btn-lg btn-primary w-100">
+                <i class="bi bi-box-arrow-in-down me-2"></i>Nhập kho
+            </a>
+        </div>
+        <div class="col-md-6">
+            <a href="@Url.Action("Transfer")" class="btn btn-lg btn-info w-100">
+                <i class="bi bi-arrow-left-right me-2"></i>Chuyển kho
+            </a>
+        </div>
+    </div>
+</div>

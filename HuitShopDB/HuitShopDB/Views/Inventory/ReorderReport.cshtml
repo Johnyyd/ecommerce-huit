@@ -1,0 +1,142 @@
+@model IEnumerable<HuitShopDB.Models.DTOs.Admin.InventoryReorderReportDto>
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold"><i class="bi bi-exclamation-lg me-2"></i>@ViewBag.Title</h2>
+        <div>
+            <a href="@Url.Action("Dashboard")" class="btn btn-outline-secondary me-2"><i class="bi bi-graph-up me-1"></i>Dashboard</a>
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Quay lại</a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body bg-light">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">Lọc theo trạng thái</label>
+                    <select class="form-select" id="statusFilter" onchange="filterTable()">
+                        <option value="">Tất cả</option>
+                        <option value="URGENT">CẤP TÍNH</option>
+                        <option value="WARNING">CẢNH BÁO</option>
+                        <option value="OK">OK</option>
+                    </select>
+                </div>
+                <div class="col-md-6 d-grid">
+                    <button class="btn btn-primary" onclick="exportReport()">
+                        <i class="bi bi-file-earmark-excel me-1"></i>Xuất Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="reportTable">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th class="text-center">SKU</th>
+                        <th class="text-center">Tồn hiện tại</th>
+                        <th class="text-center">Mức tối thiểu</th>
+                        <th class="text-center">Thiếu</th>
+                        <th class="text-center">Trạng thái</th>
+                        <th>Tồn theo kho</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        foreach (var item in Model.OrderByDescending(x => x.ReorderStatus == "URGENT" ? 3 : x.ReorderStatus == "WARNING" ? 2 : 1))
+                        {
+                            var shortage = Math.Max(0, item.ReorderPoint - item.TotalQuantityAcrossWarehouses);
+                            <tr class="item-row" data-status="@item.ReorderStatus">
+                                <td>
+                                    <div class="fw-bold">@item.ProductName</div>
+                                    @if (!string.IsNullOrEmpty(item.VariantName))
+                                    {
+                                        <small class="text-muted">@item.VariantName</small>
+                                    }
+                                </td>
+                                <td class="text-center"><strong>@item.Sku</strong></td>
+                                <td class="text-center fw-bold">
+                                    <span class="@(item.TotalQuantityAcrossWarehouses > 0 ? "text-success" : "text-danger")">
+                                        @item.TotalQuantityAcrossWarehouses
+                                    </span>
+                                </td>
+                                <td class="text-center">@item.ReorderPoint</td>
+                                <td class="text-center">
+                                    <span class="badge @(shortage > 0 ? "bg-danger" : "bg-success")">@shortage</span>
+                                </td>
+                                <td class="text-center">
+                                    @if (item.ReorderStatus == "URGENT")
+                                    {
+                                        <span class="badge bg-danger fs-6">CẤP TÍNH</span>
+                                    }
+                                    else if (item.ReorderStatus == "WARNING")
+                                    {
+                                        <span class="badge bg-warning fs-6">CẢNH BÁO</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success fs-6">OK</span>
+                                    }
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-info" data-bs-toggle="collapse" href="#warehouse-@item.VariantId">
+                                        Chi tiết <i class="bi bi-chevron-down"></i>
+                                    </button>
+                                    <div class="collapse mt-2" id="warehouse-@item.VariantId">
+                                        <div class="card card-body bg-light">
+                                            @foreach (var warehouse in item.StockByWarehouse)
+                                            {
+                                                <div class="d-flex justify-content-between py-1">
+                                                    <span>@warehouse.WarehouseName:</span>
+                                                    <strong>
+                                                        @warehouse.Quantity
+                                                        <span class="text-muted">(Đặt: @warehouse.Reserved)</span>
+                                                    </strong>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="bi bi-check-circle me-2"></i>Tất cả sản phẩm đều đủ hàng.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function filterTable() {
+    const status = document.getElementById('statusFilter').value;
+    const rows = document.querySelectorAll('.item-row');
+    
+    rows.forEach(row => {
+        if (!status || row.getAttribute('data-status') === status) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+function exportReport() {
+    // Placeholder for Excel export functionality
+    alert('Tính năng xuất Excel sẽ được triển khai');
+}
+</script>
