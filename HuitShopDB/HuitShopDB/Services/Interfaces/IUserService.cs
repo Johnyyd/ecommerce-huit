@@ -17,5 +17,6 @@ namespace HuitShopDB.Services.Interfaces
         Task<bool> BulkUpdateUserRoleAsync(List<int> userIds, string role);
         Task<IEnumerable<UserActivityDto>> GetUserActivitiesAsync(int userId);
         Task AddUserActivityAsync(int userId, string activityType, string description, string ipAddress = null);
+        Task<bool> UpdateUserProfileAsync(int userId, string fullName, string phone, string avatarUrl);
     }
 }

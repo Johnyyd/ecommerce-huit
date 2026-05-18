@@ -148,6 +148,7 @@
     <Compile Include="Models\DTOs\Product\ProductDetailDto.cs" />
     <Compile Include="Models\DTOs\Product\ProductListDto.cs" />
     <Compile Include="Models\DTOs\Product\ProductQueryParams.cs" />
+    <Compile Include="Models\DTOs\Product\ProductAdminDtos.cs" />
     <Compile Include="Models\DTOs\Review\ReviewDto.cs" />
     <Compile Include="Models\DTOs\User\UserDto.cs" />
     <Compile Include="Models\DTOs\Voucher\VoucherDto.cs" />
@@ -175,6 +176,8 @@
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\ReviewController.cs" />
     <Compile Include="Controllers\WarrantyController.cs" />
+    <Compile Include="Controllers\AuthController.cs" />
+    <Compile Include="Controllers\CartController.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
@@ -267,6 +270,9 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Product\Index.cshtml" />
     <Content Include="Views\Product\Detail.cshtml" />
+    <Content Include="Views\Product\AdminIndex.cshtml" />
+    <Content Include="Views\Product\Create.cshtml" />
+    <Content Include="Views\Product\Edit.cshtml" />
     <Content Include="Views\Inventory\Index.cshtml" />
     <Content Include="Views\Inventory\LowStock.cshtml" />
     <Content Include="Views\Inventory\Import.cshtml" />
@@ -276,6 +282,10 @@
     <Content Include="Views\Review\Index.cshtml" />
     <Content Include="Views\Warranty\Index.cshtml" />
     <Content Include="Views\Warranty\Details.cshtml" />
+    <Content Include="Views\Auth\Login.cshtml" />
+    <Content Include="Views\Auth\Register.cshtml" />
+    <Content Include="Views\User\Profile.cshtml" />
+    <Content Include="Views\Cart\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

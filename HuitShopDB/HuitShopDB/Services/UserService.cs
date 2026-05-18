@@ -139,6 +139,23 @@ namespace HuitShopDB.Services
             await Task.FromResult(0);
         }
 
+        public async Task<bool> UpdateUserProfileAsync(int userId, string fullName, string phone, string avatarUrl)
+        {
+            var user = _context.users.FirstOrDefault(u => u.id == userId);
+            if (user == null) return false;
+
+            user.full_name = fullName;
+            user.phone = phone;
+            if (!string.IsNullOrEmpty(avatarUrl))
+            {
+                user.avatar_url = avatarUrl;
+            }
+            user.updated_at = DateTime.Now;
+
+            _context.SubmitChanges();
+            return await Task.FromResult(true);
+        }
+
         private UserDto MapToDto(user u)
         {
             return new UserDto

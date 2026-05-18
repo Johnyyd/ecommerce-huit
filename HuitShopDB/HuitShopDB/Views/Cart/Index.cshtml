@@ -1,0 +1,427 @@
+@model HuitShopDB.Models.DTOs.Cart.CartDto
+
+@{
+    ViewBag.Title = "Giỏ hàng của bạn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .cart-progress-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        max-width: 600px;
+        margin: 0 auto 2.5rem;
+        position: relative;
+    }
+    .cart-progress-bar::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: #e2e8f0;
+        z-index: 1;
+        transform: translateY(-50%);
+    }
+    .progress-step {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 2px solid #cbd5e1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        color: #64748b;
+        z-index: 2;
+        transition: all 0.3s ease;
+    }
+    .progress-step.active {
+        border-color: #3b82f6;
+        background: #3b82f6;
+        color: #ffffff;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.25);
+    }
+    .progress-step.completed {
+        border-color: #10b981;
+        background: #10b981;
+        color: #ffffff;
+    }
+    .progress-label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #64748b;
+        margin-top: 0.5rem;
+        text-align: center;
+    }
+    .cart-row {
+        transition: all 0.4s ease;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .cart-row.fade-out {
+        opacity: 0;
+        transform: translateX(-30px);
+        height: 0;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        margin-bottom: 0 !important;
+        overflow: hidden;
+    }
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        width: 110px;
+    }
+    .quantity-btn {
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+        border: none;
+        color: #475569;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    .quantity-btn:hover:not(:disabled) {
+        background: #e2e8f0;
+    }
+    .quantity-btn:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+    }
+    .quantity-input {
+        width: 46px;
+        height: 32px;
+        border: none;
+        border-left: 1px solid #cbd5e1;
+        border-right: 1px solid #cbd5e1;
+        text-align: center;
+        font-weight: 600;
+        color: #1e293b;
+        font-size: 0.9rem;
+    }
+    .quantity-input:focus {
+        outline: none;
+    }
+    .summary-card {
+        border-radius: 1.25rem;
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.8);
+    }
+    .trust-badge-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.6rem 0;
+        border-bottom: 1px dashed #f1f5f9;
+    }
+    .trust-badge-item:last-child {
+        border-bottom: none;
+    }
+</style>
+
+<div class="container py-5">
+    <!-- Progress Flow -->
+    <div class="mb-5">
+        <div class="cart-progress-bar">
+            <div class="d-flex flex-column align-items-center">
+                <div class="progress-step active">1</div>
+                <span class="progress-label fw-bold text-primary">Giỏ hàng</span>
+            </div>
+            <div class="d-flex flex-column align-items-center">
+                <div class="progress-step">2</div>
+                <span class="progress-label">Thanh toán</span>
+            </div>
+            <div class="d-flex flex-column align-items-center">
+                <div class="progress-step">3</div>
+                <span class="progress-label">Hoàn tất</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert placeholder -->
+    <div id="alertContainer"></div>
+
+    <!-- Cart Layout Grid -->
+    <div id="cartGrid" class="row @(Model != null && Model.Items.Any() ? "" : "d-none")">
+        <!-- Cart Items List (col-8) -->
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-sm border-0 p-4" style="border-radius: 1.25rem; background: #ffffff;">
+                <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
+                    <h3 class="fw-bold mb-0" style="color: #0f172a;">Giỏ Hàng <span class="fs-6 text-muted fw-normal">(<span id="itemsCountText">@Model.Items.Sum(i => i.Quantity)</span> sản phẩm)</span></h3>
+                    <a href="@Url.Action("Index", "Product")" class="text-decoration-none small fw-semibold"><i class="bi bi-arrow-left me-1"></i> Tiếp tục mua sắm</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-borderless align-middle mb-0">
+                        <thead>
+                            <tr class="text-secondary small fw-bold" style="border-bottom: 1px solid #f1f5f9;">
+                                <th scope="col" style="padding-bottom: 1rem;">SẢN PHẨM</th>
+                                <th scope="col" style="padding-bottom: 1rem;" class="text-center">SỐ LƯỢNG</th>
+                                <th scope="col" style="padding-bottom: 1rem;" class="text-end">TỔNG TIỀN</th>
+                                <th scope="col" style="padding-bottom: 1rem;" class="text-center"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="cartItemsBody">
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr class="cart-row" id="row_@item.Id">
+                                    <!-- Product Info -->
+                                    <td class="py-4" style="min-width: 280px;">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <img src="@(string.IsNullOrEmpty(item.Variant.ThumbnailUrl) ? "https://via.placeholder.com/80x80?text=No+Image" : item.Variant.ThumbnailUrl)" class="rounded-3 border" style="width: 75px; height: 75px; object-fit: cover;" alt="" />
+                                            <div>
+                                                <h6 class="fw-bold mb-1" style="font-size: 0.95rem; max-width: 200px; line-height: 1.4;">
+                                                    <a href="@Url.Action("Detail", "Product", new { id = item.Variant.Id })" class="text-decoration-none text-dark hover-primary">
+                                                        @item.Variant.VariantName
+                                                    </a>
+                                                </h6>
+                                                <span class="text-muted small">SKU: @item.Variant.Sku</span>
+                                                <div class="mt-1">
+                                                    <span class="text-danger fw-bold small">@item.Variant.Price.ToString("N0")đ</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Quantity adjustment -->
+                                    <td class="py-4 text-center">
+                                        <div class="d-inline-flex justify-content-center">
+                                            <div class="quantity-control">
+                                                <button type="button" class="quantity-btn minus-btn" onclick="adjustQty(@item.Id, -1)" @(item.Quantity <= 1 ? "disabled" : "")>
+                                                    <i class="bi bi-minus"></i>
+                                                </button>
+                                                <input type="text" class="quantity-input" id="qty_@item.Id" value="@item.Quantity" readonly />
+                                                <button type="button" class="quantity-btn plus-btn" onclick="adjustQty(@item.Id, 1)">
+                                                    <i class="bi bi-plus"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </td>
+
+                                    <!-- Line total -->
+                                    <td class="py-4 text-end fw-bold text-dark font-monospace" style="font-size: 1.05rem;" id="lineTotal_@item.Id">
+                                        @item.LineTotal.ToString("N0")đ
+                                    </td>
+
+                                    <!-- Delete btn -->
+                                    <td class="py-4 text-center">
+                                        <button type="button" class="btn btn-link text-danger p-0" onclick="removeItem(@item.Id)" title="Xóa sản phẩm">
+                                            <i class="bi bi-trash3" style="font-size: 1.25rem;"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sticky checkout block (col-4) -->
+        <div class="col-lg-4 mb-4">
+            <div class="summary-card shadow-sm p-4 sticky-top" style="top: 2rem; z-index: 10;">
+                <h4 class="fw-bold mb-4" style="color: #0f172a;">Tóm tắt đơn hàng</h4>
+
+                <div class="d-flex justify-content-between text-secondary mb-3 small">
+                    <span>Tạm tính</span>
+                    <span class="fw-semibold text-dark font-monospace" id="subtotalText">@Model.Subtotal.ToString("N0")đ</span>
+                </div>
+                <div class="d-flex justify-content-between text-secondary mb-3 small">
+                    <span>Giảm giá voucher</span>
+                    <span class="fw-semibold text-success font-monospace" id="discountText">-0đ</span>
+                </div>
+                <div class="d-flex justify-content-between text-secondary mb-4 small">
+                    <span>Phí vận chuyển</span>
+                    <span class="fw-semibold text-dark font-monospace">Miễn phí</span>
+                </div>
+
+                <hr class="opacity-10 my-3" />
+
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="fw-bold text-dark">Tổng tiền thanh toán</span>
+                    <span class="fw-bold text-danger fs-4 font-monospace" id="totalText">@Model.Total.ToString("N0")đ</span>
+                </div>
+
+                <!-- Call to action -->
+                <div class="d-grid gap-2 mb-4">
+                    <a href="@Url.Action("Checkout", "Cart")" class="btn btn-primary btn-lg fw-semibold shadow-sm py-3" style="border-radius: 0.75rem; font-size: 1.05rem;">
+                        TIẾN HÀNH THANH TOÁN <i class="bi bi-arrow-right-short ms-1 fs-5"></i>
+                    </a>
+                </div>
+
+                <!-- Trust signals -->
+                <div class="bg-light p-3 rounded-3">
+                    <div class="trust-badge-item">
+                        <i class="bi bi-arrow-left-right text-primary fs-5"></i>
+                        <span class="small text-secondary fw-semibold">Đổi trả sản phẩm dễ dàng trong 7 ngày</span>
+                    </div>
+                    <div class="trust-badge-item">
+                        <i class="bi bi-shield-check text-primary fs-5"></i>
+                        <span class="small text-secondary fw-semibold">Bảo hành chính hãng 100% của hãng</span>
+                    </div>
+                    <div class="trust-badge-item">
+                        <i class="bi bi-truck text-primary fs-5"></i>
+                        <span class="small text-secondary fw-semibold">Giao hàng miễn phí toàn quốc</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div id="emptyCartState" class="text-center py-5 @(Model != null && Model.Items.Any() ? "d-none" : "")">
+        <div class="d-inline-flex align-items-center justify-content-center bg-light text-muted rounded-circle mb-4" style="width: 100px; height: 100px;">
+            <i class="bi bi-cart-x" style="font-size: 3rem; color: #94a3b8;"></i>
+        </div>
+        <h3 class="fw-bold mb-2">Giỏ hàng của bạn đang trống!</h3>
+        <p class="text-muted mb-4 max-width-400">Hãy duyệt qua danh mục sản phẩm tuyệt vời của HUIT Shop và chọn sản phẩm yêu thích của bạn.</p>
+        <a href="@Url.Action("Index", "Product")" class="btn btn-primary rounded-pill px-5 py-3 fw-bold shadow-sm">
+            TIẾP TỤC MUA SẮM <i class="bi bi-arrow-right ms-1"></i>
+        </a>
+    </div>
+</div>
+
+<script>
+    // Show alerts dynamically
+    function showAlert(message, type = 'danger') {
+        const container = document.getElementById('alertContainer');
+        container.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show border-0 shadow-sm rounded-3 py-3 mb-4" role="alert">
+                <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'} me-2"></i>
+                <span class="small fw-semibold">${message}</span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+        setTimeout(() => {
+            const alert = bootstrap.Alert.getOrCreateInstance(container.querySelector('.alert'));
+            if (alert) alert.close();
+        }, 5000);
+    }
+
+    // Format currency helper
+    function formatMoney(amount) {
+        return new Intl.NumberFormat('vi-VN').format(amount) + 'đ';
+    }
+
+    // Recalculate and update cart summary figures
+    function updateCartSummary(data) {
+        document.getElementById('subtotalText').innerText = formatMoney(data.subtotal);
+        document.getElementById('discountText').innerText = '-' + formatMoney(data.discount);
+        document.getElementById('totalText').innerText = formatMoney(data.total);
+        document.getElementById('itemsCountText').innerText = data.cartCount;
+
+        // Update nav badge (Global variable / DOM lookup)
+        const badge = document.getElementById('navCartBadge');
+        if (badge) {
+            badge.innerText = data.cartCount;
+            if (data.cartCount > 0) {
+                badge.classList.remove('d-none');
+            } else {
+                badge.classList.add('d-none');
+            }
+        }
+    }
+
+    // Increment / Decrement Quantity AJAX Action
+    function adjustQty(itemId, change) {
+        const input = document.getElementById(`qty_${itemId}`);
+        const currentQty = parseInt(input.value);
+        const newQty = currentQty + change;
+
+        if (newQty < 1) return;
+
+        // Disable buttons
+        const row = document.getElementById(`row_${itemId}`);
+        const plusBtn = row.querySelector('.plus-btn');
+        const minusBtn = row.querySelector('.minus-btn');
+        plusBtn.disabled = true;
+        minusBtn.disabled = true;
+
+        fetch('/Cart/UpdateQuantity', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `cartItemId=${itemId}&quantity=${newQty}`
+        })
+        .then(response => response.json())
+        .then(res => {
+            plusBtn.disabled = false;
+            minusBtn.disabled = false;
+
+            if (res.success) {
+                if (res.removed) {
+                    // Item was removed
+                    row.classList.add('fade-out');
+                    setTimeout(() => {
+                        row.remove();
+                        checkEmptyCartState();
+                    }, 400);
+                } else {
+                    // Updated successfully
+                    input.value = newQty;
+                    document.getElementById(`lineTotal_${itemId}`).innerText = formatMoney(res.lineTotal);
+                    
+                    // Enable/disable minus based on quantity
+                    minusBtn.disabled = (newQty <= 1);
+                }
+                updateCartSummary(res);
+            } else {
+                showAlert(res.message || 'Không thể cập nhật số lượng sản phẩm.');
+            }
+        })
+        .catch(err => {
+            plusBtn.disabled = false;
+            minusBtn.disabled = false;
+            showAlert('Có lỗi kết nối xảy ra. Vui lòng thử lại.');
+        });
+    }
+
+    // Delete item AJAX Action
+    function removeItem(itemId) {
+        if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi giỏ hàng?')) return;
+
+        fetch('/Cart/RemoveItem', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `cartItemId=${itemId}`
+        })
+        .then(response => response.json())
+        .then(res => {
+            if (res.success) {
+                const row = document.getElementById(`row_${itemId}`);
+                row.classList.add('fade-out');
+                setTimeout(() => {
+                    row.remove();
+                    checkEmptyCartState();
+                }, 400);
+                updateCartSummary(res);
+            } else {
+                showAlert(res.message || 'Không thể xóa sản phẩm khỏi giỏ hàng.');
+            }
+        })
+        .catch(err => {
+            showAlert('Có lỗi kết nối xảy ra. Vui lòng thử lại.');
+        });
+    }
+
+    // Toggle grid vs empty layout
+    function checkEmptyCartState() {
+        const rows = document.querySelectorAll('#cartItemsBody .cart-row');
+        if (rows.length === 0) {
+            document.getElementById('cartGrid').classList.add('d-none');
+            document.getElementById('emptyCartState').classList.remove('d-none');
+        }
+    }
+</script>

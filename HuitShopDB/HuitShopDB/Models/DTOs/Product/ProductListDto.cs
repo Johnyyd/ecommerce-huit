@@ -23,6 +23,8 @@ namespace HuitShopDB.Models.DTOs.Product
         public int ReviewCount { get; set; }
         public bool IsFeatured { get; set; }
         public int? DefaultVariantId { get; set; }
+        public string Status { get; set; }
+        public bool IsActive { get; set; }
     }
 }
 

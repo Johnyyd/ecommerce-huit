@@ -1,0 +1,744 @@
+@model HuitShopDB.Models.DTOs.Product.ProductDetailDto
+@{
+    ViewBag.Title = "Chỉnh sửa sản phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var categories = ViewBag.Categories as IEnumerable<HuitShopDB.Models.DTOs.Product.CategoryDto>;
+    var brands = ViewBag.Brands as IEnumerable<HuitShopDB.Models.DTOs.Product.BrandDto>;
+
+    // Deserializing specifications
+    var specs = new Dictionary<string, string>();
+    if (!string.IsNullOrEmpty(Model.Specifications))
+    {
+        try
+        {
+            specs = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, string>>(Model.Specifications);
+        }
+        catch { }
+    }
+}
+
+<div class="container my-5">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-transparent p-0 mb-1">
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang chủ</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("AdminIndex", "Product")" class="text-decoration-none text-muted">Quản lý sản phẩm</a></li>
+                    <li class="breadcrumb-item active text-primary" aria-current="page">Sửa sản phẩm</li>
+                </ol>
+            </nav>
+            <h1 class="h2 font-weight-bold text-dark mb-0">Chỉnh Sửa Sản Phẩm: @Model.Name</h1>
+            <p class="text-muted mb-0">ID sản phẩm: @Model.Id &bull; Đường dẫn: <code class="text-info bg-light px-1.5 py-0.5 rounded">@Model.Slug</code></p>
+        </div>
+        <div class="mt-3 mt-md-0">
+            <a href="@Url.Action("AdminIndex", "Product")" class="btn btn-outline-dark px-4 py-2" style="border-radius: 50px; font-weight: 600;">
+                <i class="fas fa-arrow-left mr-2"></i> Quay lại danh sách
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 mb-4" role="alert" style="border-left: 5px solid #28a745; border-radius: 8px;">
+            <i class="fas fa-check-circle mr-2 text-success"></i> <strong>Thành công!</strong> @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 mb-4" role="alert" style="border-left: 5px solid #dc3545; border-radius: 8px;">
+            <i class="fas fa-exclamation-circle mr-2 text-danger"></i> <strong>Lỗi!</strong> @TempData["ErrorMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <!-- 3-Tab Workspace Navigation -->
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
+        <div class="card-body p-2 bg-light" style="border-radius: 16px 16px 0 0;">
+            <ul class="nav nav-pills nav-fill" id="adminProductTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active font-weight-bold py-3" id="basic-tab" data-toggle="tab" href="#basic-content" role="tab" aria-controls="basic-content" aria-selected="true" style="border-radius: 12px; font-size: 105%;">
+                        <i class="fas fa-info-circle mr-2 text-primary"></i> 1. Thông Tin Cơ Bản & Specs
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link font-weight-bold py-3" id="variants-tab" data-toggle="tab" href="#variants-content" role="tab" aria-controls="variants-content" aria-selected="false" style="border-radius: 12px; font-size: 105%;">
+                        <i class="fas fa-boxes mr-2 text-info"></i> 2. Quản Lý Biến Thể (@Model.Variants.Count)
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link font-weight-bold py-3" id="gallery-tab" data-toggle="tab" href="#gallery-content" role="tab" aria-controls="gallery-content" aria-selected="false" style="border-radius: 12px; font-size: 105%;">
+                        <i class="fas fa-images mr-2 text-success"></i> 3. Bộ Sưu Tập Ảnh (@Model.Images.Count)
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card-body p-4 tab-content" id="adminProductTabsContent">
+            
+            <!-- TAB 1: BASIC INFO & SPECS -->
+            <div class="tab-pane fade show active" id="basic-content" role="tabpanel" aria-labelledby="basic-tab">
+                <form action="@Url.Action("Edit", "Product", new { id = Model.Id })" method="post" id="edit-product-form">
+                    <input type="hidden" name="Specifications" id="specifications-hidden" />
+                    
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="form-group mb-4">
+                                <label class="font-weight-bold text-dark">Tên sản phẩm <span class="text-danger">*</span></label>
+                                <input type="text" name="Name" value="@Model.Name" required class="form-control form-control-lg border-light bg-light" style="border-radius: 10px; font-weight: 500;">
+                            </div>
+
+                            <div class="row mb-4">
+                                <div class="col-md-6 mb-3 mb-md-0">
+                                    <label class="font-weight-bold text-dark">Danh mục sản phẩm <span class="text-danger">*</span></label>
+                                    <select name="CategoryId" required class="form-control border-light bg-light" style="border-radius: 10px; height: 45px;">
+                                        @if (categories != null)
+                                        {
+                                            foreach (var cat in categories)
+                                            {
+                                                <option value="@cat.Id" @(Model.Category != null && Model.Category.Id == cat.Id ? "selected" : "")>@cat.Name</option>
+                                                if (cat.Children != null && cat.Children.Any())
+                                                {
+                                                    foreach (var sub in cat.Children)
+                                                    {
+                                                        <option value="@sub.Id" @(Model.Category != null && Model.Category.Id == sub.Id ? "selected" : "")>&nbsp;&nbsp;— @sub.Name</option>
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="font-weight-bold text-dark">Thương hiệu <span class="text-danger">*</span></label>
+                                    <select name="BrandId" required class="form-control border-light bg-light" style="border-radius: 10px; height: 45px;">
+                                        @if (brands != null)
+                                        {
+                                            foreach (var br in brands)
+                                            {
+                                                <option value="@br.Id" @(Model.Brand != null && Model.Brand.Id == br.Id ? "selected" : "")>@br.Name (@br.Origin)</option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label class="font-weight-bold text-dark">Mô tả ngắn <span class="text-danger">*</span></label>
+                                <textarea name="ShortDescription" required class="form-control border-light bg-light" rows="3" style="border-radius: 10px;">@((ViewBag.ShortDescription != null) ? ViewBag.ShortDescription : (Model.Description != null && Model.Description.Length > 150 ? Model.Description.Substring(0, 150) + "..." : Model.Description))</textarea>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label class="font-weight-bold text-dark">Mô tả chi tiết</label>
+                                <textarea name="Description" class="form-control border-light bg-light" rows="8" style="border-radius: 10px;">@Model.Description</textarea>
+                            </div>
+
+                            <!-- Specifications Editor -->
+                            <div class="card border border-light mb-4" style="border-radius: 12px;">
+                                <div class="card-header bg-white border-0 pt-3 px-3 pb-0 d-flex justify-content-between align-items-center">
+                                    <span class="font-weight-bold text-dark"><i class="fas fa-list-alt text-success mr-2"></i> Thông Số Kỹ Thuật (Specs)</span>
+                                    <button type="button" class="btn btn-outline-success btn-sm px-3 rounded-pill" onclick="addSpecRow()"><i class="fas fa-plus"></i> Thêm</button>
+                                </div>
+                                <div class="card-body p-3">
+                                    <table class="table table-borderless mb-0">
+                                        <tbody id="specs-tbody">
+                                            @if (specs.Any())
+                                            {
+                                                foreach (var kv in specs)
+                                                {
+                                                    <tr class="spec-row">
+                                                        <td class="py-1.5" style="width: 40%;"><input type="text" class="form-control border-light bg-light spec-key" value="@kv.Key" style="border-radius: 8px;"></td>
+                                                        <td class="py-1.5" style="width: 50%;"><input type="text" class="form-control border-light bg-light spec-value" value="@kv.Value" style="border-radius: 8px;"></td>
+                                                        <td class="py-1.5 text-center" style="width: 10%;"><button type="button" class="btn btn-outline-danger btn-sm border-0" onclick="removeSpecRow(this)"><i class="fas fa-trash-alt"></i></button></td>
+                                                    </tr>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <tr id="no-specs-row">
+                                                    <td colspan="3" class="text-center py-3 text-muted small">Chưa khai báo thông số kĩ thuật nào.</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="card border border-light p-4 mb-4" style="border-radius: 16px;">
+                                <div class="form-group mb-4">
+                                    <label class="font-weight-bold text-dark">Trạng thái hoạt động</label>
+                                    <select name="Status" class="form-control border-light bg-light" style="border-radius: 10px; height: 45px;">
+                                        <option value="ACTIVE" @(Model.Status == "ACTIVE" ? "selected" : "")>Kích hoạt bán ngay (ACTIVE)</option>
+                                        <option value="DRAFT" @(Model.Status == "DRAFT" ? "selected" : "")>Bản nháp lưu tạm (DRAFT)</option>
+                                        <option value="INACTIVE" @(Model.Status == "INACTIVE" ? "selected" : "")>Khóa tạm ẩn (INACTIVE)</option>
+                                    </select>
+                                </div>
+
+                                <div class="custom-control custom-checkbox custom-control-lg mb-2">
+                                    <input type="checkbox" name="IsFeatured" class="custom-control-input" id="IsFeatured" value="true" @(Model.IsFeatured ? "checked" : "")>
+                                    <input type="hidden" name="IsFeatured" value="false">
+                                    <label class="custom-control-label font-weight-bold text-dark" for="IsFeatured" style="cursor: pointer;">Sản phẩm nổi bật</label>
+                                    <p class="text-muted small mt-1 mb-0">Sản phẩm nổi bật sẽ được đưa lên hàng đầu của trang chủ.</p>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block btn-lg shadow-sm py-3" style="border-radius: 30px; font-weight: 600;">
+                                <i class="fas fa-save mr-2"></i> Lưu thay đổi sản phẩm
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TAB 2: VARIANTS MANAGEMENT -->
+            <div class="tab-pane fade" id="variants-content" role="tabpanel" aria-labelledby="variants-tab">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+                    <div>
+                        <h5 class="font-weight-bold text-dark mb-1">Danh Sách Biến Thể Sản Phẩm</h5>
+                        <p class="text-muted small mb-0">Khai báo cấu hình kích cỡ, màu sắc, bộ nhớ, giá bán tương ứng cho từng biến thể.</p>
+                    </div>
+                    <button type="button" class="btn btn-outline-info font-weight-bold px-4 py-2 mt-2 mt-md-0" data-toggle="modal" data-target="#addVariantModal" style="border-radius: 20px;">
+                        <i class="fas fa-plus mr-2"></i> Thêm Biến Thể Mới
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle border mb-0" style="border-radius: 12px; overflow: hidden;">
+                        <thead class="thead-light">
+                            <tr class="text-uppercase small font-weight-bold text-muted">
+                                <th scope="col" class="pl-4 py-3" style="width: 70px;">Ảnh</th>
+                                <th scope="col" class="py-3">Tên biến thể</th>
+                                <th scope="col" class="py-3">Mã SKU</th>
+                                <th scope="col" class="py-3">Giá bán lẻ</th>
+                                <th scope="col" class="py-3">Giá so sánh (Gốc)</th>
+                                <th scope="col" class="py-3" style="width: 100px;">Trạng thái</th>
+                                <th scope="col" class="py-3 text-center" style="width: 130px;">Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.Variants == null || !Model.Variants.Any())
+                            {
+                                <tr>
+                                    <td colspan="7" class="text-center py-4 text-muted">Không có biến thể nào được tìm thấy.</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                foreach (var v in Model.Variants)
+                                {
+                                    <tr>
+                                        <td class="pl-4 py-3 align-middle">
+                                            <img src="@(string.IsNullOrEmpty(v.ThumbnailUrl) ? "/Content/images/placeholder.png" : v.ThumbnailUrl)" alt="@v.VariantName" class="rounded shadow-xs border" style="width: 45px; height: 45px; object-fit: cover;">
+                                        </td>
+                                        <td class="py-3 align-middle font-weight-bold text-dark">@v.VariantName</td>
+                                        <td class="py-3 align-middle"><code>@v.Sku</code></td>
+                                        <td class="py-3 align-middle text-primary font-weight-bold">@v.Price.ToString("N0")đ</td>
+                                        <td class="py-3 align-middle text-muted" style="text-decoration: line-through;">@(v.OriginalPrice.HasValue ? v.OriginalPrice.Value.ToString("N0") + "đ" : "")</td>
+                                        <td class="py-3 align-middle">
+                                            <span class="badge @(v.IsActive ? "badge-success" : "badge-secondary") px-2 py-1 rounded-pill small">
+                                                @(v.IsActive ? "Đang bán" : "Đã ẩn")
+                                            </span>
+                                        </td>
+                                        <td class="py-3 align-middle text-center pr-4">
+                                            <button type="button" class="btn btn-outline-info btn-sm px-3 rounded-pill" onclick="openEditVariantModal(@v.Id, '@v.VariantName', '@v.Sku', @v.Price, @v.OriginalPrice, '@v.IsActive'.toLowerCase())">
+                                                <i class="fas fa-edit"></i> Sửa
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: PRODUCT GALLERY IMAGES -->
+            <div class="tab-pane fade" id="gallery-content" role="tabpanel" aria-labelledby="gallery-tab">
+                <div class="row">
+                    <!-- Form AJAX Upload Gallery Image -->
+                    <div class="col-md-4">
+                        <div class="card border border-light p-4 mb-4 mb-md-0" style="border-radius: 16px;">
+                            <h5 class="font-weight-bold text-dark mb-2">Thêm Ảnh Vào Bộ Sưu Tập</h5>
+                            <p class="text-muted small">Tải lên hình ảnh góc chụp khác hoặc ảnh chi tiết của các biến thể.</p>
+                            <hr class="mb-4">
+
+                            <form id="upload-gallery-form" method="post" enctype="multipart/form-data">
+                                <div class="form-group mb-3">
+                                    <label class="font-weight-bold text-dark">Liên kết biến thể</label>
+                                    <select name="variantId" id="gallery-variant-id" required class="form-control border-light bg-light" style="border-radius: 10px;">
+                                        @foreach (var v in Model.Variants)
+                                        {
+                                            <option value="@v.Id">@v.VariantName (SKU: @v.Sku)</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label class="font-weight-bold text-dark">Mô tả ảnh (Alt Text)</label>
+                                    <input type="text" name="altText" id="gallery-alt-text" class="form-control border-light bg-light" placeholder="Ví dụ: Ảnh góc nghiêng sản phẩm" style="border-radius: 10px;">
+                                </div>
+
+                                <div class="form-group mb-4">
+                                    <label class="font-weight-bold text-dark">Thứ tự sắp xếp hiển thị</label>
+                                    <input type="number" name="sortOrder" id="gallery-sort-order" value="1" required class="form-control border-light bg-light" style="border-radius: 10px;">
+                                </div>
+
+                                <div class="form-group mb-4">
+                                    <label class="font-weight-bold text-dark">Chọn tệp hình ảnh <span class="text-danger">*</span></label>
+                                    <div class="custom-file" style="border-radius: 10px;">
+                                        <input type="file" name="galleryImage" class="custom-file-input" id="galleryImageFile" required accept="image/*" onchange="previewGalleryImage()">
+                                        <label class="custom-file-label border-light bg-light" for="galleryImageFile" style="border-radius: 10px;">Chọn ảnh...</label>
+                                    </div>
+                                    <div class="text-center mt-3 d-none" id="gallery-preview-container">
+                                        <img src="#" alt="Preview" id="gallery-preview" class="img-thumbnail rounded shadow-xs" style="max-height: 150px;">
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-success btn-block shadow-sm py-2.5 font-weight-bold" onclick="uploadGalleryImage()" style="border-radius: 20px;">
+                                    <i class="fas fa-upload mr-2"></i> Tải ảnh lên bộ sưu tập
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Visual Grid of Gallery Images -->
+                    <div class="col-md-8">
+                        <h5 class="font-weight-bold text-dark mb-3">Thư Viện Ảnh Sản Phẩm (@Model.Images.Count)</h5>
+                        @if (Model.Images == null || !Model.Images.Any())
+                        {
+                            <div class="text-center py-5 border rounded" style="border-style: dashed !important; border-radius: 16px;">
+                                <i class="fas fa-images text-muted fa-3x mb-3" style="opacity: 0.3;"></i>
+                                <p class="text-muted mb-0">Chưa có hình ảnh phụ nào trong bộ sưu tập.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="row">
+                                @foreach (var img in Model.Images)
+                                {
+                                    <div class="col-6 col-sm-4 col-md-3 mb-4" id="gallery-img-@img.Id">
+                                        <div class="card border shadow-xs h-100 position-relative hover-zoom-container" style="border-radius: 12px; overflow: hidden;">
+                                            <img src="@img.ImageUrl" alt="@img.AltText" class="card-img-top" style="height: 120px; object-fit: cover;">
+                                            <div class="card-body p-2 bg-light">
+                                                <small class="text-dark font-weight-bold text-truncate d-block mb-1">@(string.IsNullOrEmpty(img.AltText) ? "Ảnh phụ" : img.AltText)</small>
+                                                <small class="text-muted small d-block mb-2">Thứ tự: @img.SortOrder</small>
+                                                <button type="button" class="btn btn-outline-danger btn-block btn-xs py-1" onclick="deleteImage(@img.Id)" style="border-radius: 6px; font-size: 80%;">
+                                                    <i class="fas fa-trash-alt mr-1"></i> Xóa ảnh
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     MODALS FOR VARIANTS CRUD
+     ========================================== -->
+
+<!-- Add Variant Modal -->
+<div class="modal fade" id="addVariantModal" tabindex="-1" role="dialog" aria-labelledby="addVariantModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="border-radius: 16px; overflow: hidden;">
+            <div class="modal-header bg-light border-0 py-3">
+                <h5 class="modal-title font-weight-bold text-dark" id="addVariantModalLabel"><i class="fas fa-boxes text-info mr-2"></i> Thêm Biến Thể Mới</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="add-variant-form">
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark">Tên biến thể <span class="text-danger">*</span></label>
+                        <input type="text" id="add-variant-name" required class="form-control border-light bg-light" placeholder="Ví dụ: Màu Bạc 128GB" style="border-radius: 10px;">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark">Mã SKU <span class="text-danger">*</span></label>
+                        <input type="text" id="add-variant-sku" required class="form-control border-light bg-light" placeholder="Ví dụ: I15P-SILVER-128" style="border-radius: 10px;">
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-6 mb-3">
+                            <label class="font-weight-bold text-dark">Giá bán lẻ (đ) <span class="text-danger">*</span></label>
+                            <input type="number" id="add-variant-price" required class="form-control border-light bg-light" style="border-radius: 10px;">
+                        </div>
+                        <div class="form-group col-6 mb-3">
+                            <label class="font-weight-bold text-dark">Giá so sánh (đ) <span class="text-danger">*</span></label>
+                            <input type="number" id="add-variant-original-price" required class="form-control border-light bg-light" style="border-radius: 10px;">
+                        </div>
+                    </div>
+                    <div class="form-group mb-0">
+                        <label class="font-weight-bold text-dark">Ảnh biến thể <span class="text-danger">*</span></label>
+                        <div class="custom-file mb-2">
+                            <input type="file" class="custom-file-input" id="add-variant-image" required accept="image/*" onchange="previewAddVariantFile()">
+                            <label class="custom-file-label border-light bg-light" for="add-variant-image" style="border-radius: 10px;">Chọn ảnh...</label>
+                        </div>
+                        <div class="text-center mt-2 d-none" id="add-variant-preview-container">
+                            <img src="#" alt="Preview" id="add-variant-preview" class="img-thumbnail rounded shadow-xs" style="max-height: 120px;">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0 bg-light">
+                <button type="button" class="btn btn-outline-dark px-4 rounded-pill font-weight-bold" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary px-4 rounded-pill font-weight-bold" onclick="submitAddVariant()">Lưu biến thể</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Variant Modal -->
+<div class="modal fade" id="editVariantModal" tabindex="-1" role="dialog" aria-labelledby="editVariantModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="border-radius: 16px; overflow: hidden;">
+            <div class="modal-header bg-light border-0 py-3">
+                <h5 class="modal-title font-weight-bold text-dark" id="editVariantModalLabel"><i class="fas fa-edit text-info mr-2"></i> Chỉnh Sửa Biến Thể</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="edit-variant-form">
+                    <input type="hidden" id="edit-variant-id">
+                    
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark">Tên biến thể <span class="text-danger">*</span></label>
+                        <input type="text" id="edit-variant-name" required class="form-control border-light bg-light" style="border-radius: 10px;">
+                    </div>
+                    <div class="form-group mb-3">
+                        <label class="font-weight-bold text-dark">Mã SKU <span class="text-danger">*</span></label>
+                        <input type="text" id="edit-variant-sku" required class="form-control border-light bg-light" style="border-radius: 10px;">
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-6 mb-3">
+                            <label class="font-weight-bold text-dark">Giá bán lẻ (đ) <span class="text-danger">*</span></label>
+                            <input type="number" id="edit-variant-price" required class="form-control border-light bg-light" style="border-radius: 10px;">
+                        </div>
+                        <div class="form-group col-6 mb-3">
+                            <label class="font-weight-bold text-dark">Giá so sánh (đ) <span class="text-danger">*</span></label>
+                            <input type="number" id="edit-variant-original-price" required class="form-control border-light bg-light" style="border-radius: 10px;">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="form-group col-6 mb-0">
+                            <label class="font-weight-bold text-dark">Trạng thái bán</label>
+                            <select id="edit-variant-active" class="form-control border-light bg-light" style="border-radius: 10px;">
+                                <option value="true">Đang bán (ACTIVE)</option>
+                                <option value="false">Tạm khóa (DISABLED)</option>
+                            </select>
+                        </div>
+                        <div class="form-group col-6 mb-0">
+                            <label class="font-weight-bold text-dark">Thứ tự hiển thị</label>
+                            <input type="number" id="edit-variant-display-order" value="1" required class="form-control border-light bg-light" style="border-radius: 10px;">
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-0">
+                        <label class="font-weight-bold text-dark">Cập nhật ảnh biến thể (Không bắt buộc)</label>
+                        <div class="custom-file mb-2">
+                            <input type="file" class="custom-file-input" id="edit-variant-image" accept="image/*" onchange="previewEditVariantFile()">
+                            <label class="custom-file-label border-light bg-light" for="edit-variant-image" style="border-radius: 10px;">Chọn ảnh khác...</label>
+                        </div>
+                        <div class="text-center mt-2 d-none" id="edit-variant-preview-container">
+                            <img src="#" alt="Preview" id="edit-variant-preview" class="img-thumbnail rounded shadow-xs" style="max-height: 120px;">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0 bg-light">
+                <button type="button" class="btn btn-outline-dark px-4 rounded-pill font-weight-bold" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary px-4 rounded-pill font-weight-bold" onclick="submitEditVariant()">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Tab Specs Controls
+    function addSpecRow() {
+        $('#no-specs-row').remove();
+        var html = '<tr class="spec-row">' +
+            '<td class="py-1.5"><input type="text" class="form-control border-light bg-light spec-key" placeholder="Màn hình" style="border-radius: 8px;"></td>' +
+            '<td class="py-1.5"><input type="text" class="form-control border-light bg-light spec-value" placeholder="OLED 6.7 inch" style="border-radius: 8px;"></td>' +
+            '<td class="py-1.5 text-center"><button type="button" class="btn btn-outline-danger btn-sm border-0" onclick="removeSpecRow(this)"><i class="fas fa-trash-alt"></i></button></td>' +
+            '</tr>';
+        $('#specs-tbody').append(html);
+    }
+
+    function removeSpecRow(button) {
+        $(button).closest('tr').remove();
+        if ($('.spec-row').length === 0) {
+            $('#specs-tbody').append('<tr id="no-specs-row"><td colspan="3" class="text-center py-3 text-muted small">Chưa khai báo thông số kĩ thuật nào.</td></tr>');
+        }
+    }
+
+    $('#edit-product-form').on('submit', function () {
+        var specs = {};
+        $('.spec-row').each(function () {
+            var key = $(this).find('.spec-key').val().trim();
+            var val = $(this).find('.spec-value').val().trim();
+            if (key) {
+                specs[key] = val;
+            }
+        });
+        $('#specifications-hidden').val(JSON.stringify(specs));
+        return true;
+    });
+
+    // Variant image preview
+    function previewAddVariantFile() {
+        var preview = document.getElementById('add-variant-preview');
+        var file = document.getElementById('add-variant-image').files[0];
+        var reader = new FileReader();
+
+        reader.onloadend = function () {
+            preview.src = reader.result;
+            $('#add-variant-preview-container').removeClass('d-none');
+        }
+
+        if (file) {
+            reader.readAsDataURL(file);
+            $('#add-variant-form .custom-file-label').text(file.name);
+        } else {
+            preview.src = "";
+            $('#add-variant-preview-container').addClass('d-none');
+            $('#add-variant-form .custom-file-label').text("Chọn ảnh...");
+        }
+    }
+
+    function previewEditVariantFile() {
+        var preview = document.getElementById('edit-variant-preview');
+        var file = document.getElementById('edit-variant-image').files[0];
+        var reader = new FileReader();
+
+        reader.onloadend = function () {
+            preview.src = reader.result;
+            $('#edit-variant-preview-container').removeClass('d-none');
+        }
+
+        if (file) {
+            reader.readAsDataURL(file);
+            $('#edit-variant-form .custom-file-label').text(file.name);
+        } else {
+            preview.src = "";
+            $('#edit-variant-preview-container').addClass('d-none');
+            $('#edit-variant-form .custom-file-label').text("Chọn ảnh khác...");
+        }
+    }
+
+    function submitAddVariant() {
+        var variantName = $('#add-variant-name').val().trim();
+        var sku = $('#add-variant-sku').val().trim();
+        var price = $('#add-variant-price').val();
+        var originalPrice = $('#add-variant-original-price').val();
+        var imageInput = $('#add-variant-image')[0];
+
+        if (!variantName || !sku || !price || !originalPrice || imageInput.files.length === 0) {
+            alert('Vui lòng điền đầy đủ thông tin biến thể và chọn ảnh đại diện.');
+            return;
+        }
+
+        var formData = new FormData();
+        formData.append('productId', @Model.Id);
+        formData.append('variantName', variantName);
+        formData.append('sku', sku);
+        formData.append('price', price);
+        formData.append('originalPrice', originalPrice);
+        formData.append('variantImage', imageInput.files[0]);
+
+        $.ajax({
+            url: '@Url.Action("AddVariant", "Product")',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                if (res.success) {
+                    alert(res.message);
+                    location.reload();
+                } else {
+                    alert('Lỗi: ' + res.message);
+                }
+            },
+            error: function () {
+                alert('Lỗi kết nối máy chủ.');
+            }
+        });
+    }
+
+    function openEditVariantModal(id, name, sku, price, originalPrice, isActive) {
+        $('#edit-variant-id').val(id);
+        $('#edit-variant-name').val(name);
+        $('#edit-variant-sku').val(sku);
+        $('#edit-variant-price').val(price);
+        $('#edit-variant-original-price').val(originalPrice);
+        $('#edit-variant-active').val(isActive.toString());
+        $('#edit-variant-display-order').val(1);
+        
+        $('#edit-variant-preview-container').addClass('d-none');
+        $('#edit-variant-image').val('');
+        $('#edit-variant-form .custom-file-label').text("Chọn ảnh khác...");
+
+        $('#editVariantModal').modal('show');
+    }
+
+    function submitEditVariant() {
+        var id = $('#edit-variant-id').val();
+        var variantName = $('#edit-variant-name').val().trim();
+        var sku = $('#edit-variant-sku').val().trim();
+        var price = $('#edit-variant-price').val();
+        var originalPrice = $('#edit-variant-original-price').val();
+        var isActive = $('#edit-variant-active').val();
+        var displayOrder = $('#edit-variant-display-order').val();
+        var imageInput = $('#edit-variant-image')[0];
+
+        if (!variantName || !sku || !price || !originalPrice) {
+            alert('Vui lòng điền đầy đủ các thông tin bắt buộc.');
+            return;
+        }
+
+        var formData = new FormData();
+        formData.append('variantId', id);
+        formData.append('variantName', variantName);
+        formData.append('sku', sku);
+        formData.append('price', price);
+        formData.append('originalPrice', originalPrice);
+        formData.append('isActive', isActive);
+        formData.append('displayOrder', displayOrder);
+        
+        if (imageInput.files.length > 0) {
+            formData.append('variantImage', imageInput.files[0]);
+        }
+
+        $.ajax({
+            url: '@Url.Action("UpdateVariant", "Product")',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                if (res.success) {
+                    alert(res.message);
+                    location.reload();
+                } else {
+                    alert('Lỗi: ' + res.message);
+                }
+            },
+            error: function () {
+                alert('Lỗi kết nối máy chủ.');
+            }
+        });
+    }
+
+    // Gallery Image pre-upload preview
+    function previewGalleryImage() {
+        var preview = document.getElementById('gallery-preview');
+        var file = document.getElementById('galleryImageFile').files[0];
+        var reader = new FileReader();
+
+        reader.onloadend = function () {
+            preview.src = reader.result;
+            $('#gallery-preview-container').removeClass('d-none');
+        }
+
+        if (file) {
+            reader.readAsDataURL(file);
+            $('#upload-gallery-form .custom-file-label').text(file.name);
+        } else {
+            preview.src = "";
+            $('#gallery-preview-container').addClass('d-none');
+            $('#upload-gallery-form .custom-file-label').text("Chọn ảnh...");
+        }
+    }
+
+    function uploadGalleryImage() {
+        var variantId = $('#gallery-variant-id').val();
+        var altText = $('#gallery-alt-text').val().trim();
+        var sortOrder = $('#gallery-sort-order').val();
+        var imageInput = $('#galleryImageFile')[0];
+
+        if (!variantId || imageInput.files.length === 0) {
+            alert('Vui lòng chọn tệp hình ảnh để tải lên.');
+            return;
+        }
+
+        var formData = new FormData();
+        formData.append('variantId', variantId);
+        formData.append('altText', altText);
+        formData.append('sortOrder', sortOrder);
+        formData.append('galleryImage', imageInput.files[0]);
+
+        $.ajax({
+            url: '@Url.Action("AddProductImage", "Product")',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (res) {
+                if (res.success) {
+                    alert(res.message);
+                    location.reload();
+                } else {
+                    alert('Lỗi: ' + res.message);
+                }
+            },
+            error: function () {
+                alert('Lỗi kết nối máy chủ.');
+            }
+        });
+    }
+
+    function deleteImage(imageId) {
+        if (!confirm('Bạn có chắc chắn muốn xóa hình ảnh này khỏi bộ sưu tập không?')) return;
+
+        $.ajax({
+            url: '@Url.Action("DeleteProductImage", "Product")',
+            type: 'POST',
+            data: { imageId: imageId },
+            success: function (res) {
+                if (res.success) {
+                    $('#gallery-img-' + imageId).fadeOut(400, function () {
+                        $(this).remove();
+                        if ($('.hover-zoom-container').length === 0) {
+                            location.reload(); // Reload to show placeholder empty gallery
+                        }
+                    });
+                } else {
+                    alert('Lỗi: ' + res.message);
+                }
+            },
+            error: function () {
+                alert('Lỗi kết nối máy chủ.');
+            }
+        });
+    }
+</script>
+
+<style>
+    .hover-zoom-container:hover img {
+        transform: scale(1.06);
+        transition: transform 0.25s ease-in-out;
+    }
+    .hover-zoom-container img {
+        transition: transform 0.25s ease-in-out;
+    }
+    .btn-xs {
+        padding: .2rem .4rem;
+        font-size: .875rem;
+        line-height: 1;
+        border-radius: .2rem;
+    }
+</style>

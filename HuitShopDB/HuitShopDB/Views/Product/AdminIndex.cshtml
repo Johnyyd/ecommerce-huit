@@ -1,0 +1,298 @@
+@model IEnumerable<HuitShopDB.Models.DTOs.Product.ProductListDto>
+@{
+    ViewBag.Title = "Quản lý sản phẩm";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var categories = ViewBag.Categories as IEnumerable<HuitShopDB.Models.DTOs.Product.CategoryDto>;
+    var currentStatus = ViewBag.Status as string;
+    var currentCategoryId = ViewBag.CategoryId as int?;
+    var searchTerm = ViewBag.Search as string;
+    int currentPage = ViewBag.Page;
+    int totalPages = ViewBag.TotalPages;
+}
+
+<div class="container my-5">
+    <!-- Breadcrumb & Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1 bg-transparent p-0">
+                    <li class="breadcrumb-item"><a href="/" class="text-muted text-decoration-none">Trang chủ</a></li>
+                    <li class="breadcrumb-item active text-primary" aria-current="page">Quản trị sản phẩm</li>
+                </ol>
+            </nav>
+            <h1 class="h2 font-weight-bold text-dark mb-0">Quản Lý Danh Sách Sản Phẩm</h1>
+            <p class="text-muted mb-0">Admin Dashboard &bull; Quản lý kho hàng, giá bán, biến thể và bộ sưu tập ảnh</p>
+        </div>
+        <div class="mt-3 mt-md-0">
+            <a href="@Url.Action("Create", "Product")" class="btn btn-primary btn-lg shadow-sm px-4 py-2" style="border-radius: 50px; font-weight: 600; letter-spacing: 0.5px; transition: all 0.3s ease;">
+                <i class="fas fa-plus mr-2"></i> Thêm Sản Phẩm Mới
+            </a>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm border-0 mb-4" role="alert" style="border-left: 5px solid #28a745; border-radius: 8px;">
+            <i class="fas fa-check-circle mr-2 text-success"></i> <strong>Thành công!</strong> @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm border-0 mb-4" role="alert" style="border-left: 5px solid #dc3545; border-radius: 8px;">
+            <i class="fas fa-exclamation-circle mr-2 text-danger"></i> <strong>Lỗi!</strong> @TempData["ErrorMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <!-- Glassmorphic Filter Card -->
+    <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);">
+        <div class="card-body p-4">
+            <form method="get" action="@Url.Action("AdminIndex", "Product")" class="row align-items-end">
+                <div class="form-group col-md-4 mb-3 mb-md-0">
+                    <label class="font-weight-bold text-muted small text-uppercase">Tìm kiếm sản phẩm</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text bg-light border-0 text-muted" style="border-radius: 10px 0 0 10px;"><i class="fas fa-search"></i></span>
+                        </div>
+                        <input type="text" name="search" value="@searchTerm" class="form-control bg-light border-0" placeholder="Tên sản phẩm, mô tả..." style="border-radius: 0 10px 10px 0; height: 45px;">
+                    </div>
+                </div>
+
+                <div class="form-group col-md-3 mb-3 mb-md-0">
+                    <label class="font-weight-bold text-muted small text-uppercase">Danh mục</label>
+                    <select name="categoryId" class="form-control bg-light border-0" style="border-radius: 10px; height: 45px;">
+                        <option value="">Tất cả danh mục</option>
+                        @if (categories != null)
+                        {
+                            foreach (var cat in categories)
+                            {
+                                <option value="@cat.Id" @(currentCategoryId == cat.Id ? "selected" : "")>@cat.Name</option>
+                                if (cat.Children != null && cat.Children.Any())
+                                {
+                                    foreach (var sub in cat.Children)
+                                    {
+                                        <option value="@sub.Id" @(currentCategoryId == sub.Id ? "selected" : "")>&nbsp;&nbsp;— @sub.Name</option>
+                                    }
+                                }
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group col-md-3 mb-3 mb-md-0">
+                    <label class="font-weight-bold text-muted small text-uppercase">Trạng thái</label>
+                    <select name="status" class="form-control bg-light border-0" style="border-radius: 10px; height: 45px;">
+                        <option value="ALL" @(currentStatus == "ALL" ? "selected" : "")>Tất cả trạng thái</option>
+                        <option value="ACTIVE" @(currentStatus == "ACTIVE" ? "selected" : "")>Đang bán (ACTIVE)</option>
+                        <option value="DRAFT" @(currentStatus == "DRAFT" ? "selected" : "")>Bản nháp (DRAFT)</option>
+                        <option value="INACTIVE" @(currentStatus == "INACTIVE" ? "selected" : "")>Đang ẩn (INACTIVE)</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2 d-flex">
+                    <button type="submit" class="btn btn-dark btn-block shadow-sm" style="border-radius: 10px; height: 45px; font-weight: 600;">
+                        <i class="fas fa-filter mr-2"></i> Lọc kết quả
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Product Grid Table -->
+    <div class="card border-0 shadow-sm" style="border-radius: 16px; overflow: hidden;">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="background: white;">
+                <thead class="thead-light">
+                    <tr class="text-uppercase small text-muted font-weight-bold" style="letter-spacing: 0.5px; border-bottom: 2px solid #f1f3f5;">
+                        <th scope="col" class="pl-4 py-3" style="width: 80px;">Ảnh</th>
+                        <th scope="col" class="py-3">Thông tin sản phẩm</th>
+                        <th scope="col" class="py-3">Danh mục / Thương hiệu</th>
+                        <th scope="col" class="py-3">Khoảng giá niêm yết</th>
+                        <th scope="col" class="py-3" style="width: 150px;">Trạng thái</th>
+                        <th scope="col" class="py-3 text-center" style="width: 180px;">Hành động</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model == null || !Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <img src="https://cdn-icons-png.flaticon.com/512/7486/7486744.png" alt="Empty list" style="width: 80px; opacity: 0.3;" class="mb-3 d-block mx-auto">
+                                <span class="text-muted h5 font-weight-normal d-block">Không tìm thấy sản phẩm nào phù hợp</span>
+                                <p class="text-muted small">Hãy thử tìm kiếm với các điều kiện lọc khác.</p>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        foreach (var item in Model)
+                        {
+                            <tr id="product-row-@item.Id" style="transition: background-color 0.2s ease;">
+                                <td class="pl-4 py-3 align-middle">
+                                    <img src="@(string.IsNullOrEmpty(item.ThumbnailUrl) ? "/Content/images/placeholder.png" : item.ThumbnailUrl)" 
+                                         alt="@item.Name" 
+                                         class="rounded-lg shadow-sm border" 
+                                         style="width: 60px; height: 60px; object-fit: cover; transition: transform 0.2s ease-in-out;"
+                                         onmouseover="this.style.transform='scale(1.08)'" 
+                                         onmouseout="this.style.transform='scale(1)'">
+                                </td>
+                                <td class="py-3 align-middle">
+                                    <a href="@Url.Action("Detail", "Product", new { id = item.Id })" target="_blank" class="font-weight-bold text-dark h6 text-decoration-none hover-primary-text d-block mb-1">
+                                        @item.Name
+                                    </a>
+                                    <span class="text-muted small">ID: @item.Id &bull; Slug: <code class="text-info bg-light px-1 py-0.5 rounded" style="font-size: 80%;">@item.Slug</code></span>
+                                </td>
+                                <td class="py-3 align-middle">
+                                    <span class="badge badge-light text-dark px-2.5 py-1.5 border small mr-1 mb-1" style="font-weight: 500;"><i class="fas fa-folder mr-1 text-warning"></i> @(item.Category != null ? item.Category.Name : "Không")</span>
+                                    <span class="badge badge-light text-dark px-2.5 py-1.5 border small mb-1" style="font-weight: 500;"><i class="fas fa-tags mr-1 text-primary"></i> @(item.Brand != null ? item.Brand.Name : "Không")</span>
+                                </td>
+                                <td class="py-3 align-middle">
+                                    @if (item.PriceTo.HasValue)
+                                    {
+                                        if (item.PriceFrom == item.PriceTo.Value)
+                                        {
+                                            <span class="font-weight-bold text-dark">@item.PriceFrom.ToString("N0")đ</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="font-weight-bold text-dark">@item.PriceFrom.ToString("N0")đ - @item.PriceTo.Value.ToString("N0")đ</span>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="font-weight-bold text-dark">@item.PriceFrom.ToString("N0")đ</span>
+                                    }
+                                </td>
+                                <td class="py-3 align-middle">
+                                    @{
+                                        string statusClass = "badge-success";
+                                        string statusText = "Đang bán (ACTIVE)";
+                                        if (item.Status == "DRAFT")
+                                        {
+                                            statusClass = "badge-warning text-dark";
+                                            statusText = "Bản nháp (DRAFT)";
+                                        }
+                                        else if (item.Status == "INACTIVE")
+                                        {
+                                            statusClass = "badge-danger";
+                                            statusText = "Đang ẩn (INACTIVE)";
+                                        }
+                                    }
+                                    <span class="badge @statusClass px-3 py-2 border shadow-xs d-inline-block text-center rounded-pill" id="status-badge-@item.Id" style="font-size: 80%; font-weight: 600; min-width: 120px; letter-spacing: 0.3px;">
+                                        @statusText
+                                    </span>
+                                </td>
+                                <td class="py-3 align-middle text-center pr-4">
+                                    <div class="btn-group" role="group">
+                                        <a href="@Url.Action("Edit", "Product", new { id = item.Id })" class="btn btn-outline-primary btn-sm px-3 py-1.5" style="border-radius: 20px 0 0 20px; font-weight: 600;" title="Sửa sản phẩm & biến thể">
+                                            <i class="fas fa-edit mr-1"></i> Sửa
+                                        </a>
+                                        
+                                        <!-- Quick Status Toggle Dropdown -->
+                                        <div class="btn-group" role="group">
+                                            <button id="btnGroupDrop-@item.Id" type="button" class="btn btn-outline-dark btn-sm dropdown-toggle px-2 py-1.5" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="border-radius: 0 20px 20px 0; border-left: 0; font-weight: 600;"></button>
+                                            <div class="dropdown-menu dropdown-menu-right shadow border-0" aria-labelledby="btnGroupDrop-@item.Id" style="border-radius: 12px; padding: 6px;">
+                                                <h6 class="dropdown-header text-muted small font-weight-bold p-2 mb-1">Chuyển trạng thái</h6>
+                                                <a class="dropdown-item py-2" href="javascript:void(0)" onclick="toggleStatus(@item.Id, 'ACTIVE')" style="border-radius: 8px;"><i class="fas fa-check-circle text-success mr-2"></i> Kích hoạt (ACTIVE)</a>
+                                                <a class="dropdown-item py-2" href="javascript:void(0)" onclick="toggleStatus(@item.Id, 'DRAFT')" style="border-radius: 8px;"><i class="fas fa-pen-nib text-warning mr-2"></i> Bản nháp (DRAFT)</a>
+                                                <a class="dropdown-item py-2" href="javascript:void(0)" onclick="toggleStatus(@item.Id, 'INACTIVE')" style="border-radius: 8px;"><i class="fas fa-ban text-danger mr-2"></i> Tạm ẩn (INACTIVE)</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Premium Pagination Footer -->
+        @if (totalPages > 1)
+        {
+            <div class="card-footer bg-white border-0 py-4 px-4 d-flex justify-content-between align-items-center flex-wrap" style="border-top: 1px solid #f1f3f5;">
+                <span class="text-muted small mb-2 mb-md-0">
+                    Hiển thị trang <strong>@currentPage</strong> trên tổng số <strong>@totalPages</strong> trang (<strong>@ViewBag.TotalProducts</strong> sản phẩm)
+                </span>
+                <nav aria-label="Page navigation" class="mb-0">
+                    <ul class="pagination pagination-sm mb-0" style="border-radius: 20px;">
+                        <li class="page-item @(currentPage == 1 ? "disabled" : "")" style="border-radius: 20px 0 0 20px; overflow: hidden;">
+                            <a class="page-link py-2 px-3 border-0 bg-light text-dark" href="@Url.Action("AdminIndex", "Product", new { search = searchTerm, categoryId = currentCategoryId, status = currentStatus, page = currentPage - 1 })" aria-label="Trước">
+                                <i class="fas fa-chevron-left"></i>
+                            </a>
+                        </li>
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            <li class="page-item @(currentPage == i ? "active" : "")">
+                                <a class="page-link py-2 px-3 border-0 @(currentPage == i ? "bg-primary text-white font-weight-bold" : "bg-light text-dark")" href="@Url.Action("AdminIndex", "Product", new { search = searchTerm, categoryId = currentCategoryId, status = currentStatus, page = i })">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(currentPage == totalPages ? "disabled" : "")" style="border-radius: 0 20px 20px 0; overflow: hidden;">
+                            <a class="page-link py-2 px-3 border-0 bg-light text-dark" href="@Url.Action("AdminIndex", "Product", new { search = searchTerm, categoryId = currentCategoryId, status = currentStatus, page = currentPage + 1 })" aria-label="Sau">
+                                <i class="fas fa-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+</div>
+
+<style>
+    .hover-primary-text:hover {
+        color: #007bff !important;
+        transition: color 0.15s ease;
+    }
+    .table tbody tr:hover {
+        background-color: #fafbfe;
+    }
+    .dropdown-item:hover {
+        background-color: #f1f3f9;
+        font-weight: 500;
+    }
+</style>
+
+<script>
+    function toggleStatus(productId, newStatus) {
+        if (!confirm('Bạn có chắc chắn muốn thay đổi trạng thái của sản phẩm này không?')) return;
+
+        $.ajax({
+            url: '@Url.Action("ToggleProductStatus", "Product")',
+            type: 'POST',
+            data: { productId: productId, status: newStatus },
+            success: function (res) {
+                if (res.success) {
+                    // Update badge UI
+                    var badge = $('#status-badge-' + productId);
+                    badge.removeClass('badge-success badge-warning badge-danger text-dark');
+                    
+                    var text = 'Đang bán (ACTIVE)';
+                    if (newStatus === 'ACTIVE') {
+                        badge.addClass('badge-success');
+                    } else if (newStatus === 'DRAFT') {
+                        badge.addClass('badge-warning text-dark');
+                        text = 'Bản nháp (DRAFT)';
+                    } else if (newStatus === 'INACTIVE') {
+                        badge.addClass('badge-danger');
+                        text = 'Đang ẩn (INACTIVE)';
+                    }
+                    badge.text(text);
+                    
+                    // Toast message
+                    alert(res.message);
+                } else {
+                    alert('Lỗi: ' + res.message);
+                }
+            },
+            error: function () {
+                alert('Đã xảy ra lỗi kết nối máy chủ.');
+            }
+        });
+    }
+</script>

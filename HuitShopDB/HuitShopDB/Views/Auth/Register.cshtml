@@ -1,0 +1,110 @@
+@model HuitShopDB.Models.DTOs.Auth.RegisterDto
+
+@{
+    ViewBag.Title = "Đăng ký tài khoản";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row justify-content-center align-items-center" style="min-height: calc(100vh - 200px); padding: 40px 0;">
+    <div class="col-md-6 col-lg-5">
+        <div class="card border-0 shadow-lg" style="border-radius: 1.5rem; overflow: hidden; background: #ffffff;">
+            <!-- Premium Color Gradient Top Bar -->
+            <div style="height: 6px; background: linear-gradient(90deg, #8b5cf6 0%, #ec4899 100%);"></div>
+            
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-purple-subtle text-purple rounded-circle mb-3" style="width: 60px; height: 60px; background-color: rgba(139, 92, 246, 0.1);">
+                        <i class="bi bi-person-plus" style="font-size: 1.75rem; color: #8b5cf6;"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1" style="color: #1e293b;">Đăng ký tài khoản</h3>
+                    <p class="text-muted small">Cùng trải nghiệm mua sắm thiết bị điện tử tuyệt vời tại HUIT Shop</p>
+                </div>
+
+                @using (Html.BeginForm("Register", "Auth", FormMethod.Post, new { @class = "needs-validation", novalidate = "novalidate", id = "registerForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger rounded-3 small p-2 mb-3" })
+
+                    <!-- FullName Field -->
+                    <div class="mb-3">
+                        <label for="FullName" class="form-label text-secondary small fw-semibold">Họ và Tên</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 0.75rem 0 0 0.75rem;"><i class="bi bi-person"></i></span>
+                            @Html.TextBoxFor(m => m.FullName, new { @class = "form-control bg-light border-start-0 ps-1", placeholder = "Nguyễn Văn A", style = "border-radius: 0 0.75rem 0.75rem 0; height: 46px;", required = "required" })
+                        </div>
+                        @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger small mt-1 d-block" })
+                    </div>
+
+                    <!-- Email Field -->
+                    <div class="mb-3">
+                        <label for="Email" class="form-label text-secondary small fw-semibold">Địa chỉ Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 0.75rem 0 0 0.75rem;"><i class="bi bi-envelope"></i></span>
+                            @Html.TextBoxFor(m => m.Email, new { @class = "form-control bg-light border-start-0 ps-1", placeholder = "name@example.com", style = "border-radius: 0 0.75rem 0.75rem 0; height: 46px;", required = "required", type = "email" })
+                        </div>
+                        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small mt-1 d-block" })
+                    </div>
+
+                    <!-- Phone Field -->
+                    <div class="mb-3">
+                        <label for="Phone" class="form-label text-secondary small fw-semibold">Số điện thoại</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 0.75rem 0 0 0.75rem;"><i class="bi bi-telephone"></i></span>
+                            @Html.TextBoxFor(m => m.Phone, new { @class = "form-control bg-light border-start-0 ps-1", placeholder = "09xxxxxxxx", style = "border-radius: 0 0.75rem 0.75rem 0; height: 46px;", type = "tel" })
+                        </div>
+                        @Html.ValidationMessageFor(m => m.Phone, "", new { @class = "text-danger small mt-1 d-block" })
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="mb-3">
+                        <label for="Password" class="form-label text-secondary small fw-semibold">Mật khẩu (Tối thiểu 6 ký tự)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 0.75rem 0 0 0.75rem;"><i class="bi bi-key"></i></span>
+                            @Html.PasswordFor(m => m.Password, new { @class = "form-control bg-light border-start-0 ps-1", placeholder = "Nhập mật khẩu", style = "border-radius: 0 0.75rem 0.75rem 0; height: 46px;", required = "required", minlength = "6" })
+                        </div>
+                        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger small mt-1 d-block" })
+                    </div>
+
+                    <!-- Confirm Password Field -->
+                    <div class="mb-4">
+                        <label for="ConfirmPassword" class="form-label text-secondary small fw-semibold">Xác nhận mật khẩu</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted" style="border-radius: 0.75rem 0 0 0.75rem;"><i class="bi bi-check2-square"></i></span>
+                            <input type="password" id="ConfirmPassword" name="ConfirmPassword" class="form-control bg-light border-start-0 ps-1" placeholder = "Nhập lại mật khẩu" style = "border-radius: 0 0.75rem 0.75rem 0; height: 46px;" required = "required" />
+                        </div>
+                        <span id="confirmPasswordError" class="text-danger small mt-1 d-none">Mật khẩu xác nhận không khớp.</span>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-purple w-100 fw-semibold text-white d-flex align-items-center justify-content-center" style="border-radius: 0.75rem; height: 46px; background-color: #8b5cf6; border-color: #8b5cf6; transition: all 0.3s ease;">
+                        <span>Đăng ký ngay</span>
+                        <i class="bi bi-arrow-right ms-2"></i>
+                    </button>
+                }
+
+                <div class="text-center mt-4">
+                    <p class="text-muted small mb-0">Đã có tài khoản? <a href="@Url.Action("Login", "Auth")" class="text-decoration-none text-primary fw-semibold">Đăng nhập ngay</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            var password = document.getElementById('Password').value;
+            var confirmPassword = document.getElementById('ConfirmPassword').value;
+            var confirmError = document.getElementById('confirmPasswordError');
+            
+            if (password !== confirmPassword) {
+                event.preventDefault();
+                confirmError.classList.remove('d-none');
+                confirmError.classList.add('d-block');
+            } else {
+                confirmError.classList.add('d-none');
+                confirmError.classList.remove('d-block');
+            }
+        });
+    </script>
+}

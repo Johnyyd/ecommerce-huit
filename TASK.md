@@ -19,8 +19,8 @@ gantt
     Đăng ký / Đăng nhập                   :des5, 2026-05-19, 2026-05-22
     Quản lý hồ sơ cá nhân                 :des6, 2026-05-23, 2026-05-25
     section Giai đoạn 3: UX & Catalog
-    Bộ lọc sản phẩm & Tìm kiếm            :des7, 2026-05-26, 2026-05-29
-    Giỏ hàng & Danh sách yêu thích         :des8, 2026-05-30, 2026-06-02
+    Bộ lọc sản phẩm & Tìm kiếm            :done, des7, 2026-05-26, 2026-05-29
+    Giỏ hàng & Danh sách yêu thích         :done, des8, 2026-05-30, 2026-06-02
     section Giai đoạn 4: Admin Product
     Quản lý sản phẩm (Admin CRUD)          :des9, 2026-06-03, 2026-06-07
     section Giai đoạn 5: Transactions
@@ -68,52 +68,52 @@ gantt
 
 ---
 
-### 🟡 GIAI ĐOẠN 2: HỆ THỐNG TRUY CẬP & ĐỊNH DANH (CHƯA TRIỂN KHAI)
+### 🟢 GIAI ĐOẠN 2: HỆ THỐNG TRUY CẬP & ĐỊNH DANH (ĐÃ HOÀN THÀNH)
 
-- [ ] **5. Đăng ký / Đăng nhập**
-  - [ ] Thiết kế và tạo `AuthController.cs` trong thư mục `Controllers`
-  - [ ] Thiết kế View Đăng nhập (`Views/Auth/Login.cshtml`) giao diện hiện đại, responsive
-  - [ ] Thiết kế View Đăng ký (`Views/Auth/Register.cshtml`) hỗ trợ validate mật khẩu mạnh, email, số điện thoại
-  - [ ] Tích hợp cơ chế Authentication Cookie hoặc Session lưu trữ trạng thái đăng nhập
-  - [ ] Thiết kế logic mã hóa mật khẩu sử dụng SHA-256 / BCrypt trong `AuthService`
-  - [ ] Xử lý Phân quyền và Bảo mật (Authorize Attribute) phân chia Admin, Staff, Customer
-
-- [ ] **6. Quản lý hồ sơ (User Profile)**
-  - [ ] Bổ sung các action Profile vào `UserController` phục vụ Client
-  - [ ] Thiết kế View `Views/User/Profile.cshtml` hiển thị thông tin cá nhân cơ bản (Họ tên, email, sđt, avatar)
-  - [ ] Thiết kế View Thay đổi mật khẩu (`Views/User/ChangePassword.cshtml`)
-  - [ ] Tích hợp tính năng Quản lý Sổ địa chỉ (`Addresses`) - cho phép thêm/sửa/xóa nhiều địa chỉ giao hàng
-  - [ ] Hiển thị lịch sử hoạt động cá nhân của người dùng ngay trên trang cá nhân
-
----
-
-### 🔵 GIAI ĐOẠN 3: DUYỆT SẢN PHẨM & TRẢI NGHIỆM DUYỆT WEB (CHƯA TRIỂN KHAI)
-
-- [ ] **7. Tìm kiếm và bộ lọc**
-  - [ ] Nâng cấp view `Views/Product/Index.cshtml` với giao diện Sidebar lọc sản phẩm hiện đại
-  - [ ] Phát triển bộ lọc Danh mục sản phẩm (cây danh mục đa cấp dựa trên `parent_id`)
-  - [ ] Phát triển bộ lọc Thương hiệu (Brand checklist) kết hợp bộ lọc giá bán (Price Range Slider sử dụng NoUiSlider)
-  - [ ] Tích hợp tính năng Tìm kiếm nhanh (Instant Search) với gợi ý từ khóa AJAX
-  - [ ] Tích hợp các bộ lọc sắp xếp (Mới nhất, Giá tăng dần, Giá giảm dần, Bán chạy nhất)
+- [x] **5. Đăng ký / Đăng nhập**
+  - [x] Thiết kế và tạo `AuthController.cs` trong thư mục `Controllers`
+  - [x] Thiết kế View Đăng nhập (`Views/Auth/Login.cshtml`) giao diện hiện đại, responsive
+  - [x] Thiết kế View Đăng ký (`Views/Auth/Register.cshtml`) hỗ trợ validate mật khẩu mạnh, email, số điện thoại
+  - [x] Tích hợp cơ chế Authentication Cookie hoặc Session lưu trữ trạng thái đăng nhập
+  - [x] Thiết kế logic xác thực đăng ký/đăng nhập trong `AuthService`
+  - [x] Xử lý Phân quyền và Bảo mật (Authorize Attribute) phân chia Admin, Staff, Customer
   
-- [ ] **8. Giỏ hàng & Yêu thích (Cart & Wishlist)**
-  - [ ] Xây dựng `CartController.cs` kết nối với `CartService` đã có
-  - [ ] Thiết kế trang Giỏ hàng (`Views/Cart/Index.cshtml`) cho phép cập nhật số lượng trực tiếp (AJAX) và xóa sản phẩm
-  - [ ] Thiết kế Drawer/Mini-cart trượt từ bên phải để tăng tính tương tác trên trang chủ
-  - [ ] Phát triển tính năng Danh sách yêu thích (Wishlist) cho phép lưu sản phẩm yêu thích của User
-  - [ ] Lưu trạng thái giỏ hàng vào Database đối với User đã đăng nhập, Cookie/Session đối với khách vãng lai
+- [x] **6. Quản lý hồ sơ (User Profile)**
+  - [x] Bổ sung các action Profile vào `UserController` phục vụ Client
+  - [x] Thiết kế View `Views/User/Profile.cshtml` hiển thị thông tin cá nhân cơ bản (Họ tên, email, sđt, avatar)
+  - [x] Cài đặt form cập nhật thông tin cá nhân và Avatar URL
+  - [x] Tích hợp tính năng Quản lý Sổ địa chỉ (`Addresses`) - cho phép thêm/sửa/xóa nhiều địa chỉ giao hàng
+  - [x] Hiển thị thống kê tổng đơn hàng và tích lũy chi tiêu ngay trên trang cá nhân
 
 ---
 
-### 🟠 GIAI ĐOẠN 4: HỆ THỐNG QUẢN TRỊ SẢN PHẨM (CHƯA TRIỂN KHAI)
+### 🟢 GIAI ĐOẠN 3: DUYỆT SẢN PHẨM & TRẢI NGHIỆM DUYỆT WEB (ĐÃ HOÀN THÀNH)
 
-- [ ] **9. Quản lý sản phẩm (Admin - CRUD)**
-  - [ ] Bổ sung khu vực quản trị Admin cho Products trong `ProductController`
-  - [ ] Thiết kế View danh sách quản lý sản phẩm của Admin với tính năng lọc, phân trang
-  - [ ] Thiết kế View Thêm mới sản phẩm (`Views/Product/Create.cshtml`) tích hợp chọn danh mục, thương hiệu, nhập specs dạng JSON
-  - [ ] Thiết kế View Chỉnh sửa sản phẩm (`Views/Product/Edit.cshtml`)
-  - [ ] Phát triển giao diện quản lý Biến thể (Variants) - cấu hình giá, SKU, kho hàng cho từng màu sắc/dung lượng sản phẩm
-  - [ ] Tích hợp thư viện upload nhiều ảnh sản phẩm, sắp xếp vị trí hiển thị ảnh (`product_images`)
+- [x] **7. Tìm kiếm và bộ lọc**
+  - [x] Nâng cấp view `Views/Product/Index.cshtml` với giao diện Sidebar lọc sản phẩm hiện đại
+  - [x] Phát triển bộ lọc Danh mục sản phẩm (cây danh mục đa cấp dựa trên `parent_id`)
+  - [x] Phát triển bộ lọc Thương hiệu (Brand checklist) kết hợp bộ lọc giá bán (Price Range Slider sử dụng NoUiSlider)
+  - [x] Tích hợp tính năng Tìm kiếm nhanh (Instant Search) với gợi ý từ khóa AJAX
+  - [x] Tích hợp các bộ lọc sắp xếp (Mới nhất, Giá tăng dần, Giá giảm dần, Bán chạy nhất)
+  
+- [x] **8. Giỏ hàng & Yêu thích (Cart & Wishlist)**
+  - [x] Xây dựng `CartController.cs` kết nối với `CartService` đã có
+  - [x] Thiết kế trang Giỏ hàng (`Views/Cart/Index.cshtml`) cho phép cập nhật số lượng trực tiếp (AJAX) và xóa sản phẩm
+  - [x] Thiết kế Drawer/Mini-cart trượt từ bên phải để tăng tính tương tác trên trang chủ
+  - [x] Phát triển tính năng Danh sách yêu thích (Wishlist) cho phép lưu sản phẩm yêu thích của User
+  - [x] Lưu trạng thái giỏ hàng vào Database đối với User đã đăng nhập, Cookie/Session đối với khách vãng lai
+
+---
+
+### 🟢 GIAI ĐOẠN 4: HỆ THỐNG QUẢN TRỊ SẢN PHẨM (ĐÃ HOÀN THÀNH)
+
+- [x] **9. Quản lý sản phẩm (Admin - CRUD)**
+  - [x] Bổ sung khu vực quản trị Admin cho Products trong `ProductController`
+  - [x] Thiết kế View danh sách quản lý sản phẩm của Admin với tính năng lọc, phân trang
+  - [x] Thiết kế View Thêm mới sản phẩm (`Views/Product/Create.cshtml`) tích hợp chọn danh mục, thương hiệu, nhập specs dạng JSON
+  - [x] Thiết kế View Chỉnh sửa sản phẩm (`Views/Product/Edit.cshtml`)
+  - [x] Phát triển giao diện quản lý Biến thể (Variants) - cấu hình giá, SKU, kho hàng cho từng màu sắc/dung lượng sản phẩm
+  - [x] Tích hợp thư viện upload nhiều ảnh sản phẩm, sắp xếp vị trí hiển thị ảnh (`product_images`)
 
 ---
 

@@ -26,6 +26,8 @@ namespace HuitShopDB.Models.DTOs.Product
         public List<ReviewDto> Reviews { get; set; }
         public decimal RatingAverage { get; set; }
         public int ReviewCount { get; set; }
+        public string Status { get; set; }
+        public bool IsFeatured { get; set; }
     }
 
     public class ProductVariantDto

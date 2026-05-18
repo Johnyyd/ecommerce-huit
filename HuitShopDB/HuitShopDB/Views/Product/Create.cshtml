@@ -1,0 +1,291 @@
+@model HuitShopDB.Models.DTOs.Product.ProductCreateDto
+@{
+    ViewBag.Title = "Thêm sản phẩm mới";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var categories = ViewBag.Categories as IEnumerable<HuitShopDB.Models.DTOs.Product.CategoryDto>;
+    var brands = ViewBag.Brands as IEnumerable<HuitShopDB.Models.DTOs.Product.BrandDto>;
+}
+
+<div class="container my-5">
+    <!-- Header -->
+    <div class="mb-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb bg-transparent p-0 mb-1">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="@Url.Action("AdminIndex", "Product")" class="text-decoration-none text-muted">Quản lý sản phẩm</a></li>
+                <li class="breadcrumb-item active text-primary" aria-current="page">Thêm sản phẩm</li>
+            </ol>
+        </nav>
+        <h1 class="h2 font-weight-bold text-dark mb-0">Thêm Sản Phẩm Mới</h1>
+        <p class="text-muted mb-0">Tạo sản phẩm mới cùng thông số kĩ thuật và biến thể bán hàng mặc định.</p>
+    </div>
+
+    @if (ViewData.ModelState.Any(x => x.Value.Errors.Any()))
+    {
+        <div class="alert alert-danger shadow-sm border-0 mb-4" style="border-left: 5px solid #dc3545; border-radius: 8px;">
+            <i class="fas fa-exclamation-triangle text-danger mr-2"></i> <strong>Vui lòng sửa các lỗi sau:</strong>
+            <ul class="mb-0 mt-2">
+                @foreach (var modelState in ViewData.ModelState.Values)
+                {
+                    foreach (var error in modelState.Errors)
+                    {
+                        <li>@error.ErrorMessage</li>
+                    }
+                }
+            </ul>
+        </div>
+    }
+
+    <!-- Form -->
+    <form action="@Url.Action("Create", "Product")" method="post" enctype="multipart/form-data" id="create-product-form">
+        <!-- Hidden input for specifications JSON -->
+        <input type="hidden" name="Specifications" id="specifications-hidden" />
+
+        <div class="row">
+            <!-- Left Column: Base Product Details -->
+            <div class="col-lg-8">
+                <!-- Product Information Card -->
+                <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
+                    <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                        <h5 class="font-weight-bold text-dark mb-1"><i class="fas fa-info-circle text-primary mr-2"></i> Thông Tin Sản Phẩm Cơ Bản</h5>
+                        <hr class="mb-0 mt-3">
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="form-group mb-4">
+                            <label class="font-weight-bold text-dark">Tên sản phẩm <span class="text-danger">*</span></label>
+                            <input type="text" name="Name" value="@(Model != null ? Model.Name : "")" required class="form-control form-control-lg border-light bg-light" placeholder="Nhập tên sản phẩm (Ví dụ: iPhone 15 Pro Max)" style="border-radius: 10px; font-weight: 500;">
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label class="font-weight-bold text-dark">Danh mục sản phẩm <span class="text-danger">*</span></label>
+                                <select name="CategoryId" required class="form-control border-light bg-light" style="border-radius: 10px; height: 45px;">
+                                    <option value="">Chọn danh mục...</option>
+                                    @if (categories != null)
+                                    {
+                                        foreach (var cat in categories)
+                                        {
+                                            <option value="@cat.Id" @(Model != null && Model.CategoryId == cat.Id ? "selected" : "")>@cat.Name</option>
+                                            if (cat.Children != null && cat.Children.Any())
+                                            {
+                                                foreach (var sub in cat.Children)
+                                                {
+                                                    <option value="@sub.Id" @(Model != null && Model.CategoryId == sub.Id ? "selected" : "")>&nbsp;&nbsp;— @sub.Name</option>
+                                                }
+                                            }
+                                        }
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="font-weight-bold text-dark">Thương hiệu <span class="text-danger">*</span></label>
+                                <select name="BrandId" required class="form-control border-light bg-light" style="border-radius: 10px; height: 45px;">
+                                    <option value="">Chọn thương hiệu...</option>
+                                    @if (brands != null)
+                                    {
+                                        foreach (var br in brands)
+                                        {
+                                            <option value="@br.Id" @(Model != null && Model.BrandId == br.Id ? "selected" : "")>@br.Name (@br.Origin)</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label class="font-weight-bold text-dark">Mô tả ngắn <span class="text-danger">*</span></label>
+                            <textarea name="ShortDescription" required class="form-control border-light bg-light" rows="3" placeholder="Tóm tắt ngắn gọn các đặc điểm nổi bật của sản phẩm..." style="border-radius: 10px;">@(Model != null ? Model.ShortDescription : "")</textarea>
+                        </div>
+
+                        <div class="form-group mb-2">
+                            <label class="font-weight-bold text-dark">Mô tả chi tiết</label>
+                            <textarea name="Description" class="form-control border-light bg-light" rows="8" placeholder="Nhập mô tả chi tiết, bài đánh giá hoặc thông tin mở rộng của sản phẩm..." style="border-radius: 10px;">@(Model != null ? Model.Description : "")</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Specifications Card -->
+                <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
+                    <div class="card-header bg-white border-0 pt-4 px-4 pb-0 d-flex justify-content-between align-items-center">
+                        <h5 class="font-weight-bold text-dark mb-0"><i class="fas fa-list-alt text-success mr-2"></i> Thông Số Kỹ Thuật (Specifications)</h5>
+                        <button type="button" class="btn btn-outline-success btn-sm font-weight-bold px-3 py-1.5" onclick="addSpecRow()" style="border-radius: 20px;">
+                            <i class="fas fa-plus mr-1"></i> Thêm dòng
+                        </button>
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-muted small">Cung cấp thông tin cấu hình phần cứng động. Những thông tin này được hiển thị tự động trên trang chi tiết sản phẩm.</p>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-borderless align-middle mb-0" id="specs-table">
+                                <thead>
+                                    <tr class="text-muted font-weight-bold small uppercase">
+                                        <th scope="col" style="width: 40%;">Tên thông số (Key)</th>
+                                        <th scope="col" style="width: 50%;">Giá trị (Value)</th>
+                                        <th scope="col" style="width: 10%;" class="text-center">Xóa</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="specs-tbody">
+                                    <!-- Seed initial standard rows for easy admin entry -->
+                                    <tr class="spec-row">
+                                        <td class="py-2"><input type="text" class="form-control border-light bg-light spec-key" placeholder="Màn hình" value="Màn hình" style="border-radius: 8px;"></td>
+                                        <td class="py-2"><input type="text" class="form-control border-light bg-light spec-value" placeholder="OLED 6.7 inch, 120Hz" style="border-radius: 8px;"></td>
+                                        <td class="py-2 text-center"><button type="button" class="btn btn-outline-danger btn-sm border-0" onclick="removeSpecRow(this)"><i class="fas fa-trash-alt"></i></button></td>
+                                    </tr>
+                                    <tr class="spec-row">
+                                        <td class="py-2"><input type="text" class="form-control border-light bg-light spec-key" placeholder="Hệ điều hành" value="Hệ điều hành" style="border-radius: 8px;"></td>
+                                        <td class="py-2"><input type="text" class="form-control border-light bg-light spec-value" placeholder="iOS / Android" style="border-radius: 8px;"></td>
+                                        <td class="py-2 text-center"><button type="button" class="btn btn-outline-danger btn-sm border-0" onclick="removeSpecRow(this)"><i class="fas fa-trash-alt"></i></button></td>
+                                    </tr>
+                                    <tr class="spec-row">
+                                        <td class="py-2"><input type="text" class="form-control border-light bg-light spec-key" placeholder="RAM" value="RAM" style="border-radius: 8px;"></td>
+                                        <td class="py-2"><input type="text" class="form-control border-light bg-light spec-value" placeholder="8GB" style="border-radius: 8px;"></td>
+                                        <td class="py-2 text-center"><button type="button" class="btn btn-outline-danger btn-sm border-0" onclick="removeSpecRow(this)"><i class="fas fa-trash-alt"></i></button></td>
+                                    </tr>
+                                    <tr class="spec-row">
+                                        <td class="py-2"><input type="text" class="form-control border-light bg-light spec-key" placeholder="Bộ nhớ trong" value="Bộ nhớ trong" style="border-radius: 8px;"></td>
+                                        <td class="py-2"><input type="text" class="form-control border-light bg-light spec-value" placeholder="256GB" style="border-radius: 8px;"></td>
+                                        <td class="py-2 text-center"><button type="button" class="btn btn-outline-danger btn-sm border-0" onclick="removeSpecRow(this)"><i class="fas fa-trash-alt"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Settings & Default Variant -->
+            <div class="col-lg-4">
+                <!-- Status & Featured -->
+                <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
+                    <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                        <h5 class="font-weight-bold text-dark mb-1"><i class="fas fa-cog text-secondary mr-2"></i> Thiết Lập Hiển Thị</h5>
+                        <hr class="mb-0 mt-3">
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="form-group mb-4">
+                            <label class="font-weight-bold text-dark">Trạng thái phát hành</label>
+                            <select name="Status" class="form-control border-light bg-light" style="border-radius: 10px; height: 45px;">
+                                <option value="ACTIVE" @(Model != null && Model.Status == "ACTIVE" ? "selected" : "")>Kích hoạt bán ngay (ACTIVE)</option>
+                                <option value="DRAFT" @(Model == null || Model.Status == "DRAFT" ? "selected" : "")>Bản nháp lưu tạm (DRAFT)</option>
+                                <option value="INACTIVE" @(Model != null && Model.Status == "INACTIVE" ? "selected" : "")>Khóa tạm ẩn (INACTIVE)</option>
+                            </select>
+                        </div>
+
+                        <div class="custom-control custom-checkbox custom-control-lg">
+                            <input type="checkbox" name="IsFeatured" class="custom-control-input" id="IsFeatured" value="true" @(Model != null && Model.IsFeatured ? "checked" : "")>
+                            <input type="hidden" name="IsFeatured" value="false"> <!-- Prevent MVC null binding -->
+                            <label class="custom-control-label font-weight-bold text-dark" for="IsFeatured" style="cursor: pointer;">
+                                Đánh dấu sản phẩm nổi bật
+                            </label>
+                            <p class="text-muted small mb-0 mt-1">Sản phẩm nổi bật sẽ được ưu tiên hiển thị trên banner trang chủ.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Default Variant Info (MANDATORY first variant) -->
+                <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px;">
+                    <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                        <h5 class="font-weight-bold text-dark mb-1"><i class="fas fa-boxes text-info mr-2"></i> Biến Thể Mặc Định</h5>
+                        <hr class="mb-0 mt-3">
+                    </div>
+                    <div class="card-body p-4">
+                        <p class="text-muted small">Cần khai báo giá bán lẻ và mã SKU mặc định để khách hàng có thể mua sản phẩm lập tức.</p>
+
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold text-dark">Tên biến thể <span class="text-danger">*</span></label>
+                            <input type="text" name="DefaultVariantName" value="Bản tiêu chuẩn" required class="form-control border-light bg-light" placeholder="Ví dụ: Bản tiêu chuẩn, Màu Đen..." style="border-radius: 10px;">
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label class="font-weight-bold text-dark">Mã SKU sản phẩm <span class="text-danger">*</span></label>
+                            <input type="text" name="DefaultSku" value="@(Model != null ? Model.DefaultSku : "")" required class="form-control border-light bg-light" placeholder="Ví dụ: I15PM-BLACK-256" style="border-radius: 10px;">
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group col-6 mb-3">
+                                <label class="font-weight-bold text-dark">Giá bán lẻ (đ) <span class="text-danger">*</span></label>
+                                <input type="number" name="DefaultPrice" value="@(Model != null ? Model.DefaultPrice : 0)" required class="form-control border-light bg-light" placeholder="29000000" style="border-radius: 10px;">
+                            </div>
+                            <div class="form-group col-6 mb-3">
+                                <label class="font-weight-bold text-dark">Giá gốc (đ) <span class="text-danger">*</span></label>
+                                <input type="number" name="DefaultOriginalPrice" value="@(Model != null ? Model.DefaultOriginalPrice : 0)" required class="form-control border-light bg-light" placeholder="32000000" style="border-radius: 10px;">
+                            </div>
+                        </div>
+
+                        <!-- Image Upload & Preview -->
+                        <div class="form-group mb-0">
+                            <label class="font-weight-bold text-dark">Hình ảnh đại diện sản phẩm <span class="text-danger">*</span></label>
+                            <div class="custom-file mb-3" style="border-radius: 10px;">
+                                <input type="file" name="uploadImage" class="custom-file-input" id="uploadImage" required accept="image/*" onchange="previewFile()">
+                                <label class="custom-file-label border-light bg-light" for="uploadImage" style="border-radius: 10px;">Chọn ảnh...</label>
+                            </div>
+                            <div class="text-center mt-2 d-none" id="preview-container">
+                                <span class="d-block small text-muted text-left mb-1">Xem trước ảnh đại diện:</span>
+                                <img src="#" alt="Preview" id="image-preview" class="img-thumbnail rounded shadow-xs" style="max-height: 180px; object-fit: cover;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="card border-0 shadow-sm mb-4" style="border-radius: 16px; background: none;">
+                    <button type="submit" class="btn btn-primary btn-block btn-lg shadow-sm py-3 mb-3" style="border-radius: 30px; font-weight: 600;">
+                        <i class="fas fa-save mr-2"></i> Lưu sản phẩm
+                    </button>
+                    <a href="@Url.Action("AdminIndex", "Product")" class="btn btn-outline-dark btn-block py-2.5" style="border-radius: 30px; font-weight: 600;">
+                        Quay lại danh sách
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+    function addSpecRow() {
+        var html = '<tr class="spec-row">' +
+            '<td class="py-2"><input type="text" class="form-control border-light bg-light spec-key" placeholder="Tên thông số" style="border-radius: 8px;"></td>' +
+            '<td class="py-2"><input type="text" class="form-control border-light bg-light spec-value" placeholder="Giá trị..." style="border-radius: 8px;"></td>' +
+            '<td class="py-2 text-center"><button type="button" class="btn btn-outline-danger btn-sm border-0" onclick="removeSpecRow(this)"><i class="fas fa-trash-alt"></i></button></td>' +
+            '</tr>';
+        $('#specs-tbody').append(html);
+    }
+
+    function removeSpecRow(button) {
+        $(button).closest('tr').remove();
+    }
+
+    function previewFile() {
+        var preview = document.getElementById('image-preview');
+        var file = document.getElementById('uploadImage').files[0];
+        var reader = new FileReader();
+
+        reader.onloadend = function () {
+            preview.src = reader.result;
+            $('#preview-container').removeClass('d-none');
+        }
+
+        if (file) {
+            reader.readAsDataURL(file);
+            $('.custom-file-label').text(file.name);
+        } else {
+            preview.src = "";
+            $('#preview-container').addClass('d-none');
+            $('.custom-file-label').text("Chọn ảnh...");
+        }
+    }
+
+    // Capture specifications key-value rows and serialize to JSON before form submission
+    $('#create-product-form').on('submit', function (e) {
+        var specs = {};
+        $('.spec-row').each(function () {
+            var key = $(this).find('.spec-key').val().trim();
+            var val = $(this).find('.spec-value').val().trim();
+            if (key) {
+                specs[key] = val;
+            }
+        });
+        $('#specifications-hidden').val(JSON.stringify(specs));
+        return true;
+    });
+</script>
