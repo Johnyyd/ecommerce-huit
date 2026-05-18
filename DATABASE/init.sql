@@ -444,6 +444,15 @@ CREATE TABLE reviews (
     updated_at DATETIME2 DEFAULT GETDATE() NOT NULL
 );
 
+CREATE TABLE review_responses (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    review_id INT NOT NULL FOREIGN KEY REFERENCES reviews(id) ON DELETE CASCADE,
+    admin_id INT NOT NULL FOREIGN KEY REFERENCES users(id),
+    content NVARCHAR(MAX) NOT NULL,
+    created_at DATETIME2 DEFAULT GETDATE() NOT NULL,
+    updated_at DATETIME2 DEFAULT GETDATE() NOT NULL
+);
+
 CREATE TABLE support_tickets (
     id INT IDENTITY(1,1) PRIMARY KEY,
     ticket_number VARCHAR(20) UNIQUE NOT NULL,

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?><Database Name="HuitShopDB" Class="HuitShopDBDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+<?xml version="1.0" encoding="utf-8"?><Database Name="HuitShopDB" Class="HuitShopDBDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
   <Connection Mode="WebSettings" ConnectionString="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=HuitShopDB;Integrated Security=True" SettingsObjectName="System.Configuration.ConfigurationManager.ConnectionStrings" SettingsPropertyName="HuitShopDBConnectionString" Provider="System.Data.SqlClient" />
   <Table Name="dbo.wishlists" Member="wishlists">
     <Type Name="wishlist">
@@ -312,6 +312,7 @@
       <Association Name="product_review" Member="product" ThisKey="product_id" OtherKey="id" Type="product" IsForeignKey="true" />
       <Association Name="product_variant_review" Member="product_variant" ThisKey="variant_id" OtherKey="id" Type="product_variant" IsForeignKey="true" />
       <Association Name="user_review" Member="user" ThisKey="user_id" OtherKey="id" Type="user" IsForeignKey="true" />
+      <Association Name="review_review_response" Member="review_responses" ThisKey="id" OtherKey="review_id" Type="review_response" />
     </Type>
   </Table>
   <Table Name="dbo.role_permissions" Member="role_permissions">
@@ -467,6 +468,17 @@
       <Association Name="warehouse_inventory" Member="inventories" ThisKey="id" OtherKey="warehouse_id" Type="inventory" />
       <Association Name="warehouse_product_serial" Member="product_serials" ThisKey="id" OtherKey="warehouse_id" Type="product_serial" />
       <Association Name="warehouse_stock_movement" Member="stock_movements" ThisKey="id" OtherKey="warehouse_id" Type="stock_movement" />
+    </Type>
+  </Table>
+  <Table Name="dbo.review_responses" Member="review_responses">
+    <Type Name="review_response">
+      <Column Name="id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="review_id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="admin_id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="content" Type="System.String" DbType="NVarChar(MAX) NOT NULL" CanBeNull="false" />
+      <Column Name="created_at" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
+      <Association Name="review_review_response" Member="review" ThisKey="review_id" OtherKey="id" Type="review" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="user_review_response" Member="user" ThisKey="admin_id" OtherKey="id" Type="user" IsForeignKey="true" />
     </Type>
   </Table>
 </Database>

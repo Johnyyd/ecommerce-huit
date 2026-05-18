@@ -140,8 +140,17 @@ namespace HuitShopDB.Services
 
         public async Task<bool> AddReviewResponseAsync(int reviewId, AddReviewResponseRequest request, int adminId)
         {
-            // This assumes there's a review_response table
-            // Implementation depends on your database schema
+            var response = new review_response
+            {
+                review_id = reviewId,
+                admin_id = adminId,
+                content = request.Content,
+                created_at = DateTime.Now
+            };
+
+            _context.review_responses.InsertOnSubmit(response);
+            _context.SubmitChanges();
+
             return await Task.FromResult(true);
         }
 
@@ -195,7 +204,7 @@ namespace HuitShopDB.Services
 
         private ReviewDto MapToDto(review r)
         {
-            return new ReviewDto
+            var dto = new ReviewDto
             {
                 Id = r.id,
                 ProductId = r.product_id,
@@ -213,6 +222,23 @@ namespace HuitShopDB.Services
                 CreatedAt = r.created_at,
                 UpdatedAt = r.updated_at
             };
+
+            // Map Admin Response if exists
+            var lastResponse = r.review_responses.OrderByDescending(res => res.created_at).FirstOrDefault();
+            if (lastResponse != null)
+            {
+                dto.AdminResponse = new ReviewResponseDto
+                {
+                    Id = lastResponse.id,
+                    ReviewId = lastResponse.review_id,
+                    AdminId = lastResponse.admin_id,
+                    AdminName = lastResponse.user != null ? lastResponse.user.full_name : "Admin",
+                    Content = lastResponse.content,
+                    CreatedAt = lastResponse.created_at
+                };
+            }
+
+            return dto;
         }
     }
 }

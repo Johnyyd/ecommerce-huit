@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 using HuitShopDB.Services.Interfaces;
+using HuitShopDB.Models.DTOs.Review;
 
 namespace HuitShopDB.Controllers
 {
@@ -51,6 +52,28 @@ namespace HuitShopDB.Controllers
             {
                 TempData["SuccessMessage"] = "Đã xóa đánh giá.";
             }
+            return RedirectToAction("Index");
+        }
+
+        // POST: /Review/Reply
+        [HttpPost]
+        public async Task<ActionResult> Reply(AddReviewResponseRequest request)
+        {
+            if (string.IsNullOrEmpty(request.Content))
+            {
+                TempData["ErrorMessage"] = "Nội dung phản hồi không được để trống.";
+                return RedirectToAction("Index");
+            }
+
+            // Hardcoded admin ID 1 for now (as per ProductController pattern)
+            int adminId = 1;
+
+            bool success = await _reviewService.AddReviewResponseAsync(request.ReviewId, request, adminId);
+            if (success)
+            {
+                TempData["SuccessMessage"] = "Đã gửi phản hồi thành công.";
+            }
+
             return RedirectToAction("Index");
         }
     }

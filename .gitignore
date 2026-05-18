@@ -44,3 +44,4 @@ docker-compose.override.yml
 
 # Other
 *.txt
+.gitnexus
