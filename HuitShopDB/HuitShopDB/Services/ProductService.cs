@@ -362,7 +362,7 @@ namespace HuitShopDB.Services
             return await Task.FromResult(detail);
         }
 
-        public async Task<int> CreateProductAsync(ProductCreateDto dto)
+        public Task<int> CreateProductAsync(ProductCreateDto dto)
         {
             try
             {
@@ -402,20 +402,20 @@ namespace HuitShopDB.Services
                 _context.product_variants.InsertOnSubmit(variant);
                 _context.SubmitChanges();
 
-                return await Task.FromResult(p.id);
+                return Task.FromResult(p.id);
             }
             catch (Exception)
             {
-                return await Task.FromResult(0);
+                return Task.FromResult(0);
             }
         }
 
-        public async Task<bool> UpdateProductAsync(int id, ProductEditDto dto)
+        public Task<bool> UpdateProductAsync(int id, ProductEditDto dto)
         {
             try
             {
                 var p = _context.products.FirstOrDefault(x => x.id == id);
-                if (p == null) return await Task.FromResult(false);
+                if (p == null) return Task.FromResult(false);
 
                 p.name = dto.Name;
                 p.slug = ToFriendlySlug(dto.Name);
@@ -429,34 +429,34 @@ namespace HuitShopDB.Services
                 p.updated_at = DateTime.Now;
 
                 _context.SubmitChanges();
-                return await Task.FromResult(true);
+                return Task.FromResult(true);
             }
             catch (Exception)
             {
-                return await Task.FromResult(false);
+                return Task.FromResult(false);
             }
         }
 
-        public async Task<bool> ToggleProductStatusAsync(int id, string status)
+        public Task<bool> ToggleProductStatusAsync(int id, string status)
         {
             try
             {
                 var p = _context.products.FirstOrDefault(x => x.id == id);
-                if (p == null) return await Task.FromResult(false);
+                if (p == null) return Task.FromResult(false);
 
                 p.status = status;
                 p.updated_at = DateTime.Now;
 
                 _context.SubmitChanges();
-                return await Task.FromResult(true);
+                return Task.FromResult(true);
             }
             catch (Exception)
             {
-                return await Task.FromResult(false);
+                return Task.FromResult(false);
             }
         }
 
-        public async Task<bool> CreateVariantAsync(int productId, VariantCreateDto dto)
+        public Task<bool> CreateVariantAsync(int productId, VariantCreateDto dto)
         {
             try
             {
@@ -476,20 +476,20 @@ namespace HuitShopDB.Services
 
                 _context.product_variants.InsertOnSubmit(variant);
                 _context.SubmitChanges();
-                return await Task.FromResult(true);
+                return Task.FromResult(true);
             }
             catch (Exception)
             {
-                return await Task.FromResult(false);
+                return Task.FromResult(false);
             }
         }
 
-        public async Task<bool> UpdateVariantAsync(int variantId, VariantEditDto dto)
+        public Task<bool> UpdateVariantAsync(int variantId, VariantEditDto dto)
         {
             try
             {
                 var v = _context.product_variants.FirstOrDefault(x => x.id == variantId);
-                if (v == null) return await Task.FromResult(false);
+                if (v == null) return Task.FromResult(false);
 
                 v.variant_name = dto.VariantName;
                 v.sku = dto.Sku;
@@ -504,15 +504,15 @@ namespace HuitShopDB.Services
                 v.updated_at = DateTime.Now;
 
                 _context.SubmitChanges();
-                return await Task.FromResult(true);
+                return Task.FromResult(true);
             }
             catch (Exception)
             {
-                return await Task.FromResult(false);
+                return Task.FromResult(false);
             }
         }
 
-        public async Task<bool> AddProductImageAsync(int variantId, string imageUrl, string altText, int sortOrder)
+        public Task<bool> AddProductImageAsync(int variantId, string imageUrl, string altText, int sortOrder)
         {
             try
             {
@@ -527,28 +527,28 @@ namespace HuitShopDB.Services
 
                 _context.product_images.InsertOnSubmit(img);
                 _context.SubmitChanges();
-                return await Task.FromResult(true);
+                return Task.FromResult(true);
             }
             catch (Exception)
             {
-                return await Task.FromResult(false);
+                return Task.FromResult(false);
             }
         }
 
-        public async Task<bool> DeleteProductImageAsync(int imageId)
+        public Task<bool> DeleteProductImageAsync(int imageId)
         {
             try
             {
                 var img = _context.product_images.FirstOrDefault(x => x.id == imageId);
-                if (img == null) return await Task.FromResult(false);
+                if (img == null) return Task.FromResult(false);
 
                 _context.product_images.DeleteOnSubmit(img);
                 _context.SubmitChanges();
-                return await Task.FromResult(true);
+                return Task.FromResult(true);
             }
             catch (Exception)
             {
-                return await Task.FromResult(false);
+                return Task.FromResult(false);
             }
         }
 

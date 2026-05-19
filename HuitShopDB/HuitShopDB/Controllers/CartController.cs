@@ -43,7 +43,7 @@ namespace HuitShopDB.Controllers
             if (userId == 0)
             {
                 TempData["ErrorMessage"] = "Vui lòng đăng nhập để xem giỏ hàng.";
-                return RedirectToAction("Login", "Auth", new { returnUrl = Request.Url?.PathAndQuery });
+                return RedirectToAction("Login", "Auth", new { returnUrl = Request.Url != null ? Request.Url.PathAndQuery : null });
             }
             var cart = await _cartService.GetCartByUserIdAsync(userId);
             return View(cart);
@@ -132,7 +132,7 @@ namespace HuitShopDB.Controllers
                 {
                     var uc = await _cartService.GetCartByUserIdAsync(userId);
                     var item = uc.Items.FirstOrDefault(i => i.Id == cartItemId);
-                    return Json(new { success = true, removed = false, lineTotal = item?.LineTotal ?? 0, subtotal = uc.Subtotal, discount = uc.Discount, total = uc.Total, cartCount = uc.Items.Sum(i => i.Quantity) });
+                    return Json(new { success = true, removed = false, lineTotal = item != null ? item.LineTotal : 0, subtotal = uc.Subtotal, discount = uc.Discount, total = uc.Total, cartCount = uc.Items.Sum(i => i.Quantity) });
                 }
                 return Json(new { success = false, message = "Không thể cập nhật số lượng." });
             }
