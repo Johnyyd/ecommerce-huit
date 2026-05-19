@@ -258,7 +258,7 @@
                             }
                             <div class="item-info">
                                 <div class="item-name">@(item.Variant != null ? item.Variant.VariantName : "Sản phẩm")</div>
-                                <div class="item-qty">x@item.Quantity</div>
+                                <div class="item-qty">x@(item.Quantity)</div>
                             </div>
                             <div class="item-price">@item.LineTotal.ToString("N0")đ</div>
                         </div>
@@ -328,7 +328,21 @@ function selectPayCard(el, type) {
 function toggleNewAddr() {
     var block = document.getElementById('manual-addr-block');
     if (!block) return;
-    block.style.display = block.style.display === 'none' ? 'block' : 'none';
+    if (block.style.display === 'none') {
+        block.style.display = 'block';
+        // Uncheck all saved addresses
+        document.querySelectorAll('input[name="savedAddressId"]').forEach(function(r) { r.checked = false; });
+        document.querySelectorAll('.addr-card').forEach(function(c) { c.classList.remove('selected'); });
+    } else {
+        block.style.display = 'none';
+        // Re-check first address if exists
+        var firstRadio = document.querySelector('input[name="savedAddressId"]');
+        if (firstRadio) {
+            firstRadio.checked = true;
+            var card = firstRadio.closest('.addr-card');
+            if (card) card.classList.add('selected');
+        }
+    }
 }
 function applyVoucher() {
     var code = document.getElementById('voucher-input').value.trim().toUpperCase();
@@ -367,16 +381,36 @@ function removeVoucher() {
             updateTotal();
         });
 }
-document.getElementById('place-order-btn').addEventListener('click', function() {
-    this.disabled = true;
-    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+document.getElementById('checkout-form').addEventListener('submit', function(e) {
+    var btn = document.getElementById('place-order-btn');
+    // Basic client-side check: address must be selected or filled
+    var savedAddrRadios = document.querySelectorAll('input[name="savedAddressId"]');
+    var hasSelectedAddr = false;
+    savedAddrRadios.forEach(function(r) { if (r.checked) hasSelectedAddr = true; });
+    var manualBlock = document.getElementById('manual-addr-block');
+    var isManual = manualBlock && manualBlock.style.display !== 'none';
+    if (!hasSelectedAddr && isManual) {
+        var fullName = document.querySelector('input[name="fullName"]');
+        var phone = document.querySelector('input[name="phone"]');
+        var addressLine = document.querySelector('input[name="addressLine"]');
+        if (fullName && !fullName.value.trim()) { fullName.focus(); e.preventDefault(); return; }
+        if (phone && !phone.value.trim()) { phone.focus(); e.preventDefault(); return; }
+        if (addressLine && !addressLine.value.trim()) { addressLine.focus(); e.preventDefault(); return; }
+    }
+    // Disable button only after validation passes
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
 });
 // Addr card click
 document.querySelectorAll('.addr-card').forEach(function(card) {
     card.addEventListener('click', function() {
         document.querySelectorAll('.addr-card').forEach(function(c) { c.classList.remove('selected'); });
         this.classList.add('selected');
-        this.querySelector('input[type=radio]').checked = true;
+        var r = this.querySelector('input[type=radio]');
+        if (r) r.checked = true;
+        // Hide manual address block when choosing a saved address
+        var block = document.getElementById('manual-addr-block');
+        if (block) block.style.display = 'none';
     });
 });
 </script>
