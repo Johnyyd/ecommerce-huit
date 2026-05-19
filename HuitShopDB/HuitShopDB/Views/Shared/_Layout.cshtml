@@ -5,9 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@ViewBag.Title - ECommerce HUIT</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" />
     <style>
-        body { padding-top: 50px; padding-bottom: 20px; }
-        .body-content { padding-left: 15px; padding-right: 15px; }
+        body {
+            padding-top: 70px;
+            padding-bottom: 20px;
+        }
+
+        .body-content {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
     </style>
 </head>
 <body>
@@ -21,8 +29,45 @@
                     <li class="nav-item"><a class="nav-link" href="/Home/About">Về chúng tôi</a></li>
                 </ul>
             </div>
+
+            <ul class="navbar-nav ms-auto">
+                @if (Session["UserId"] != null)
+                {
+                    string userRole = Session["Role"] != null ? Session["Role"].ToString() : "";
+
+                    if (userRole == "ADMIN" || userRole == "STAFF")
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-info fw-bold" href="#" id="adminMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-gear-fill"></i> Hệ thống Quản lý
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="adminMenu">
+                                <li><a class="dropdown-item" href="@Url.Action("StaffList", "User")">Quản lý hồ sơ nhân viên</a></li>
+                                <li><a class="dropdown-item" href="@Url.Action("CustomerList", "User")">Quản lý tài khoản người dùng</a></li>
+                            </ul>
+                        </li>
+                    }
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Account/Profile">
+                            <i class="bi bi-person-circle"></i> Xin chào, @Session["FullName"]
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-warning" href="/Account/Logout">
+                            <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                        </a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item"><a class="nav-link" href="/Account/Register"><i class="bi bi-person-plus"></i> Đăng ký</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Account/Login"><i class="bi bi-box-arrow-in-right"></i> Đăng nhập</a></li>
+                }
+            </ul>
         </div>
     </nav>
+
     <div class="container body-content">
         @RenderBody()
         <hr />
@@ -30,6 +75,7 @@
             <p>&copy; @DateTime.Now.Year - ECommerce HUIT (VS 2013 MVC)</p>
         </footer>
     </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
