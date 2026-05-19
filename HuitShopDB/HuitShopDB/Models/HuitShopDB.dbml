@@ -1,15 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?><Database Name="HuitShopDB" Class="HuitShopDBDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
-  <Connection Mode="WebSettings" ConnectionString="Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=HuitShopDB;Integrated Security=True" SettingsObjectName="System.Configuration.ConfigurationManager.ConnectionStrings" SettingsPropertyName="HuitShopDBConnectionString" Provider="System.Data.SqlClient" />
-  <Table Name="dbo.wishlists" Member="wishlists">
-    <Type Name="wishlist">
-      <Column Name="id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
-      <Column Name="user_id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="product_id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="created_at" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
-      <Association Name="product_wishlist" Member="product" ThisKey="product_id" OtherKey="id" Type="product" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
-      <Association Name="user_wishlist" Member="user" ThisKey="user_id" OtherKey="id" Type="user" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
-    </Type>
-  </Table>
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="HuitShopDB" Class="HuitShopDBDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="WebSettings" ConnectionString="Data Source=A103PC29;Initial Catalog=HuitShopDB;Integrated Security=True" SettingsObjectName="System.Configuration.ConfigurationManager.ConnectionStrings" SettingsPropertyName="HuitShopDBConnectionString1" Provider="System.Data.SqlClient" />
   <Table Name="dbo.addresses" Member="addresses">
     <Type Name="address">
       <Column Name="id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
@@ -25,6 +15,16 @@
       <Column Name="created_at" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
       <Column Name="updated_at" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
       <Association Name="user_address" Member="user" ThisKey="user_id" OtherKey="id" Type="user" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+    </Type>
+  </Table>
+  <Table Name="dbo.wishlists" Member="wishlists">
+    <Type Name="wishlist">
+      <Column Name="id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="user_id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="product_id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="created_at" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
+      <Association Name="product_wishlist" Member="product" ThisKey="product_id" OtherKey="id" Type="product" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="user_wishlist" Member="user" ThisKey="user_id" OtherKey="id" Type="user" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
     </Type>
   </Table>
   <Table Name="dbo.audit_logs" Member="audit_logs">
@@ -296,6 +296,18 @@
       <Association Name="user_return" Member="user" ThisKey="user_id" OtherKey="id" Type="user" IsForeignKey="true" />
     </Type>
   </Table>
+  <Table Name="dbo.review_responses" Member="review_responses">
+    <Type Name="review_response">
+      <Column Name="id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
+      <Column Name="review_id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="admin_id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="content" Type="System.String" DbType="NVarChar(MAX) NOT NULL" CanBeNull="false" />
+      <Column Name="created_at" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
+      <Column Name="updated_at" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
+      <Association Name="review_review_response" Member="review" ThisKey="review_id" OtherKey="id" Type="review" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
+      <Association Name="user_review_response" Member="user" ThisKey="admin_id" OtherKey="id" Type="user" IsForeignKey="true" />
+    </Type>
+  </Table>
   <Table Name="dbo.reviews" Member="reviews">
     <Type Name="review">
       <Column Name="id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
@@ -309,10 +321,10 @@
       <Column Name="is_approved" Type="System.Boolean" DbType="Bit NOT NULL" CanBeNull="false" />
       <Column Name="created_at" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
       <Column Name="updated_at" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
+      <Association Name="review_review_response" Member="review_responses" ThisKey="id" OtherKey="review_id" Type="review_response" />
       <Association Name="product_review" Member="product" ThisKey="product_id" OtherKey="id" Type="product" IsForeignKey="true" />
       <Association Name="product_variant_review" Member="product_variant" ThisKey="variant_id" OtherKey="id" Type="product_variant" IsForeignKey="true" />
       <Association Name="user_review" Member="user" ThisKey="user_id" OtherKey="id" Type="user" IsForeignKey="true" />
-      <Association Name="review_review_response" Member="review_responses" ThisKey="id" OtherKey="review_id" Type="review_response" />
     </Type>
   </Table>
   <Table Name="dbo.role_permissions" Member="role_permissions">
@@ -401,14 +413,15 @@
       <Column Name="last_login" Type="System.DateTime" DbType="DateTime2" CanBeNull="true" />
       <Column Name="created_at" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
       <Column Name="updated_at" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
-      <Association Name="user_wishlist" Member="wishlists" ThisKey="id" OtherKey="user_id" Type="wishlist" />
       <Association Name="user_address" Member="addresses" ThisKey="id" OtherKey="user_id" Type="address" />
+      <Association Name="user_wishlist" Member="wishlists" ThisKey="id" OtherKey="user_id" Type="wishlist" />
       <Association Name="user_audit_log" Member="audit_logs" ThisKey="id" OtherKey="changed_by" Type="audit_log" />
       <Association Name="user_cart" Member="carts" ThisKey="id" OtherKey="user_id" Type="cart" />
       <Association Name="user_order_status_history" Member="order_status_histories" ThisKey="id" OtherKey="changed_by" Type="order_status_history" />
       <Association Name="user_order" Member="orders" ThisKey="id" OtherKey="user_id" Type="order" />
       <Association Name="user_product" Member="products" ThisKey="id" OtherKey="created_by" Type="product" />
       <Association Name="user_return" Member="returns" ThisKey="id" OtherKey="user_id" Type="return" />
+      <Association Name="user_review_response" Member="review_responses" ThisKey="id" OtherKey="admin_id" Type="review_response" />
       <Association Name="user_review" Member="reviews" ThisKey="id" OtherKey="user_id" Type="review" />
       <Association Name="user_stock_movement" Member="stock_movements" ThisKey="id" OtherKey="created_by" Type="stock_movement" />
       <Association Name="user_support_ticket" Member="support_tickets" ThisKey="id" OtherKey="assigned_to" Type="support_ticket" />
@@ -468,17 +481,6 @@
       <Association Name="warehouse_inventory" Member="inventories" ThisKey="id" OtherKey="warehouse_id" Type="inventory" />
       <Association Name="warehouse_product_serial" Member="product_serials" ThisKey="id" OtherKey="warehouse_id" Type="product_serial" />
       <Association Name="warehouse_stock_movement" Member="stock_movements" ThisKey="id" OtherKey="warehouse_id" Type="stock_movement" />
-    </Type>
-  </Table>
-  <Table Name="dbo.review_responses" Member="review_responses">
-    <Type Name="review_response">
-      <Column Name="id" Type="System.Int32" DbType="Int NOT NULL IDENTITY" IsPrimaryKey="true" IsDbGenerated="true" CanBeNull="false" />
-      <Column Name="review_id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="admin_id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
-      <Column Name="content" Type="System.String" DbType="NVarChar(MAX) NOT NULL" CanBeNull="false" />
-      <Column Name="created_at" Type="System.DateTime" DbType="DateTime2 NOT NULL" CanBeNull="false" />
-      <Association Name="review_review_response" Member="review" ThisKey="review_id" OtherKey="id" Type="review" IsForeignKey="true" DeleteRule="CASCADE" DeleteOnNull="true" />
-      <Association Name="user_review_response" Member="user" ThisKey="admin_id" OtherKey="id" Type="user" IsForeignKey="true" />
     </Type>
   </Table>
 </Database>
