@@ -47,6 +47,26 @@
             top: 1rem;
             right: 1rem;
         }
+        /* Navbar spacing fixes */
+        .navbar .nav-item + .nav-item { margin-left: 2px; }
+        .navbar .nav-link { padding: 0.45rem 0.75rem !important; }
+        .nav-btn-logout {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid rgba(239,68,68,0.4);
+            color: #fca5a5;
+            border-radius: 8px;
+            padding: 0.35rem 0.85rem;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-left: 6px;
+        }
+        .nav-btn-logout:hover { background: rgba(239,68,68,0.3); color: #fff; border-color: #ef4444; }
+        .nav-divider-v { width: 1px; height: 22px; background: rgba(255,255,255,0.15); margin: 0 6px; align-self: center; display: inline-block; }
         /* Mini-cart Drawer Styles */
         .mini-cart-drawer {
             position: fixed;
@@ -148,33 +168,39 @@
                     {
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center me-2" style="width: 28px; height: 28px; background-color: rgba(59, 130, 246, 0.1);">
-                                    <i class="bi bi-person" style="font-size: 0.95rem; color: #3b82f6;"></i>
+                                <div style="width:28px;height:28px;border-radius:50%;background:rgba(59,130,246,0.15);display:inline-flex;align-items:center;justify-content:center;margin-right:6px;">
+                                    <i class="bi bi-person" style="font-size:0.95rem;color:#3b82f6;"></i>
                                 </div>
                                 <span class="fw-semibold">Chào, @Session["UserName"]</span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-2" aria-labelledby="userDropdown" style="border-radius: 0.75rem;">
-                                <li><a class="dropdown-item py-2 px-3 small" href="@Url.Action("Profile", "User")"><i class="bi bi-person me-2"></i>Trang cá nhân</a></li>
+                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-2" aria-labelledby="userDropdown" style="border-radius:0.75rem;min-width:200px;">
+                                <li><a class="dropdown-item py-2 px-3 small" href="@Url.Action("Profile","User")"><i class="bi bi-person me-2"></i>Trang cá nhân</a></li>
+                                <li><a class="dropdown-item py-2 px-3 small" href="@Url.Action("History","Order")"><i class="bi bi-bag-check me-2"></i>Đơn hàng của tôi</a></li>
                                 @if (isStaffOrAdmin)
                                 {
-                                    <li><a class="dropdown-item py-2 px-3 small" href="@Url.Action("Dashboard", "Inventory")"><i class="bi bi-speedometer2 me-2"></i>Quản trị kho</a></li>
-                                    <li><a class="dropdown-item py-2 px-3 small" href="@Url.Action("Index", "User")"><i class="bi bi-people me-2"></i>Quản lý User</a></li>
+                                    <li><hr class="dropdown-divider opacity-10"></li>
+                                    <li><a class="dropdown-item py-2 px-3 small" href="@Url.Action("Dashboard","Inventory")"><i class="bi bi-speedometer2 me-2"></i>Quản trị kho</a></li>
+                                    <li><a class="dropdown-item py-2 px-3 small" href="@Url.Action("Index","User")"><i class="bi bi-people me-2"></i>Quản lý User</a></li>
+                                    <li><a class="dropdown-item py-2 px-3 small" href="@Url.Action("Manage","Order")"><i class="bi bi-list-check me-2"></i>Quản lý đơn hàng</a></li>
+                                    <li><a class="dropdown-item py-2 px-3 small" href="@Url.Action("Index","Voucher")"><i class="bi bi-tag me-2"></i>Quản lý voucher</a></li>
                                 }
-                                <li><hr class="dropdown-divider opacity-10"></li>
-                                <li>
-                                    @using (Html.BeginForm("Logout", "Auth", FormMethod.Post, new { id = "logoutForm", @class = "d-none" }))
-                                    {
-                                        @Html.AntiForgeryToken()
-                                    }
-                                    <a class="dropdown-item py-2 px-3 small text-danger" href="javascript:document.getElementById('logoutForm').submit()"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a>
-                                </li>
                             </ul>
+                        </li>
+                        <!-- Logout button ngoài dropdown -->
+                        <li class="nav-item d-flex align-items-center ms-1">
+                            @using (Html.BeginForm("Logout", "Auth", FormMethod.Post, new { id = "logoutFormNav" }))
+                            {
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="nav-btn-logout">
+                                    <i class="bi bi-box-arrow-right"></i> Đăng xuất
+                                </button>
+                            }
                         </li>
                     }
                     else
                     {
-                        <li class="nav-item"><a class="nav-link me-lg-2" href="@Url.Action("Login", "Auth")">Đăng nhập</a></li>
-                        <li class="nav-item"><a class="btn btn-primary btn-sm px-3 rounded-pill text-white fw-semibold" href="@Url.Action("Register", "Auth")" style="background-color: #3b82f6; border-color: #3b82f6;">Đăng ký</a></li>
+                        <li class="nav-item"><a class="nav-link" href="@Url.Action("Login","Auth")">Đăng nhập</a></li>
+                        <li class="nav-item ms-1"><a class="btn btn-primary btn-sm px-3 rounded-pill text-white fw-semibold" href="@Url.Action("Register","Auth")" style="background:#3b82f6;border-color:#3b82f6;">Đăng ký</a></li>
                     }
                 </ul>
             </div>
