@@ -1,0 +1,191 @@
+@model IEnumerable<HuitShopDB.Models.DTOs.Voucher.VoucherDto>
+@{
+    ViewBag.Title = "Quản lý Voucher - Admin";
+    string currentStatus = ViewBag.Status ?? "ALL";
+    string keyword = ViewBag.Keyword ?? "";
+    int page = ViewBag.Page ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+}
+<style>
+    body { background: #0f0f17; }
+    .voucher-wrap { max-width: 1200px; margin: 0 auto; padding: 30px 20px 80px; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 28px; flex-wrap: wrap; gap: 14px; }
+    .page-title { color: #fff; font-size: 1.7rem; font-weight: 800; margin: 0; }
+    .btn-create { background: linear-gradient(135deg, #6c63ff, #a855f7); color: #fff; padding: 11px 22px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 0.9rem; }
+    .btn-create:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(108,99,255,0.4); color: #fff; text-decoration: none; }
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 26px; }
+    .stat-card { background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 14px; padding: 18px 20px; }
+    .stat-num { font-size: 1.8rem; font-weight: 800; }
+    .stat-lbl { color: #888; font-size: 0.8rem; margin-top: 4px; }
+    .filter-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-input { background: #1a1a2e; border: 1px solid #2a2a3e; color: #fff; padding: 9px 14px; border-radius: 10px; font-size: 0.85rem; flex: 1; min-width: 180px; }
+    .filter-input:focus { outline: none; border-color: #6c63ff; }
+    .filter-select { background: #1a1a2e; border: 1px solid #2a2a3e; color: #fff; padding: 9px 14px; border-radius: 10px; font-size: 0.85rem; }
+    .btn-filter { background: #6c63ff; color: #fff; border: none; padding: 9px 20px; border-radius: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    .voucher-table { width: 100%; border-collapse: collapse; }
+    .voucher-table th { background: #12122a; color: #666; font-size: 0.74rem; font-weight: 700; padding: 10px 14px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; }
+    .voucher-table td { padding: 14px; border-bottom: 1px solid #1f1f35; font-size: 0.85rem; color: #e0e0e0; }
+    .voucher-table tr:hover td { background: rgba(108,99,255,0.04); }
+    .code-badge { font-family: monospace; background: rgba(108,99,255,0.15); color: #6c63ff; padding: 4px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: 700; letter-spacing: 1px; }
+    .type-badge { padding: 3px 10px; border-radius: 6px; font-size: 0.73rem; font-weight: 700; }
+    .type-PERCENT { background: rgba(255,193,7,0.15); color: #ffc107; }
+    .type-FIXED { background: rgba(0,191,255,0.15); color: #00bfff; }
+    .usage-bar-wrap { background: #12122a; border-radius: 4px; height: 6px; width: 100px; overflow: hidden; margin-top: 4px; }
+    .usage-bar { background: linear-gradient(90deg, #6c63ff, #a855f7); height: 100%; border-radius: 4px; }
+    .usage-text { color: #888; font-size: 0.75rem; margin-top: 4px; }
+    .toggle-btn { width: 42px; height: 22px; border-radius: 11px; border: none; cursor: pointer; position: relative; transition: background 0.3s; display: inline-block; vertical-align: middle; }
+    .toggle-btn.on { background: #6c63ff; }
+    .toggle-btn.off { background: #2a2a3e; }
+    .toggle-btn::after { content:''; width: 16px; height: 16px; border-radius: 50%; background: #fff; position: absolute; top: 3px; transition: left 0.3s; }
+    .toggle-btn.on::after { left: 23px; }
+    .toggle-btn.off::after { left: 3px; }
+    .date-cell { font-size: 0.78rem; color: #888; }
+    .expired-tag { color: #ff4757; font-size: 0.73rem; }
+    .btn-edit { background: rgba(0,191,255,0.1); color: #00bfff; border: 1px solid rgba(0,191,255,0.3); padding: 5px 12px; border-radius: 7px; text-decoration: none; font-size: 0.78rem; font-weight: 600; }
+    .btn-edit:hover { background: rgba(0,191,255,0.25); color: #00bfff; text-decoration: none; }
+    .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 28px; }
+    .page-btn { width: 36px; height: 36px; border-radius: 9px; background: #1a1a2e; border: 1px solid #2a2a3e; color: #aaa; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 0.82rem; }
+    .page-btn.active { background: #6c63ff; border-color: #6c63ff; color: #fff; }
+    .page-btn:hover { border-color: #6c63ff; color: #fff; text-decoration: none; }
+</style>
+
+<div class="voucher-wrap">
+    <div class="page-header">
+        <h1 class="page-title">🏷️ Quản lý Voucher & Khuyến mãi</h1>
+        <a href="@Url.Action("Create", "Voucher")" class="btn-create"><i class="fas fa-plus"></i> Tạo Voucher mới</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div style="background:rgba(46,213,115,0.1);border:1px solid #2ed573;border-radius:12px;padding:12px 18px;color:#2ed573;margin-bottom:16px;">
+            ✅ @Html.Raw(TempData["SuccessMessage"].ToString())
+        </div>
+    }
+
+    <div class="stats-row">
+        <div class="stat-card"><div class="stat-num" style="color:#e0e0e0;">@ViewBag.TotalVouchers</div><div class="stat-lbl">🏷️ Tổng voucher</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:#2ed573;">@ViewBag.ActiveVouchers</div><div class="stat-lbl">✅ Đang hoạt động</div></div>
+        <div class="stat-card"><div class="stat-num" style="color:#ff4757;">@ViewBag.ExpiredVouchers</div><div class="stat-lbl">⏰ Đã hết hạn</div></div>
+    </div>
+
+    <form method="get" action="@Url.Action("Index")">
+        <div class="filter-bar">
+            <input name="keyword" class="filter-input" placeholder="🔍 Tìm mã voucher..." value="@keyword" />
+            <select name="status" class="filter-select">
+                @foreach (var (val, lbl) in new[] { ("ALL","Tất cả"), ("ACTIVE","Đang hoạt động"), ("EXPIRED","Đã hết hạn"), ("DISABLED","Vô hiệu hóa") })
+                {
+                    <option value="@val" @(currentStatus == val ? "selected" : "")>@lbl</option>
+                }
+            </select>
+            <button type="submit" class="btn-filter"><i class="fas fa-search"></i> Lọc</button>
+        </div>
+    </form>
+
+    <table class="voucher-table">
+        <thead>
+            <tr>
+                <th>Mã Voucher</th>
+                <th>Tên</th>
+                <th>Loại giảm</th>
+                <th>Giá trị</th>
+                <th>Đơn tối thiểu</th>
+                <th>Lượt dùng</th>
+                <th>Thời hạn</th>
+                <th>Trạng thái</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var v in Model)
+            {
+                int pct = v.UsageLimit.HasValue && v.UsageLimit.Value > 0
+                    ? (int)((double)v.UsageCount / v.UsageLimit.Value * 100) : 0;
+                bool expired = v.EndDate < DateTime.Now;
+
+                <tr>
+                    <td><span class="code-badge">@v.Code</span></td>
+                    <td>
+                        <div style="color:#e0e0e0;font-weight:600;">@v.Name</div>
+                        @if (!string.IsNullOrEmpty(v.Description))
+                        {
+                            <div style="color:#666;font-size:0.75rem;">@v.Description</div>
+                        }
+                    </td>
+                    <td><span class="type-badge type-@v.DiscountType">@(v.DiscountType == "PERCENT" ? "% Phần trăm" : "đ Cố định")</span></td>
+                    <td style="color:#6c63ff;font-weight:700;">
+                        @if (v.DiscountType == "PERCENT")
+                        {
+                            <text>@v.DiscountValue%</text>
+                            @if (v.MaxDiscountAmount.HasValue)
+                            {
+                                <div style="color:#888;font-size:0.75rem;">Tối đa @v.MaxDiscountAmount.Value.ToString("N0")đ</div>
+                            }
+                        }
+                        else
+                        {
+                            <text>@v.DiscountValue.ToString("N0")đ</text>
+                        }
+                    </td>
+                    <td style="color:#aaa;">@v.MinOrderValue.ToString("N0")đ</td>
+                    <td>
+                        <div class="usage-text">@v.UsageCount / @(v.UsageLimit.HasValue ? v.UsageLimit.Value.ToString() : "∞")</div>
+                        @if (v.UsageLimit.HasValue)
+                        {
+                            <div class="usage-bar-wrap">
+                                <div class="usage-bar" style="width:@pct%"></div>
+                            </div>
+                        }
+                    </td>
+                    <td>
+                        <div class="date-cell">@v.StartDate.ToString("dd/MM/yyyy") → @v.EndDate.ToString("dd/MM/yyyy")</div>
+                        @if (expired) { <div class="expired-tag">⚠️ Đã hết hạn</div> }
+                    </td>
+                    <td>
+                        <button class="toggle-btn @(v.IsActive ? "on" : "off")"
+                                id="toggle-@v.Id"
+                                title="@(v.IsActive ? "Đang bật - Click để tắt" : "Đang tắt - Click để bật")"
+                                onclick="toggleVoucher(@v.Id)"></button>
+                    </td>
+                    <td>
+                        <a href="@Url.Action("Edit", "Voucher", new { id = v.Id })" class="btn-edit"><i class="fas fa-edit"></i> Sửa</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (!Model.Any())
+    {
+        <div style="text-align:center;padding:60px;color:#888;">
+            <div style="font-size:3rem;margin-bottom:14px;">🏷️</div>
+            <p>Chưa có voucher nào. Hãy tạo voucher đầu tiên!</p>
+        </div>
+    }
+
+    @if (totalPages > 1)
+    {
+        <div class="pagination">
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <a href="@Url.Action("Index", new { status = currentStatus, keyword = keyword, page = i })"
+                   class="page-btn @(page == i ? "active" : "")">@i</a>
+            }
+        </div>
+    }
+</div>
+
+<script>
+function toggleVoucher(id) {
+    fetch('@Url.Action("ToggleStatus", "Voucher")', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'id=' + id
+    }).then(r => r.json()).then(data => {
+        if (data.success) {
+            var btn = document.getElementById('toggle-' + id);
+            btn.classList.toggle('on', data.isActive);
+            btn.classList.toggle('off', !data.isActive);
+        }
+    });
+}
+</script>

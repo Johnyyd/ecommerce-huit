@@ -1,0 +1,161 @@
+@model IEnumerable<HuitShopDB.Models.DTOs.Order.OrderResponseDto>
+@{
+    ViewBag.Title = "Lịch sử mua hàng - HUIT Shop";
+    string currentStatus = ViewBag.Status ?? "ALL";
+    int page = ViewBag.Page ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+}
+<style>
+    body { background: #0f0f17; }
+    .history-wrap { max-width: 960px; margin: 0 auto; padding: 30px 20px 60px; }
+    .page-title { color: #fff; font-size: 1.8rem; font-weight: 800; margin-bottom: 6px; }
+    .page-sub { color: #888; font-size: 0.9rem; margin-bottom: 30px; }
+    .status-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
+    .status-tab { padding: 8px 18px; border-radius: 50px; font-size: 0.82rem; font-weight: 600; text-decoration: none; background: #1a1a2e; border: 1px solid #2a2a3e; color: #888; transition: all 0.2s; }
+    .status-tab:hover, .status-tab.active { background: #6c63ff; border-color: #6c63ff; color: #fff; text-decoration: none; }
+    .order-card { background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 16px; padding: 20px 24px; margin-bottom: 16px; transition: border-color 0.2s; }
+    .order-card:hover { border-color: #3a3a5e; }
+    .order-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+    .order-code { color: #6c63ff; font-weight: 700; font-size: 0.95rem; }
+    .order-date { color: #666; font-size: 0.8rem; }
+    .status-badge { padding: 4px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; }
+    .s-PENDING { background: rgba(255,193,7,0.15); color: #ffc107; }
+    .s-CONFIRMED { background: rgba(0,191,255,0.15); color: #00bfff; }
+    .s-SHIPPING { background: rgba(108,99,255,0.15); color: #6c63ff; }
+    .s-COMPLETED { background: rgba(46,213,115,0.15); color: #2ed573; }
+    .s-CANCELLED { background: rgba(255,71,87,0.15); color: #ff4757; }
+    .order-items-row { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+    .order-thumb { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; background: #12122a; }
+    .order-thumb-placeholder { width: 56px; height: 56px; border-radius: 10px; background: #12122a; display: flex; align-items: center; justify-content: center; color: #555; font-size: 1.2rem; }
+    .more-items { width: 56px; height: 56px; border-radius: 10px; background: #12122a; display: flex; align-items: center; justify-content: center; color: #888; font-size: 0.78rem; font-weight: 700; border: 1px dashed #2a2a3e; }
+    .order-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .order-total { color: #fff; font-size: 1rem; font-weight: 700; }
+    .order-total span { color: #6c63ff; font-size: 1.1rem; }
+    .pay-method { color: #888; font-size: 0.8rem; }
+    .order-actions { display: flex; gap: 8px; }
+    .btn-detail { background: #6c63ff; color: #fff; padding: 7px 16px; border-radius: 8px; text-decoration: none; font-size: 0.82rem; font-weight: 600; }
+    .btn-detail:hover { background: #5a52e0; color: #fff; text-decoration: none; }
+    .btn-cancel { background: rgba(255,71,87,0.12); color: #ff4757; border: 1px solid rgba(255,71,87,0.3); padding: 7px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+    .btn-cancel:hover { background: rgba(255,71,87,0.25); }
+    .empty-state { text-align: center; padding: 80px 20px; }
+    .empty-state .emoji { font-size: 4rem; margin-bottom: 16px; }
+    .empty-state p { color: #888; font-size: 0.95rem; margin-bottom: 24px; }
+    .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 30px; }
+    .page-btn { width: 38px; height: 38px; border-radius: 10px; background: #1a1a2e; border: 1px solid #2a2a3e; color: #aaa; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 0.85rem; }
+    .page-btn.active { background: #6c63ff; border-color: #6c63ff; color: #fff; }
+    .page-btn:hover { border-color: #6c63ff; color: #fff; text-decoration: none; }
+</style>
+
+<div class="history-wrap">
+    <h1 class="page-title">📦 Lịch sử mua hàng</h1>
+    <p class="page-sub">Theo dõi tất cả đơn hàng của bạn</p>
+
+    <div class="status-tabs">
+        @foreach (var (val, lbl) in new[] { ("ALL","Tất cả"), ("PENDING","Chờ xử lý"), ("CONFIRMED","Đã xác nhận"), ("SHIPPING","Đang giao"), ("COMPLETED","Hoàn tất"), ("CANCELLED","Đã hủy") })
+        {
+            <a href="@Url.Action("History", "Order", new { status = val, page = 1 })"
+               class="status-tab @(currentStatus == val ? "active" : "")">@lbl</a>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty-state">
+            <div class="emoji">🛒</div>
+            <p>Chưa có đơn hàng nào trong mục này</p>
+            <a href="@Url.Action("Index", "Product")" class="btn-detail" style="padding:12px 28px;font-size:0.95rem;">Mua sắm ngay</a>
+        </div>
+    }
+    else
+    {
+        foreach (var order in Model)
+        {
+            <div class="order-card">
+                <div class="order-header">
+                    <div>
+                        <span class="order-code"># @order.Code</span>
+                        <span class="order-date" style="margin-left:12px;">@order.CreatedAt.AddHours(7).ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                    <span class="status-badge s-@order.Status">
+                        @{
+                            string sLbl = order.Status == "PENDING" ? "⏳ Chờ xử lý" :
+                                order.Status == "CONFIRMED" ? "✅ Đã xác nhận" :
+                                order.Status == "SHIPPING" ? "🚚 Đang giao" :
+                                order.Status == "COMPLETED" ? "🏠 Hoàn tất" : "❌ Đã hủy";
+                        }
+                        @sLbl
+                    </span>
+                </div>
+
+                <div class="order-items-row">
+                    @{
+                        var displayItems = order.Items.Take(4).ToList();
+                        int remaining = order.Items.Count - displayItems.Count;
+                    }
+                    @foreach (var item in displayItems)
+                    {
+                        if (!string.IsNullOrEmpty(item.ThumbnailUrl))
+                        {
+                            <img class="order-thumb" src="@item.ThumbnailUrl" title="@item.ProductName" alt="@item.ProductName" />
+                        }
+                        else
+                        {
+                            <div class="order-thumb-placeholder" title="@item.ProductName"><i class="fas fa-image"></i></div>
+                        }
+                    }
+                    @if (remaining > 0)
+                    {
+                        <div class="more-items">+@remaining</div>
+                    }
+                </div>
+
+                <div class="order-footer">
+                    <div>
+                        <div class="order-total">Tổng: <span>@order.Total.ToString("N0")đ</span></div>
+                        <div class="pay-method">
+                            @(order.PaymentMethod == "COD" ? "💵 COD" : order.PaymentMethod == "BANK_TRANSFER" ? "🏦 Chuyển khoản" : "💜 MoMo")
+                            &bull; @order.Items.Sum(i => i.Quantity) sản phẩm
+                        </div>
+                    </div>
+                    <div class="order-actions">
+                        @if (order.Status == "PENDING")
+                        {
+                            <button class="btn-cancel" onclick="cancelOrder(@order.Id)">Hủy đơn</button>
+                        }
+                        <a href="@Url.Action("Details", "Order", new { code = order.Code })" class="btn-detail">Xem chi tiết</a>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (totalPages > 1)
+        {
+            <div class="pagination">
+                @for (int i = 1; i <= totalPages; i++)
+                {
+                    <a href="@Url.Action("History", "Order", new { status = currentStatus, page = i })"
+                       class="page-btn @(page == i ? "active" : "")">@i</a>
+                }
+            </div>
+        }
+    }
+</div>
+
+<script>
+function cancelOrder(orderId) {
+    if (!confirm('Bạn có chắc muốn hủy đơn hàng này?')) return;
+    var reason = prompt('Lý do hủy (tùy chọn):', 'Tôi muốn thay đổi đơn hàng') || '';
+    fetch('@Url.Action("Cancel", "Order")', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'orderId=' + orderId + '&reason=' + encodeURIComponent(reason)
+    }).then(r => r.json()).then(data => {
+        if (data.success) {
+            alert('✅ ' + data.message);
+            location.reload();
+        } else {
+            alert('❌ ' + data.message);
+        }
+    });
+}
+</script>

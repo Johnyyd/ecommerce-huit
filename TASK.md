@@ -117,29 +117,33 @@ gantt
 
 ---
 
-### 🔴 GIAI ĐOẠN 5: GIAO DỊCH THƯƠNG MẠI & ĐƠN HÀNG (CHƯA TRIỂN KHAI)
+### 🟢 GIAI ĐOẠN 5: GIAO DỊCH THƯƠNG MẠI & ĐƠN HÀNG (ĐÃ HOÀN THÀNH ✅)
 
-- [ ] **10. Thanh toán (Checkout Flow)**
-  - [ ] Xây dựng quy trình thanh toán đa bước (Multi-step Checkout) trực quan:
+- [x] **10. Thanh toán (Checkout Flow)**
+  - [x] Xây dựng quy trình thanh toán đa bước (Multi-step Checkout) trực quan:
     - *Bước 1*: Thông tin vận chuyển (Chọn từ Sổ địa chỉ hoặc nhập mới)
-    - *Bước 2*: Lựa chọn hình thức thanh toán (COD, Chuyển khoản, Ví điện tử)
-    - *Bước 3*: Đơn vị vận chuyển và Áp dụng mã giảm giá (Voucher)
-    - *Bước 4*: Xác nhận đơn hàng & Tóm tắt chi phí (Tạm tính, Giảm giá, Phí ship, Tổng thanh toán)
-  - [ ] Thiết kế View `Views/Cart/Checkout.cshtml` phục vụ quy trình này
-  - [ ] Viết logic kiểm tra tồn kho tại thời điểm checkout, trừ lượng `quantity_on_hand` và tăng `quantity_reserved`
-  - [ ] Mô phỏng Cổng thanh toán (VNPAY / MoMo / Stripe) phục vụ môi trường Demo
+    - *Bước 2*: Lựa chọn hình thức thanh toán (COD, Chuyển khoản, MoMo - QR demo)
+    - *Bước 3*: Áp dụng mã giảm giá (Voucher) qua AJAX
+    - *Bước 4*: Xác nhận đơn hàng & Tóm tắt chi phí (Tạm tính, Giảm giá, Phí ship, Tổng)
+  - [x] Thiết kế View `Views/Cart/Checkout.cshtml` phục vụ quy trình này
+  - [x] Thiết kế View `Views/Cart/OrderConfirmation.cshtml` trang cảm ơn + timeline
+  - [x] Viết logic kiểm tra tồn kho tại thời điểm checkout, tăng `quantity_reserved`
+  - [x] Phí ship tự động: Miễn phí từ 500.000đ, dưới đó thu 30.000đ
 
-- [ ] **11. Quản lý đơn hàng**
-  - [ ] Xây dựng `OrderController.cs` xử lý đơn hàng
-  - [ ] Thiết kế trang Lịch sử mua hàng (`Views/Order/History.cshtml`) cho khách hàng xem danh sách đơn hàng đã mua
-  - [ ] Thiết kế trang Chi tiết đơn hàng (`Views/Order/Details.cshtml`) kèm theo timeline trạng thái đơn hàng và thông tin serial/IMEI của sản phẩm được mua
-  - [ ] Xây dựng trang Quản lý Đơn hàng cho Admin (`Views/Order/Manage.cshtml`)
-    - Hỗ trợ đổi trạng thái đơn hàng (PENDING -> CONFIRMED -> PROCESSING -> SHIPPING -> COMPLETED/CANCELLED)
-    - Cơ chế gán Serial Number cụ thể vào Order Item khi đóng gói hàng
+- [x] **11. Quản lý đơn hàng**
+  - [x] Xây dựng `OrderController.cs` xử lý đơn hàng (User + Admin)
+  - [x] Thiết kế trang Lịch sử mua hàng (`Views/Order/History.cshtml`) với tabs lọc trạng thái
+  - [x] Thiết kế trang Chi tiết đơn hàng (`Views/Order/Details.cshtml`) kèm timeline dọc trực quan
+  - [x] Xây dựng trang Quản lý Đơn hàng cho Admin (`Views/Order/Manage.cshtml`)
+    - KPI Stats Dashboard (Chờ xử lý, Xác nhận, Đang giao, Hoàn tất, Đã hủy)
+    - Hỗ trợ đổi trạng thái đơn hàng qua AJAX (PENDING→CONFIRMED→SHIPPING→COMPLETED/CANCELLED)
+    - Cơ chế gán Serial Number via AssignSerial AJAX action
 
-- [ ] **12. Quản lý khuyến mãi (Promotion)**
-  - [ ] Tạo `VoucherController.cs` phục vụ nghiệp vụ Admin & áp dụng Voucher
-  - [ ] Thiết kế giao diện Quản lý Voucher cho Admin (`Views/Voucher/Index.cshtml`, `Create.cshtml`)
-    - Cấu hình mã voucher, loại giảm giá (% hoặc số tiền), giá trị giảm, mức giảm tối đa, giá trị đơn hàng tối thiểu, ngày bắt đầu/kết thúc
-  - [ ] Tích hợp API áp dụng voucher bằng AJAX ngay tại trang giỏ hàng và thanh toán
-  - [ ] Cập nhật số lượng sử dụng voucher (`usage_count`) và ghi nhận vào bảng `voucher_usages` khi thanh toán thành công
+- [x] **12. Quản lý khuyến mãi (Promotion)**
+  - [x] Tạo `VoucherController.cs` phục vụ nghiệp vụ Admin & áp dụng Voucher
+  - [x] Thiết kế giao diện Quản lý Voucher cho Admin (`Views/Voucher/Index.cshtml`, `Create.cshtml`, `Edit.cshtml`)
+    - Cấu hình mã, loại giảm (PERCENT/FIXED), giảm tối đa, min order, ngày bắt đầu/kết thúc, giới hạn lượt
+    - Toggle trạng thái AJAX, usage bar progress
+  - [x] Tích hợp API áp dụng voucher bằng AJAX tại trang Checkout (`/Voucher/Apply`)
+  - [x] Cập nhật `usage_count` và ghi nhận `voucher_usages` khi thanh toán thành công
+  - [x] CartService: ApplyVoucherAsync, RemoveVoucherAsync với full validation logic

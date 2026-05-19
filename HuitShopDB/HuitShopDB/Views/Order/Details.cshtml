@@ -1,0 +1,254 @@
+@model HuitShopDB.Models.DTOs.Order.OrderResponseDto
+@{
+    ViewBag.Title = "Chi tiết đơn hàng #" + Model.Code + " - HUIT Shop";
+    var statusOrder = new[] { "PENDING", "CONFIRMED", "SHIPPING", "COMPLETED" };
+    int currentIdx = Array.IndexOf(statusOrder, Model.Status);
+    bool isCancelled = Model.Status == "CANCELLED";
+}
+<style>
+    body { background: #0f0f17; }
+    .detail-wrap { max-width: 920px; margin: 0 auto; padding: 30px 20px 80px; }
+    .back-link { color: #6c63ff; text-decoration: none; font-size: 0.88rem; margin-bottom: 20px; display: inline-flex; align-items: center; gap: 6px; }
+    .back-link:hover { text-decoration: underline; color: #6c63ff; }
+    .detail-title { color: #fff; font-size: 1.6rem; font-weight: 800; margin-bottom: 6px; }
+    .detail-sub { color: #888; font-size: 0.88rem; margin-bottom: 30px; }
+    .status-badge { display: inline-block; padding: 6px 18px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; margin-left: 14px; vertical-align: middle; }
+    .s-PENDING { background: rgba(255,193,7,0.15); color: #ffc107; }
+    .s-CONFIRMED { background: rgba(0,191,255,0.15); color: #00bfff; }
+    .s-SHIPPING { background: rgba(108,99,255,0.15); color: #6c63ff; }
+    .s-COMPLETED { background: rgba(46,213,115,0.15); color: #2ed573; }
+    .s-CANCELLED { background: rgba(255,71,87,0.15); color: #ff4757; }
+    .card-section { background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 16px; padding: 26px; margin-bottom: 22px; }
+    .section-title { color: #fff; font-size: 0.95rem; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+    .section-title i { color: #6c63ff; }
+    /* Timeline */
+    .timeline { position: relative; padding-left: 30px; }
+    .timeline::before { content:''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: #2a2a3e; }
+    .tl-item { position: relative; margin-bottom: 24px; }
+    .tl-item:last-child { margin-bottom: 0; }
+    .tl-dot { width: 22px; height: 22px; border-radius: 50%; position: absolute; left: -22px; top: 0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; border: 2px solid; }
+    .tl-dot.done { background: #6c63ff; border-color: #6c63ff; color: #fff; }
+    .tl-dot.current { background: transparent; border-color: #6c63ff; color: #6c63ff; animation: pulse 1.5s infinite; }
+    .tl-dot.future { background: #12122a; border-color: #2a2a3e; color: #555; }
+    .tl-dot.cancelled { background: rgba(255,71,87,0.2); border-color: #ff4757; color: #ff4757; }
+    @@keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(108,99,255,0.4)} 50%{box-shadow:0 0 0 6px rgba(108,99,255,0)} }
+    .tl-content { padding-left: 6px; }
+    .tl-status { color: #fff; font-weight: 700; font-size: 0.88rem; }
+    .tl-note { color: #888; font-size: 0.82rem; margin-top: 2px; }
+    .tl-time { color: #555; font-size: 0.78rem; margin-top: 2px; }
+    /* Info rows */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    .info-item { padding: 10px 0; border-bottom: 1px solid #1f1f35; }
+    .info-item:nth-last-child(-n+2) { border-bottom: none; }
+    .info-label { color: #666; font-size: 0.8rem; margin-bottom: 4px; }
+    .info-val { color: #e0e0e0; font-size: 0.88rem; font-weight: 600; }
+    /* Product table */
+    .product-table { width: 100%; border-collapse: collapse; }
+    .product-table th { color: #666; font-size: 0.78rem; font-weight: 600; padding: 8px 0; border-bottom: 1px solid #2a2a3e; text-align: left; }
+    .product-table td { padding: 14px 0; border-bottom: 1px solid #1f1f35; vertical-align: middle; }
+    .product-table tr:last-child td { border-bottom: none; }
+    .prod-img { width: 52px; height: 52px; border-radius: 10px; object-fit: cover; background: #12122a; }
+    .prod-name { color: #e0e0e0; font-size: 0.88rem; font-weight: 600; }
+    .prod-sku { color: #666; font-size: 0.76rem; }
+    .serial-tag { display: inline-block; background: rgba(46,213,115,0.1); border: 1px solid rgba(46,213,115,0.3); color: #2ed573; font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; margin: 2px; }
+    /* Totals */
+    .totals { background: #12122a; border-radius: 12px; padding: 18px; }
+    .totals-row { display: flex; justify-content: space-between; font-size: 0.88rem; color: #aaa; padding: 6px 0; }
+    .totals-row.grand { font-size: 1.05rem; color: #fff; font-weight: 800; border-top: 1px solid #2a2a3e; margin-top: 10px; padding-top: 12px; }
+    .totals-row.grand .tv { color: #6c63ff; font-size: 1.2rem; }
+    .action-row { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+    .btn-back { background: #1a1a2e; border: 1px solid #2a2a3e; color: #e0e0e0; padding: 10px 22px; border-radius: 12px; text-decoration: none; font-size: 0.88rem; font-weight: 600; }
+    .btn-back:hover { border-color: #6c63ff; color: #fff; text-decoration: none; }
+    .btn-cancel-order { background: rgba(255,71,87,0.1); border: 1px solid rgba(255,71,87,0.3); color: #ff4757; padding: 10px 22px; border-radius: 12px; font-size: 0.88rem; font-weight: 600; cursor: pointer; }
+</style>
+
+<div class="detail-wrap">
+    <a href="@Url.Action("History", "Order")" class="back-link">← Quay lại lịch sử đơn hàng</a>
+
+    <h1 class="detail-title">
+        Chi tiết đơn hàng
+        <span class="status-badge s-@Model.Status">
+            @(Model.Status == "PENDING" ? "⏳ Chờ xử lý" :
+              Model.Status == "CONFIRMED" ? "✅ Đã xác nhận" :
+              Model.Status == "SHIPPING" ? "🚚 Đang giao hàng" :
+              Model.Status == "COMPLETED" ? "🏠 Đã hoàn tất" : "❌ Đã hủy")
+        </span>
+    </h1>
+    <p class="detail-sub">Mã đơn hàng: <strong style="color:#6c63ff;">@Model.Code</strong> &bull; Đặt lúc @Model.CreatedAt.AddHours(7).ToString("HH:mm - dd/MM/yyyy")</p>
+
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Timeline -->
+            <div class="card-section">
+                <div class="section-title"><i class="fas fa-route"></i> Trạng thái đơn hàng</div>
+                <div class="timeline">
+                    @if (isCancelled)
+                    {
+                        <div class="tl-item">
+                            <div class="tl-dot done">✓</div>
+                            <div class="tl-content">
+                                <div class="tl-status">Đơn hàng được tạo</div>
+                                <div class="tl-time">@Model.CreatedAt.AddHours(7).ToString("HH:mm dd/MM/yyyy")</div>
+                            </div>
+                        </div>
+                        <div class="tl-item">
+                            <div class="tl-dot cancelled">✕</div>
+                            <div class="tl-content">
+                                <div class="tl-status" style="color:#ff4757;">Đơn hàng đã bị hủy</div>
+                                @{
+                                    var cancelEntry = Model.StatusHistory.LastOrDefault(h => h.Status == "CANCELLED");
+                                }
+                                @if (cancelEntry != null)
+                                {
+                                    <div class="tl-note">@cancelEntry.Note</div>
+                                    <div class="tl-time">@cancelEntry.CreatedAt.AddHours(7).ToString("HH:mm dd/MM/yyyy")</div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var sh in Model.StatusHistory)
+                        {
+                            bool isDone = Array.IndexOf(statusOrder, sh.Status) <= currentIdx;
+                            bool isCurrent = sh.Status == Model.Status;
+                            <div class="tl-item">
+                                <div class="tl-dot @(isDone ? "done" : "future")">
+                                    @(isDone ? "✓" : "○")
+                                </div>
+                                <div class="tl-content">
+                                    <div class="tl-status" style="@(isCurrent ? "color:#6c63ff;" : "")">
+                                        @(sh.Status == "PENDING" ? "Đơn hàng được tạo" :
+                                          sh.Status == "CONFIRMED" ? "Đã xác nhận đơn hàng" :
+                                          sh.Status == "SHIPPING" ? "Đang vận chuyển" : "Giao hàng thành công")
+                                    </div>
+                                    @if (!string.IsNullOrEmpty(sh.Note))
+                                    {
+                                        <div class="tl-note">@sh.Note</div>
+                                    }
+                                    <div class="tl-time">@sh.CreatedAt.AddHours(7).ToString("HH:mm - dd/MM/yyyy")</div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- Sản phẩm -->
+            <div class="card-section">
+                <div class="section-title"><i class="fas fa-box"></i> Sản phẩm trong đơn</div>
+                <table class="product-table">
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th style="text-align:center;">SL</th>
+                            <th style="text-align:right;">Đơn giá</th>
+                            <th style="text-align:right;">Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <div style="display:flex;gap:12px;align-items:center;">
+                                        @if (!string.IsNullOrEmpty(item.ThumbnailUrl))
+                                        {
+                                            <img class="prod-img" src="@item.ThumbnailUrl" alt="@item.ProductName" />
+                                        }
+                                        else
+                                        {
+                                            <div class="prod-img" style="display:flex;align-items:center;justify-content:center;color:#555;"><i class="fas fa-image"></i></div>
+                                        }
+                                        <div>
+                                            <div class="prod-name">@item.ProductName</div>
+                                            <div class="prod-sku">SKU: @item.Sku</div>
+                                            @if (item.SerialNumbers != null && item.SerialNumbers.Any())
+                                            {
+                                                <div style="margin-top:6px;">
+                                                    @foreach (var sn in item.SerialNumbers)
+                                                    {
+                                                        <span class="serial-tag">SN: @sn</span>
+                                                    }
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="text-align:center;color:#e0e0e0;">@item.Quantity</td>
+                                <td style="text-align:right;color:#aaa;">@item.UnitPrice.ToString("N0")đ</td>
+                                <td style="text-align:right;color:#6c63ff;font-weight:700;">@item.TotalPrice.ToString("N0")đ</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Thông tin đặt hàng -->
+            <div class="card-section">
+                <div class="section-title"><i class="fas fa-info-circle"></i> Thông tin đặt hàng</div>
+                <div style="font-size:0.85rem;">
+                    <div style="margin-bottom:12px;">
+                        <div class="info-label">Phương thức thanh toán</div>
+                        <div class="info-val">@(Model.PaymentMethod == "COD" ? "💵 Thanh toán khi nhận hàng" : Model.PaymentMethod == "BANK_TRANSFER" ? "🏦 Chuyển khoản ngân hàng" : "💜 Ví MoMo")</div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.FullAddress))
+                    {
+                        <div style="margin-bottom:12px;">
+                            <div class="info-label">Địa chỉ giao hàng</div>
+                            <div class="info-val">@Model.RecipientName</div>
+                            <div style="color:#888;font-size:0.8rem;">📞 @Model.RecipientPhone</div>
+                            <div style="color:#888;font-size:0.8rem;margin-top:4px;">📍 @Model.FullAddress</div>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.Note))
+                    {
+                        <div>
+                            <div class="info-label">Ghi chú</div>
+                            <div class="info-val">@Model.Note</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Tổng tiền -->
+            <div class="card-section">
+                <div class="section-title"><i class="fas fa-receipt"></i> Tóm tắt thanh toán</div>
+                <div class="totals">
+                    <div class="totals-row"><span>Tạm tính</span><span>@Model.Subtotal.ToString("N0")đ</span></div>
+                    @if (Model.Discount > 0)
+                    {
+                        <div class="totals-row" style="color:#2ed573;"><span>Giảm giá</span><span>-@Model.Discount.ToString("N0")đ</span></div>
+                    }
+                    <div class="totals-row"><span>Phí vận chuyển</span><span>@(Model.ShippingFee == 0 ? "Miễn phí" : Model.ShippingFee.ToString("N0") + "đ")</span></div>
+                    <div class="totals-row grand"><span>Tổng cộng</span><span class="tv">@Model.Total.ToString("N0")đ</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-row">
+        <a href="@Url.Action("History", "Order")" class="btn-back">← Lịch sử mua hàng</a>
+        @if (Model.Status == "PENDING")
+        {
+            <button class="btn-cancel-order" onclick="cancelOrder(@Model.Id)">❌ Hủy đơn hàng</button>
+        }
+    </div>
+</div>
+
+<script>
+function cancelOrder(orderId) {
+    if (!confirm('Bạn có chắc muốn hủy đơn hàng này không?')) return;
+    var reason = prompt('Lý do hủy (tùy chọn):') || '';
+    fetch('@Url.Action("Cancel", "Order")', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'orderId=' + orderId + '&reason=' + encodeURIComponent(reason)
+    }).then(r => r.json()).then(data => {
+        alert(data.success ? '✅ ' + data.message : '❌ ' + data.message);
+        if (data.success) location.reload();
+    });
+}
+</script>

@@ -1,0 +1,141 @@
+@model HuitShopDB.Models.DTOs.Order.OrderResponseDto
+@{
+    ViewBag.Title = "Đặt hàng thành công - HUIT Shop";
+}
+<style>
+    body { background: #0f0f17; }
+    .confirm-wrap { max-width: 780px; margin: 60px auto; padding: 0 20px 80px; text-align: center; }
+    .success-icon { font-size: 5rem; margin-bottom: 20px; animation: bounceIn 0.8s ease; }
+    @@keyframes bounceIn { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
+    .confirm-title { color: #fff; font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+    .confirm-sub { color: #aaa; font-size: 0.95rem; margin-bottom: 40px; }
+    .order-code-badge { display: inline-block; background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.4); color: #6c63ff; font-size: 1.1rem; font-weight: 700; padding: 10px 28px; border-radius: 50px; margin-bottom: 40px; }
+    .confirm-card { background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 20px; padding: 30px; margin-bottom: 24px; text-align: left; }
+    .confirm-card-title { color: #fff; font-size: 0.95rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .confirm-card-title i { color: #6c63ff; }
+    .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1f1f35; font-size: 0.88rem; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: #888; }
+    .info-val { color: #e0e0e0; font-weight: 600; }
+    .item-row { display: flex; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid #1f1f35; }
+    .item-row:last-child { border-bottom: none; }
+    .item-thumb { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; background: #12122a; flex-shrink: 0; }
+    .item-details { flex: 1; }
+    .item-name { color: #e0e0e0; font-size: 0.88rem; }
+    .item-sku { color: #666; font-size: 0.78rem; }
+    .item-qty { color: #aaa; font-size: 0.83rem; }
+    .item-total { color: #6c63ff; font-weight: 700; font-size: 0.9rem; flex-shrink: 0; }
+    .totals-section { background: #12122a; border-radius: 14px; padding: 20px; }
+    .totals-row { display: flex; justify-content: space-between; font-size: 0.88rem; color: #aaa; padding: 6px 0; }
+    .totals-row.grand { font-size: 1.1rem; color: #fff; font-weight: 800; border-top: 1px solid #2a2a3e; margin-top: 10px; padding-top: 14px; }
+    .totals-row.grand .tval { color: #6c63ff; }
+    .payment-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(46,213,115,0.1); border: 1px solid #2ed573; border-radius: 8px; padding: 5px 12px; color: #2ed573; font-size: 0.82rem; }
+    .status-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
+    .status-PENDING { background: rgba(255,193,7,0.15); color: #ffc107; }
+    .action-btns { display: flex; gap: 14px; justify-content: center; margin-top: 40px; flex-wrap: wrap; }
+    .btn-primary-action { background: linear-gradient(135deg, #6c63ff, #a855f7); color: #fff; padding: 13px 30px; border-radius: 14px; text-decoration: none; font-weight: 700; font-size: 0.95rem; border: none; }
+    .btn-secondary-action { background: #1a1a2e; border: 1px solid #2a2a3e; color: #e0e0e0; padding: 13px 30px; border-radius: 14px; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+    .btn-primary-action:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(108,99,255,0.4); color: #fff; text-decoration: none; }
+    .btn-secondary-action:hover { border-color: #6c63ff; color: #fff; text-decoration: none; }
+    .timeline-mini { display: flex; gap: 0; margin-top: 10px; }
+    .tl-step { flex: 1; text-align: center; position: relative; }
+    .tl-step::before { content:''; position: absolute; top: 14px; left: 50%; right: -50%; height: 2px; background: #2a2a3e; z-index: 0; }
+    .tl-step:last-child::before { display: none; }
+    .tl-dot { width: 30px; height: 30px; border-radius: 50%; background: #2a2a3e; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; position: relative; z-index: 1; }
+    .tl-dot.active { background: #6c63ff; }
+    .tl-label { color: #666; font-size: 0.72rem; }
+    .tl-label.active { color: #6c63ff; font-weight: 700; }
+</style>
+
+<div class="confirm-wrap">
+    <div class="success-icon">🎉</div>
+    <h1 class="confirm-title">Đặt hàng thành công!</h1>
+    <p class="confirm-sub">Cảm ơn bạn đã mua sắm tại HUIT Shop. Chúng tôi sẽ xử lý đơn hàng ngay!</p>
+
+    <div class="order-code-badge">
+        <i class="fas fa-receipt"></i> &nbsp; Mã đơn hàng: <strong>@Model.Code</strong>
+    </div>
+
+    <!-- Timeline trạng thái -->
+    <div class="confirm-card" style="margin-bottom:24px;">
+        <div class="confirm-card-title"><i class="fas fa-route"></i> Theo dõi trạng thái đơn hàng</div>
+        <div class="timeline-mini">
+            @{
+                var steps = new[] { ("PENDING","⏳","Chờ xử lý"), ("CONFIRMED","✅","Xác nhận"), ("SHIPPING","🚚","Đang giao"), ("COMPLETED","🏠","Hoàn tất") };
+                int activeStep = 0;
+            }
+            @foreach (var (key, icon, label) in steps)
+            {
+                bool isActive = Model.Status == key || activeStep == 0;
+                bool isPast = false;
+                var stepOrder = new[] { "PENDING", "CONFIRMED", "SHIPPING", "COMPLETED" };
+                isPast = Array.IndexOf(stepOrder, Model.Status) >= Array.IndexOf(stepOrder, key);
+                <div class="tl-step">
+                    <div class="tl-dot @(isPast ? "active" : "")">@(isPast ? "✓" : icon)</div>
+                    <div class="tl-label @(Model.Status == key ? "active" : "")">@label</div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Thông tin đơn hàng -->
+    <div class="confirm-card">
+        <div class="confirm-card-title"><i class="fas fa-info-circle"></i> Thông tin đơn hàng</div>
+        <div class="info-row"><span class="info-label">Ngày đặt</span><span class="info-val">@Model.CreatedAt.AddHours(7).ToString("HH:mm - dd/MM/yyyy")</span></div>
+        <div class="info-row"><span class="info-label">Phương thức TT</span><span class="info-val">@(Model.PaymentMethod == "COD" ? "💵 Thanh toán khi nhận hàng" : Model.PaymentMethod == "BANK_TRANSFER" ? "🏦 Chuyển khoản ngân hàng" : "💜 Ví MoMo")</span></div>
+        <div class="info-row"><span class="info-label">Trạng thái thanh toán</span><span class="info-val"><span class="payment-badge"><i class="fas fa-circle" style="font-size:0.6rem;"></i> @(Model.PaymentStatus == "PAID" ? "Đã thanh toán" : "Chờ thanh toán")</span></span></div>
+        @if (!string.IsNullOrEmpty(Model.FullAddress))
+        {
+            <div class="info-row"><span class="info-label">Giao đến</span><span class="info-val">@Model.RecipientName — @Model.FullAddress</span></div>
+        }
+        @if (!string.IsNullOrEmpty(Model.Note))
+        {
+            <div class="info-row"><span class="info-label">Ghi chú</span><span class="info-val">@Model.Note</span></div>
+        }
+    </div>
+
+    <!-- Sản phẩm đã mua -->
+    <div class="confirm-card">
+        <div class="confirm-card-title"><i class="fas fa-shopping-bag"></i> Sản phẩm trong đơn hàng</div>
+        @foreach (var item in Model.Items)
+        {
+            <div class="item-row">
+                @if (!string.IsNullOrEmpty(item.ThumbnailUrl))
+                {
+                    <img class="item-thumb" src="@item.ThumbnailUrl" alt="@item.ProductName" />
+                }
+                else
+                {
+                    <div class="item-thumb" style="display:flex;align-items:center;justify-content:center;color:#555;"><i class="fas fa-image"></i></div>
+                }
+                <div class="item-details">
+                    <div class="item-name">@item.ProductName</div>
+                    <div class="item-sku">SKU: @item.Sku</div>
+                    <div class="item-qty">x@item.Quantity &nbsp; @item.UnitPrice.ToString("N0")đ/cái</div>
+                </div>
+                <div class="item-total">@item.TotalPrice.ToString("N0")đ</div>
+            </div>
+        }
+        <div class="totals-section" style="margin-top:16px;">
+            <div class="totals-row"><span>Tạm tính</span><span class="tval">@Model.Subtotal.ToString("N0")đ</span></div>
+            @if (Model.Discount > 0)
+            {
+                <div class="totals-row" style="color:#2ed573;"><span>Giảm giá voucher</span><span>-@Model.Discount.ToString("N0")đ</span></div>
+            }
+            <div class="totals-row"><span>Phí vận chuyển</span><span class="tval">@(Model.ShippingFee == 0 ? "Miễn phí" : Model.ShippingFee.ToString("N0") + "đ")</span></div>
+            <div class="totals-row grand"><span>Tổng thanh toán</span><span class="tval">@Model.Total.ToString("N0")đ</span></div>
+        </div>
+    </div>
+
+    <div class="action-btns">
+        <a href="@Url.Action("Details", "Order", new { code = Model.Code })" class="btn-primary-action">
+            <i class="fas fa-eye"></i> Xem chi tiết đơn hàng
+        </a>
+        <a href="@Url.Action("History", "Order")" class="btn-secondary-action">
+            <i class="fas fa-list"></i> Lịch sử mua hàng
+        </a>
+        <a href="@Url.Action("Index", "Product")" class="btn-secondary-action">
+            <i class="fas fa-shopping-bag"></i> Tiếp tục mua sắm
+        </a>
+    </div>
+</div>

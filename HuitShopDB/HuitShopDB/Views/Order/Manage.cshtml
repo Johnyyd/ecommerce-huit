@@ -1,0 +1,175 @@
+@model IEnumerable<HuitShopDB.Models.DTOs.Order.OrderResponseDto>
+@{
+    ViewBag.Title = "Quản lý đơn hàng - Admin";
+    string currentStatus = ViewBag.Status ?? "ALL";
+    string keyword = ViewBag.Keyword ?? "";
+    int page = ViewBag.Page ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+}
+<style>
+    body { background: #0f0f17; }
+    .manage-wrap { max-width: 1300px; margin: 0 auto; padding: 30px 20px 80px; }
+    .page-title { color: #fff; font-size: 1.7rem; font-weight: 800; margin-bottom: 8px; }
+    .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 28px; }
+    .kpi-card { background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 14px; padding: 16px; text-align: center; }
+    .kpi-num { font-size: 1.6rem; font-weight: 800; }
+    .kpi-label { color: #888; font-size: 0.78rem; margin-top: 4px; }
+    .filter-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+    .filter-input { background: #1a1a2e; border: 1px solid #2a2a3e; color: #fff; padding: 9px 14px; border-radius: 10px; font-size: 0.85rem; min-width: 220px; }
+    .filter-input:focus { outline: none; border-color: #6c63ff; }
+    .filter-select { background: #1a1a2e; border: 1px solid #2a2a3e; color: #fff; padding: 9px 14px; border-radius: 10px; font-size: 0.85rem; }
+    .btn-filter { background: #6c63ff; color: #fff; border: none; padding: 9px 20px; border-radius: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    .admin-table { width: 100%; border-collapse: collapse; }
+    .admin-table th { background: #12122a; color: #888; font-size: 0.75rem; font-weight: 700; padding: 10px 12px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; }
+    .admin-table td { padding: 14px 12px; border-bottom: 1px solid #1f1f35; vertical-align: middle; color: #e0e0e0; font-size: 0.85rem; }
+    .admin-table tr:hover td { background: rgba(108,99,255,0.04); }
+    .order-code-link { color: #6c63ff; font-weight: 700; text-decoration: none; }
+    .order-code-link:hover { text-decoration: underline; }
+    .s-badge { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .s-PENDING { background: rgba(255,193,7,0.15); color: #ffc107; }
+    .s-CONFIRMED { background: rgba(0,191,255,0.15); color: #00bfff; }
+    .s-SHIPPING { background: rgba(108,99,255,0.15); color: #6c63ff; }
+    .s-COMPLETED { background: rgba(46,213,115,0.15); color: #2ed573; }
+    .s-CANCELLED { background: rgba(255,71,87,0.15); color: #ff4757; }
+    .status-select { background: #12122a; border: 1px solid #2a2a3e; color: #fff; padding: 5px 10px; border-radius: 8px; font-size: 0.78rem; cursor: pointer; }
+    .btn-view { background: rgba(108,99,255,0.15); color: #6c63ff; border: 1px solid rgba(108,99,255,0.3); padding: 5px 12px; border-radius: 7px; text-decoration: none; font-size: 0.78rem; font-weight: 600; }
+    .btn-view:hover { background: #6c63ff; color: #fff; text-decoration: none; }
+    .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 28px; }
+    .page-btn { width: 36px; height: 36px; border-radius: 9px; background: #1a1a2e; border: 1px solid #2a2a3e; color: #aaa; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 0.82rem; }
+    .page-btn.active { background: #6c63ff; border-color: #6c63ff; color: #fff; }
+    .page-btn:hover { border-color: #6c63ff; color: #fff; text-decoration: none; }
+    .customer-cell .name { color: #e0e0e0; font-weight: 600; font-size: 0.83rem; }
+    .customer-cell .email { color: #666; font-size: 0.75rem; }
+    @@media (max-width: 900px) { .kpi-row { grid-template-columns: repeat(3,1fr); } }
+</style>
+
+<div class="manage-wrap">
+    <h1 class="page-title">📋 Quản lý Đơn hàng</h1>
+
+    <!-- KPI Stats -->
+    <div class="kpi-row">
+        <div class="kpi-card"><div class="kpi-num" style="color:#ffc107;">@ViewBag.PendingCount</div><div class="kpi-label">⏳ Chờ xử lý</div></div>
+        <div class="kpi-card"><div class="kpi-num" style="color:#00bfff;">@ViewBag.ConfirmedCount</div><div class="kpi-label">✅ Đã xác nhận</div></div>
+        <div class="kpi-card"><div class="kpi-num" style="color:#6c63ff;">@ViewBag.ShippingCount</div><div class="kpi-label">🚚 Đang giao</div></div>
+        <div class="kpi-card"><div class="kpi-num" style="color:#2ed573;">@ViewBag.CompletedCount</div><div class="kpi-label">🏠 Hoàn tất</div></div>
+        <div class="kpi-card"><div class="kpi-num" style="color:#ff4757;">@ViewBag.CancelledCount</div><div class="kpi-label">❌ Đã hủy</div></div>
+    </div>
+
+    <!-- Filter Bar -->
+    <form method="get" action="@Url.Action("Manage")">
+        <div class="filter-bar">
+            <input name="keyword" class="filter-input" placeholder="🔍 Tìm mã đơn hàng..." value="@keyword" />
+            <select name="status" class="filter-select">
+                @foreach (var (val, lbl) in new[] { ("ALL","Tất cả trạng thái"), ("PENDING","Chờ xử lý"), ("CONFIRMED","Đã xác nhận"), ("SHIPPING","Đang giao"), ("COMPLETED","Hoàn tất"), ("CANCELLED","Đã hủy") })
+                {
+                    <option value="@val" @(currentStatus == val ? "selected" : "")>@lbl</option>
+                }
+            </select>
+            <button type="submit" class="btn-filter"><i class="fas fa-search"></i> Tìm kiếm</button>
+            <a href="@Url.Action("Manage")" style="color:#888;font-size:0.85rem;text-decoration:none;">Xóa bộ lọc</a>
+        </div>
+    </form>
+
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Mã đơn</th>
+                <th>Khách hàng</th>
+                <th>Sản phẩm</th>
+                <th>Tổng tiền</th>
+                <th>Thanh toán</th>
+                <th>Trạng thái</th>
+                <th>Ngày đặt</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>
+                        <a href="@Url.Action("AdminDetails", "Order", new { id = order.Id })" class="order-code-link">@order.Code</a>
+                    </td>
+                    <td>
+                        <div class="customer-cell">
+                            <div class="name">@(string.IsNullOrEmpty(order.UserName) ? order.RecipientName : order.UserName)</div>
+                            <div class="email">@order.UserEmail</div>
+                        </div>
+                    </td>
+                    <td style="color:#aaa;">@order.Items.Count sản phẩm</td>
+                    <td style="color:#6c63ff;font-weight:700;">@order.Total.ToString("N0")đ</td>
+                    <td style="color:#aaa;font-size:0.78rem;">@(order.PaymentMethod == "COD" ? "💵 COD" : order.PaymentMethod == "BANK_TRANSFER" ? "🏦 CK" : "💜 MoMo")</td>
+                    <td>
+                        <span class="s-badge s-@order.Status" id="status-badge-@order.Id">
+                            @(order.Status == "PENDING" ? "⏳ Chờ xử lý" :
+                              order.Status == "CONFIRMED" ? "✅ Xác nhận" :
+                              order.Status == "SHIPPING" ? "🚚 Đang giao" :
+                              order.Status == "COMPLETED" ? "🏠 Hoàn tất" : "❌ Đã hủy")
+                        </span>
+                    </td>
+                    <td style="color:#888;font-size:0.78rem;">@order.CreatedAt.AddHours(7).ToString("dd/MM HH:mm")</td>
+                    <td>
+                        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                            <a href="@Url.Action("AdminDetails", "Order", new { id = order.Id })" class="btn-view">Chi tiết</a>
+                            @if (order.Status != "COMPLETED" && order.Status != "CANCELLED")
+                            {
+                                <select class="status-select" onchange="updateOrderStatus(@order.Id, this.value, this)">
+                                    <option value="">-- Đổi TT --</option>
+                                    @if (order.Status == "PENDING") { <option value="CONFIRMED">✅ Xác nhận</option> <option value="CANCELLED">❌ Hủy</option> }
+                                    @if (order.Status == "CONFIRMED") { <option value="SHIPPING">🚚 Giao hàng</option> <option value="CANCELLED">❌ Hủy</option> }
+                                    @if (order.Status == "SHIPPING") { <option value="COMPLETED">🏠 Hoàn tất</option> }
+                                </select>
+                            }
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (!Model.Any())
+    {
+        <div style="text-align:center;padding:60px;color:#888;">
+            <div style="font-size:3rem;margin-bottom:14px;">📭</div>
+            <p>Không có đơn hàng nào phù hợp với bộ lọc</p>
+        </div>
+    }
+
+    @if (totalPages > 1)
+    {
+        <div class="pagination">
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <a href="@Url.Action("Manage", new { status = currentStatus, keyword = keyword, page = i })"
+                   class="page-btn @(page == i ? "active" : "")">@i</a>
+            }
+        </div>
+    }
+</div>
+
+<script>
+function updateOrderStatus(orderId, newStatus, selectEl) {
+    if (!newStatus) return;
+    var note = '';
+    if (newStatus === 'CANCELLED') {
+        note = prompt('Lý do hủy đơn:', 'Admin hủy đơn') || 'Admin hủy đơn';
+    }
+    if (!confirm('Xác nhận đổi trạng thái đơn hàng?')) {
+        selectEl.value = '';
+        return;
+    }
+    fetch('@Url.Action("UpdateStatus", "Order")', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: 'orderId=' + orderId + '&newStatus=' + encodeURIComponent(newStatus) + '&note=' + encodeURIComponent(note)
+    }).then(r => r.json()).then(data => {
+        if (data.success) {
+            // Reload để cập nhật badge
+            location.reload();
+        } else {
+            alert('❌ ' + data.message);
+            selectEl.value = '';
+        }
+    });
+}
+</script>
