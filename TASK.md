@@ -135,6 +135,11 @@ gantt
     - KPI Stats Dashboard (Chờ xử lý, Xác nhận, Đang giao, Hoàn tất, Đã hủy)
     - Hỗ trợ đổi trạng thái đơn hàng qua AJAX (PENDING→CONFIRMED→SHIPPING→COMPLETED/CANCELLED)
     - Cơ chế gán Serial Number via AssignSerial AJAX action
+  - [x] Thống kê doanh thu cho Admin (`Views/Order/Revenue.cshtml`)
+    - Báo cáo KPI, tổng doanh số, giá trị đơn trung bình (AOV), số lượng sản phẩm bán ra
+    - Tích hợp biểu đồ trực quan (Chart.js) theo xu hướng doanh thu và trạng thái đơn hàng
+    - Bộ lọc thời gian linh hoạt (Hôm nay, hôm qua, 7 ngày, tháng này/trước, năm nay, tùy chỉnh)
+    - Bảng Top 10 sản phẩm bán chạy nhất và tỷ lệ doanh số theo danh mục sản phẩm
 
 - [x] **12. Quản lý khuyến mãi (Promotion)**
   - [x] Tạo `VoucherController.cs` phục vụ nghiệp vụ Admin & áp dụng Voucher

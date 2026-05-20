@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using HuitShopDB.Services;
 using HuitShopDB.Services.Interfaces;
 using HuitShopDB.Models.DTOs.Order;
+using HuitShopDB.Models.DTOs.Admin;
 using HuitShopDB.Models;
 using Newtonsoft.Json;
 
@@ -102,6 +103,170 @@ namespace HuitShopDB.Controllers
         }
 
         // ==================== ADMIN VIEWS ====================
+
+        // GET: /Order/Revenue
+        public ActionResult Revenue(string preset = "THIS_MONTH", DateTime? startDate = null, DateTime? endDate = null)
+        {
+            if (!IsAdmin()) return RedirectToAction("Login", "Auth");
+
+            DateTime nowLocal = DateTime.UtcNow.AddHours(7);
+            DateTime start = nowLocal.Date;
+            DateTime end = nowLocal.Date.AddDays(1).AddTicks(-1);
+
+            switch (preset)
+            {
+                case "TODAY":
+                    start = nowLocal.Date;
+                    end = nowLocal.Date.AddDays(1).AddTicks(-1);
+                    break;
+                case "YESTERDAY":
+                    start = nowLocal.Date.AddDays(-1);
+                    end = nowLocal.Date.AddTicks(-1);
+                    break;
+                case "LAST_7_DAYS":
+                    start = nowLocal.Date.AddDays(-6);
+                    end = nowLocal.Date.AddDays(1).AddTicks(-1);
+                    break;
+                case "THIS_MONTH":
+                    start = new DateTime(nowLocal.Year, nowLocal.Month, 1);
+                    end = nowLocal.Date.AddDays(1).AddTicks(-1);
+                    break;
+                case "LAST_MONTH":
+                    var firstDayOfLastMonth = new DateTime(nowLocal.Year, nowLocal.Month, 1).AddMonths(-1);
+                    start = firstDayOfLastMonth;
+                    end = new DateTime(nowLocal.Year, nowLocal.Month, 1).AddTicks(-1);
+                    break;
+                case "THIS_YEAR":
+                    start = new DateTime(nowLocal.Year, 1, 1);
+                    end = nowLocal.Date.AddDays(1).AddTicks(-1);
+                    break;
+                case "CUSTOM":
+                    if (startDate.HasValue) start = startDate.Value.Date;
+                    if (endDate.HasValue) end = endDate.Value.Date.AddDays(1).AddTicks(-1);
+                    break;
+                default:
+                    preset = "THIS_MONTH";
+                    start = new DateTime(nowLocal.Year, nowLocal.Month, 1);
+                    end = nowLocal.Date.AddDays(1).AddTicks(-1);
+                    break;
+            }
+
+            DateTime startUtc = start.AddHours(-7);
+            DateTime endUtc = end.AddHours(-7);
+
+            var periodOrders = _context.orders
+                .Where(o => o.created_at >= startUtc && o.created_at <= endUtc)
+                .ToList();
+
+            var completedOrders = periodOrders.Where(o => o.status == "COMPLETED").ToList();
+            var pendingOrders = periodOrders.Where(o => o.status == "PENDING" || o.status == "CONFIRMED" || o.status == "SHIPPING").ToList();
+            var cancelledOrders = periodOrders.Where(o => o.status == "CANCELLED").ToList();
+
+            var stats = new RevenueStatisticsDto();
+            stats.StartDate = start;
+            stats.EndDate = end;
+            stats.DatePreset = preset;
+
+            stats.TotalOrders = periodOrders.Count;
+            stats.CompletedOrdersCount = completedOrders.Count;
+            stats.PendingOrdersCount = pendingOrders.Count;
+            stats.CancelledOrdersCount = cancelledOrders.Count;
+
+            stats.TotalRevenue = completedOrders.Sum(o => o.total);
+            stats.PendingRevenue = pendingOrders.Sum(o => o.total);
+            stats.TotalDiscount = completedOrders.Sum(o => o.discount);
+
+            stats.TotalProductsSold = completedOrders
+                .SelectMany(o => o.order_items)
+                .Sum(oi => oi.quantity);
+
+            stats.AverageOrderValue = stats.CompletedOrdersCount > 0 
+                ? stats.TotalRevenue / stats.CompletedOrdersCount 
+                : 0m;
+
+            var allStatuses = new[] { "PENDING", "CONFIRMED", "SHIPPING", "COMPLETED", "CANCELLED" };
+            foreach (var status in allStatuses)
+            {
+                stats.OrderStatusCounts[status] = periodOrders.Count(o => o.status == status);
+            }
+
+            var dailyData = completedOrders
+                .GroupBy(o => o.created_at.AddHours(7).Date)
+                .Select(g => new DailyRevenueDto
+                {
+                    Date = g.Key.ToString("yyyy-MM-dd"),
+                    Revenue = g.Sum(o => o.total),
+                    OrderCount = g.Count()
+                })
+                .OrderBy(d => d.Date)
+                .ToList();
+
+            stats.DailyRevenue = dailyData;
+
+            var topProducts = completedOrders
+                .SelectMany(o => o.order_items)
+                .GroupBy(oi => new { oi.variant_id, oi.product_name, oi.sku })
+                .Select(g => new TopProductDto
+                {
+                    VariantId = g.Key.variant_id ?? 0,
+                    ProductName = g.Key.product_name,
+                    Sku = g.Key.sku,
+                    QuantitySold = g.Sum(oi => oi.quantity),
+                    TotalSales = g.Sum(oi => oi.total_price),
+                    ThumbnailUrl = g.FirstOrDefault()?.product_variant?.thumbnail_url ?? ""
+                })
+                .OrderByDescending(p => p.QuantitySold)
+                .Take(10)
+                .ToList();
+
+            stats.TopSellingProducts = topProducts;
+
+            var topCategories = completedOrders
+                .SelectMany(o => o.order_items)
+                .Where(oi => oi.product_variant != null && oi.product_variant.product != null && oi.product_variant.product.category != null)
+                .GroupBy(oi => oi.product_variant.product.category.name)
+                .Select(g => new TopCategoryDto
+                {
+                    CategoryName = g.Key,
+                    QuantitySold = g.Sum(oi => oi.quantity),
+                    TotalSales = g.Sum(oi => oi.total_price)
+                })
+                .OrderByDescending(c => c.TotalSales)
+                .ToList();
+
+            stats.TopCategories = topCategories;
+
+            ViewBag.RecentOrders = periodOrders
+                .OrderByDescending(o => o.created_at)
+                .Take(5)
+                .Select(o => {
+                    string recipientName = "";
+                    if (!string.IsNullOrEmpty(o.shipping_address))
+                    {
+                        try
+                        {
+                            var addr = JsonConvert.DeserializeObject<dynamic>(o.shipping_address);
+                            if (addr != null)
+                            {
+                                recipientName = (string)(addr.full_name ?? addr.receiver_name ?? "");
+                            }
+                        }
+                        catch { }
+                    }
+                    return new OrderResponseDto
+                    {
+                        Id = o.id,
+                        Code = o.code,
+                        Status = o.status,
+                        Total = o.total,
+                        RecipientName = recipientName,
+                        CreatedAt = o.created_at
+                    };
+                })
+                .ToList();
+
+            return View(stats);
+        }
 
         // GET: /Order/Manage
         public async Task<ActionResult> Manage(string status = "ALL", string keyword = "", int page = 1)

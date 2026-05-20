@@ -28,7 +28,7 @@ Tài liệu này ghi lại tình hình, trạng thái hệ thống, tiến độ
 | **8** | **Giỏ hàng & Yêu thích** | Client | 🟢 Hoàn thành | 100% | CartController, Index AJAX, Mini-cart Drawer, wishlist localStorage |
 | **9** | **Quản lý sản phẩm** | Admin | 🟢 Hoàn thành | 100% | Admin CRUD Dashboard, dynamic specs, AJAX Variant CRUD, gallery upload |
 | **10**| **Thanh toán (Checkout)** | Client | 🟢 Hoàn thành | 100% | Checkout wizard, COD/Bank/MoMo, Voucher AJAX, phí ship tự động |
-| **11**| **Quản lý đơn hàng** | Admin & User | 🟢 Hoàn thành | 100% | History (User), Details+timeline (User), Manage+KPI (Admin), serial assign |
+| **11** | **Quản lý đơn hàng** | Admin & User | 🟢 Hoàn thành | 100% | History (User), Details+timeline (User), Manage+KPI (Admin), serial assign, revenue stats & charts (Admin) |
 | **12**| **Quản lý khuyến mãi** | Admin | 🟢 Hoàn thành | 100% | Voucher CRUD (Create/Edit/Toggle), AJAX apply/remove voucher tại checkout |
 
 ---
@@ -52,6 +52,13 @@ Tài liệu này ghi lại tình hình, trạng thái hệ thống, tiến độ
 * **Spacing**: Fix padding/margin nhất quán giữa các nav-item, thêm `gap` cho pagination.
 * **Pagination trang Sản phẩm**: Nâng cấp từ Prev/Next đơn giản lên pagination đầy đủ số trang (First/Prev/1..2..3/Next/Last) kèm thông tin "Hiển thị X / Y sản phẩm, Trang A / B".
 * **Kết quả**: 0 Lỗi build, UI chuẩn hơn.
+
+#### **4. Bổ sung tính năng Thống kê doanh thu cho Admin**
+* **Mô hình Dữ liệu (DTO)**: Tạo mới `RevenueStatisticsDto.cs` chứa các chỉ số KPI doanh thu, số lượng bán, trung bình đơn (AOV), doanh số theo ngày, Top sản phẩm bán chạy, và phân bổ doanh số theo danh mục sản phẩm.
+* **Xử lý Logic (Controller)**: Thêm action `Revenue` trong `OrderController.cs` hỗ trợ lọc theo các preset mốc thời gian khác nhau (Hôm nay, Hôm qua, 7 ngày qua, Tháng này, Tháng trước, Năm nay, Tùy chỉnh). Xử lý múi giờ địa phương (local UTC+7) sang giờ lưu trữ database (UTC) để truy vấn chính xác.
+* **Giao diện (View)**: Xây dựng view `Revenue.cshtml` với thiết kế Bootstrap 5 hiện đại, tích hợp thư viện **Chart.js** vẽ biểu đồ xu hướng doanh thu và biểu đồ tỉ lệ trạng thái đơn hàng. Bổ sung bảng xếp hạng sản phẩm bán chạy và tỷ lệ danh mục.
+* **Menu Điều hướng**: Cập nhật file `_Layout.cshtml` để bổ sung link điều hướng trực tiếp tới trang thống kê cho vai trò Admin/Staff.
+* **Kết quả**: Biên dịch thành công 0 lỗi. Tăng khả năng phân tích kinh doanh cho Admin.
 
 ---
 
