@@ -208,12 +208,14 @@ namespace HuitShopDB.Controllers
                 .GroupBy(oi => new { oi.variant_id, oi.product_name, oi.sku })
                 .Select(g => new TopProductDto
                 {
-                    VariantId = g.Key.variant_id ?? 0,
+                    VariantId = g.Key.variant_id,
                     ProductName = g.Key.product_name,
                     Sku = g.Key.sku,
                     QuantitySold = g.Sum(oi => oi.quantity),
                     TotalSales = g.Sum(oi => oi.total_price),
-                    ThumbnailUrl = g.FirstOrDefault()?.product_variant?.thumbnail_url ?? ""
+                    ThumbnailUrl = g.FirstOrDefault() != null && g.FirstOrDefault().product_variant != null 
+                        ? g.FirstOrDefault().product_variant.thumbnail_url 
+                        : ""
                 })
                 .OrderByDescending(p => p.QuantitySold)
                 .Take(10)
@@ -406,6 +408,7 @@ namespace HuitShopDB.Controllers
                     dto.Items.Add(new OrderItemDto
                     {
                         Id = oi.id,
+                        VariantId = oi.variant_id,
                         ProductName = oi.product_name,
                         Sku = oi.sku,
                         Quantity = oi.quantity,

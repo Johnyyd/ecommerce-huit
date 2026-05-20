@@ -1,7 +1,7 @@
 @model HuitShopDB.Models.DTOs.Product.ProductCreateDto
 @{
     ViewBag.Title = "Thêm sản phẩm mới";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     var categories = ViewBag.Categories as IEnumerable<HuitShopDB.Models.DTOs.Product.CategoryDto>;
     var brands = ViewBag.Brands as IEnumerable<HuitShopDB.Models.DTOs.Product.BrandDto>;
 }

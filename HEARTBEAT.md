@@ -58,7 +58,7 @@ Tài liệu này ghi lại tình hình, trạng thái hệ thống, tiến độ
 * **Xử lý Logic (Controller)**: Thêm action `Revenue` trong `OrderController.cs` hỗ trợ lọc theo các preset mốc thời gian khác nhau (Hôm nay, Hôm qua, 7 ngày qua, Tháng này, Tháng trước, Năm nay, Tùy chỉnh). Xử lý múi giờ địa phương (local UTC+7) sang giờ lưu trữ database (UTC) để truy vấn chính xác.
 * **Giao diện (View)**: Xây dựng view `Revenue.cshtml` với thiết kế Bootstrap 5 hiện đại, tích hợp thư viện **Chart.js** vẽ biểu đồ xu hướng doanh thu và biểu đồ tỉ lệ trạng thái đơn hàng. Bổ sung bảng xếp hạng sản phẩm bán chạy và tỷ lệ danh mục.
 * **Menu Điều hướng**: Cập nhật file `_Layout.cshtml` để bổ sung link điều hướng trực tiếp tới trang thống kê cho vai trò Admin/Staff.
-* **Kết quả**: Biên dịch thành công 0 lỗi. Tăng khả năng phân tích kinh doanh cho Admin.
+* **Kết quả**: Sửa lỗi cú pháp `?.` (chỉ có từ C# 6.0 trở lên) thành biểu thức ba ngôi tương thích C# 5.0 / .NET Framework 4.5. Biên dịch thành công 0 lỗi, tăng khả năng phân tích kinh doanh cho Admin.
 
 ---
 

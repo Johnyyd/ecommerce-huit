@@ -1,56 +1,61 @@
 @model HuitShopDB.Models.DTOs.Voucher.VoucherCreateDto
 @{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     bool isEdit = Model.Id > 0;
     ViewBag.Title = (isEdit ? "Chỉnh sửa" : "Tạo") + " Voucher - Admin";
     string formAction = isEdit ? Url.Action("Edit", "Voucher", new { id = Model.Id }) : Url.Action("Create", "Voucher");
 }
 <style>
-    body { background: #0f0f17; }
-    .create-wrap { max-width: 900px; margin: 0 auto; padding: 30px 20px 80px; }
-    .page-title { color: #fff; font-size: 1.7rem; font-weight: 800; margin-bottom: 6px; }
-    .page-sub { color: #888; font-size: 0.9rem; margin-bottom: 30px; }
+    .create-wrap { padding: 20px 0 50px; }
+    .page-title { color: #1e293b; font-size: 1.7rem; font-weight: 800; margin-bottom: 6px; }
+    .page-sub { color: #64748b; font-size: 0.9rem; margin-bottom: 30px; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start; }
-    .form-card { background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 18px; padding: 28px; }
-    .section-title { color: #fff; font-size: 0.95rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-    .section-title i { color: #6c63ff; }
+    .form-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 18px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+    .section-title { color: #1e293b; font-size: 0.95rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .section-title i { color: #3b82f6; }
     .form-group { margin-bottom: 18px; }
-    .form-label { color: #aaa; font-size: 0.82rem; margin-bottom: 6px; display: block; font-weight: 600; }
-    .form-label .req { color: #ff4757; margin-left: 3px; }
-    .form-control-dark { background: #12122a; border: 1px solid #2a2a3e; color: #fff; border-radius: 10px; padding: 10px 14px; width: 100%; font-size: 0.88rem; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box; }
-    .form-control-dark:focus { outline: none; border-color: #6c63ff; box-shadow: 0 0 0 3px rgba(108,99,255,0.15); }
-    .form-control-dark::placeholder { color: #444; }
-    .form-control-dark option { background: #1a1a2e; }
+    .form-label { color: #475569; font-size: 0.85rem; margin-bottom: 6px; display: block; font-weight: 600; }
+    .form-label .req { color: #ef4444; margin-left: 3px; }
+    .form-control-light { background: #fff; border: 1px solid #cbd5e1; color: #1e293b; border-radius: 10px; padding: 10px 14px; width: 100%; font-size: 0.88rem; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box; }
+    .form-control-light:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+    .form-control-light::placeholder { color: #94a3b8; }
     .type-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .type-opt { background: #12122a; border: 2px solid #2a2a3e; border-radius: 10px; padding: 12px; cursor: pointer; text-align: center; transition: all 0.2s; position: relative; }
+    .type-opt { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 12px; cursor: pointer; text-align: center; transition: all 0.2s; position: relative; }
     .type-opt input { position: absolute; opacity: 0; }
-    .type-opt.selected { border-color: #6c63ff; background: rgba(108,99,255,0.1); }
-    .type-opt .type-icon { font-size: 1.4rem; margin-bottom: 4px; display: block; }
-    .type-opt .type-name { color: #fff; font-size: 0.82rem; font-weight: 700; }
-    .preview-card { background: linear-gradient(135deg, #6c63ff 0%, #a855f7 100%); border-radius: 16px; padding: 24px; margin-top: 0; }
-    .preview-code { font-family: monospace; font-size: 1.4rem; font-weight: 900; color: #fff; letter-spacing: 2px; margin-bottom: 6px; }
-    .preview-name { color: rgba(255,255,255,0.8); font-size: 0.85rem; margin-bottom: 14px; }
+    .type-opt.selected { border-color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
+    .type-opt .type-icon { font-size: 1.4rem; margin-bottom: 4px; display: block; font-weight: bold; color: #475569; }
+    .type-opt.selected .type-icon { color: #3b82f6; }
+    .type-opt .type-name { color: #334155; font-size: 0.82rem; font-weight: 700; }
+    .preview-card { background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%); border-radius: 16px; padding: 24px; box-shadow: 0 10px 25px rgba(59, 130, 246, 0.25); }
+    .preview-code { font-family: monospace; font-size: 1.4rem; font-weight: 900; color: #fff; letter-spacing: 2px; margin-bottom: 6px; text-transform: uppercase; }
+    .preview-name { color: rgba(255,255,255,0.85); font-size: 0.85rem; margin-bottom: 14px; }
     .preview-value { font-size: 2rem; font-weight: 900; color: #fff; margin-bottom: 8px; }
-    .preview-info { color: rgba(255,255,255,0.7); font-size: 0.78rem; }
-    .preview-dates { display: flex; justify-content: space-between; margin-top: 16px; font-size: 0.75rem; color: rgba(255,255,255,0.6); }
-    .field-hint { color: #555; font-size: 0.75rem; margin-top: 4px; }
-    .validation-message { color: #ff4757; font-size: 0.8rem; margin-top: 4px; }
+    .preview-info { color: rgba(255,255,255,0.75); font-size: 0.78rem; }
+    .preview-dates { display: flex; justify-content: space-between; margin-top: 16px; font-size: 0.75rem; color: rgba(255,255,255,0.65); }
+    .field-hint { color: #64748b; font-size: 0.78rem; margin-top: 4px; }
+    .validation-message { color: #ef4444; font-size: 0.8rem; margin-top: 4px; }
     .btn-row { display: flex; gap: 12px; margin-top: 30px; }
-    .btn-submit { flex: 1; background: linear-gradient(135deg, #6c63ff, #a855f7); color: #fff; border: none; padding: 14px; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.25s; }
-    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(108,99,255,0.4); }
-    .btn-cancel { background: #1a1a2e; border: 1px solid #2a2a3e; color: #aaa; padding: 14px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; }
-    .btn-cancel:hover { border-color: #6c63ff; color: #fff; text-decoration: none; }
+    .btn-submit { flex: 1; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: #fff; border: none; padding: 14px; border-radius: 12px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.25s; }
+    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3); }
+    .btn-cancel { background: #fff; border: 1px solid #cbd5e1; color: #475569; padding: 14px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; text-decoration: none; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+    .btn-cancel:hover { border-color: #3b82f6; color: #3b82f6; text-decoration: none; }
     @@media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; } }
 </style>
 
-<div class="create-wrap">
-    <a href="@Url.Action("Index", "Voucher")" style="color:#6c63ff;text-decoration:none;font-size:0.88rem;">← Quay lại danh sách</a>
-    <h1 class="page-title" style="margin-top:14px;">@(isEdit ? "✏️ Chỉnh sửa Voucher" : "🏷️ Tạo Voucher mới")</h1>
+<div class="container-fluid create-wrap">
+    <div>
+        <a href="@Url.Action("Index", "Voucher")" class="btn btn-outline-secondary btn-sm rounded-pill px-3 mb-3">
+            <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách
+        </a>
+    </div>
+    
+    <h2 class="page-title">@(isEdit ? "Chỉnh sửa Voucher" : "Tạo Voucher mới")</h2>
     <p class="page-sub">@(isEdit ? "Cập nhật thông tin voucher khuyến mãi" : "Thiết lập voucher giảm giá mới cho khách hàng")</p>
 
     @if (TempData["ErrorMessage"] != null)
     {
-        <div style="background:rgba(255,71,87,0.1);border:1px solid #ff4757;border-radius:12px;padding:12px 18px;color:#ff4757;margin-bottom:16px;">
-            ❌ @TempData["ErrorMessage"]
+        <div class="alert alert-danger border-0 shadow-xs mb-4" role="alert" style="border-left: 5px solid #ef4444; border-radius: 12px; background: #fef2f2; color: #991b1b;">
+            <i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i> @TempData["ErrorMessage"]
         </div>
     }
 
@@ -64,42 +69,42 @@
             <!-- Left: Form -->
             <div>
                 <div class="form-card">
-                    <div class="section-title"><i class="fas fa-tag"></i> Thông tin cơ bản</div>
+                    <div class="section-title"><i class="bi bi-tag-fill"></i> Thông tin cơ bản</div>
 
                     <div class="form-group">
                         <label class="form-label">Mã Voucher <span class="req">*</span></label>
-                        <input name="Code" id="code-input" class="form-control-dark" placeholder="SUMMER2025" value="@Model.Code"
+                        <input name="Code" id="code-input" class="form-control-light form-control" placeholder="SUMMER2025" value="@Model.Code"
                                oninput="this.value=this.value.toUpperCase();updatePreview()"
-                               @(isEdit ? "readonly style=background:#0f0f17;color:#666;" : "") />
-                        @if (!isEdit) { <div class="field-hint">Chỉ dùng chữ cái và số, không dấu cách</div> }
+                               @(isEdit ? "readonly style=background:#f1f5f9;color:#64748b;" : "") />
+                        @if (!isEdit) { <div class="field-hint">Chỉ dùng chữ cái in hoa và số, không dấu cách</div> }
                         @Html.ValidationMessage("Code", new { @class = "validation-message" })
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Tên Voucher <span class="req">*</span></label>
-                        <input name="Name" id="name-input" class="form-control-dark" placeholder="Khuyến mãi Mùa Hè" value="@Model.Name" oninput="updatePreview()" />
+                        <input name="Name" id="name-input" class="form-control-light form-control" placeholder="Khuyến mãi Mùa Hè" value="@Model.Name" oninput="updatePreview()" />
                         @Html.ValidationMessage("Name", new { @class = "validation-message" })
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Mô tả</label>
-                        <textarea name="Description" class="form-control-dark" rows="2" placeholder="Mô tả ngắn về voucher...">@Model.Description</textarea>
+                        <textarea name="Description" class="form-control-light form-control" rows="2" placeholder="Mô tả ngắn về voucher...">@Model.Description</textarea>
                     </div>
                 </div>
 
                 <div class="form-card" style="margin-top:20px;">
-                    <div class="section-title"><i class="fas fa-percent"></i> Giá trị giảm giá</div>
+                    <div class="section-title"><i class="bi bi-percent"></i> Giá trị giảm giá</div>
 
                     <div class="form-group">
                         <label class="form-label">Loại giảm giá <span class="req">*</span></label>
                         <div class="type-toggle">
                             <label class="type-opt @(Model.DiscountType == "PERCENT" ? "selected" : "")" onclick="selectType('PERCENT', this)">
-                                <input type="radio" name="DiscountType" value="PERCENT" @(Model.DiscountType == "PERCENT" ? "checked" : "") />
+                                <input type="radio" name="DiscountType" value="PERCENT" @(Model.DiscountType == "PERCENT" ? "checked" : "") style="display:none;" />
                                 <span class="type-icon">%</span>
                                 <div class="type-name">Phần trăm</div>
                             </label>
                             <label class="type-opt @(Model.DiscountType == "FIXED" ? "selected" : "")" onclick="selectType('FIXED', this)">
-                                <input type="radio" name="DiscountType" value="FIXED" @(Model.DiscountType == "FIXED" ? "checked" : "") />
+                                <input type="radio" name="DiscountType" value="FIXED" @(Model.DiscountType == "FIXED" ? "checked" : "") style="display:none;" />
                                 <span class="type-icon">đ</span>
                                 <div class="type-name">Số tiền cố định</div>
                             </label>
@@ -109,37 +114,37 @@
                     <div class="form-group">
                         <label class="form-label" id="discount-label">Giá trị giảm <span class="req">*</span></label>
                         <input name="DiscountValue" id="discount-val-input" type="number" step="0.01" min="0.01"
-                               class="form-control-dark" placeholder="10" value="@Model.DiscountValue" oninput="updatePreview()" />
+                               class="form-control-light form-control" placeholder="10" value="@Model.DiscountValue" oninput="updatePreview()" />
                         @Html.ValidationMessage("DiscountValue", new { @class = "validation-message" })
                     </div>
 
                     <div class="form-group" id="max-discount-group" style="@(Model.DiscountType == "FIXED" ? "display:none;" : "")">
-                        <label class="form-label">Giảm tối đa (đ) <span style="color:#555;">(tùy chọn)</span></label>
+                        <label class="form-label">Giảm tối đa (đ) <span class="text-secondary fw-normal">(tùy chọn)</span></label>
                         <input name="MaxDiscountAmount" type="number" step="1000" min="0"
-                               class="form-control-dark" placeholder="100000" value="@(Model.MaxDiscountAmount.HasValue ? Model.MaxDiscountAmount.Value.ToString() : "")" />
+                               class="form-control-light form-control" placeholder="100000" value="@(Model.MaxDiscountAmount.HasValue ? Model.MaxDiscountAmount.Value.ToString() : "")" />
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Đơn hàng tối thiểu (đ)</label>
                         <input name="MinOrderValue" type="number" step="1000" min="0"
-                               class="form-control-dark" placeholder="0" value="@Model.MinOrderValue" />
+                               class="form-control-light form-control" placeholder="0" value="@Model.MinOrderValue" />
                     </div>
                 </div>
 
                 <div class="form-card" style="margin-top:20px;">
-                    <div class="section-title"><i class="fas fa-calendar"></i> Thời hạn & Giới hạn</div>
+                    <div class="section-title"><i class="bi bi-calendar-event"></i> Thời hạn & Giới hạn</div>
 
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label">Ngày bắt đầu <span class="req">*</span></label>
-                                <input name="StartDate" type="date" class="form-control-dark" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
+                                <input name="StartDate" type="date" class="form-control-light form-control" value="@Model.StartDate.ToString("yyyy-MM-dd")" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label">Ngày kết thúc <span class="req">*</span></label>
-                                <input name="EndDate" type="date" class="form-control-dark" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
+                                <input name="EndDate" type="date" class="form-control-light form-control" value="@Model.EndDate.ToString("yyyy-MM-dd")" />
                             </div>
                         </div>
                     </div>
@@ -148,22 +153,22 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label">Tổng lượt dùng</label>
-                                <input name="UsageLimit" type="number" min="0" class="form-control-dark" placeholder="0 = không giới hạn" value="@Model.UsageLimit" />
+                                <input name="UsageLimit" type="number" min="0" class="form-control-light form-control" placeholder="0 = không giới hạn" value="@Model.UsageLimit" />
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label">Lượt/người dùng</label>
-                                <input name="UsagePerUser" type="number" min="1" max="100" class="form-control-dark" value="@(Model.UsagePerUser > 0 ? Model.UsagePerUser : 1)" />
+                                <input name="UsagePerUser" type="number" min="1" max="100" class="form-control-light form-control" value="@(Model.UsagePerUser > 0 ? Model.UsagePerUser : 1)" />
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="btn-row">
-                    <a href="@Url.Action("Index", "Voucher")" class="btn-cancel">Hủy</a>
-                    <button type="submit" class="btn-submit">
-                        <i class="fas fa-save"></i> @(isEdit ? "Cập nhật Voucher" : "Tạo Voucher")
+                    <a href="@Url.Action("Index", "Voucher")" class="btn-cancel btn border">Hủy</a>
+                    <button type="submit" class="btn-submit btn text-white">
+                        <i class="bi bi-save me-1"></i> @(isEdit ? "Cập nhật Voucher" : "Tạo Voucher")
                     </button>
                 </div>
             </div>
@@ -171,8 +176,8 @@
             <!-- Right: Live Preview -->
             <div>
                 <div class="form-card">
-                    <div class="section-title"><i class="fas fa-eye"></i> Preview Voucher</div>
-                    <div class="preview-card">
+                    <div class="section-title"><i class="bi bi-eye"></i> Xem trước Voucher</div>
+                    <div class="preview-card text-white">
                         <div class="preview-code" id="prev-code">@(string.IsNullOrEmpty(Model.Code) ? "MÃVOUCHER" : Model.Code)</div>
                         <div class="preview-name" id="prev-name">@(string.IsNullOrEmpty(Model.Name) ? "Tên voucher..." : Model.Name)</div>
                         <div class="preview-value" id="prev-value">
@@ -189,12 +194,12 @@
                 </div>
 
                 <div class="form-card" style="margin-top:20px;">
-                    <div class="section-title"><i class="fas fa-lightbulb"></i> Gợi ý</div>
-                    <ul style="color:#888;font-size:0.82rem;line-height:1.8;padding-left:16px;margin:0;">
-                        <li>Mã voucher nên ngắn gọn, dễ nhớ (VD: SUMMER25)</li>
-                        <li>Voucher % nên đặt giảm tối đa để kiểm soát chi phí</li>
-                        <li>Đặt đơn tối thiểu để đảm bảo doanh thu</li>
-                        <li>Giới hạn lượt/người dùng để tránh lạm dụng</li>
+                    <div class="section-title"><i class="bi bi-info-circle-fill"></i> Gợi ý</div>
+                    <ul class="text-secondary small mb-0 ps-3" style="line-height: 1.8;">
+                        <li>Mã voucher nên ngắn gọn, viết liền không dấu, viết hoa (Ví dụ: BLACKFRIDAY).</li>
+                        <li>Voucher giảm giá phần trăm (%) nên đặt mức giảm tối đa để kiểm soát chi phí của chiến dịch.</li>
+                        <li>Đặt ngưỡng giá trị đơn hàng tối thiểu để thúc đẩy khách hàng mua nhiều sản phẩm hơn.</li>
+                        <li>Giới hạn lượt dùng của mỗi tài khoản để tránh một người mua lạm dụng khuyến mãi.</li>
                     </ul>
                 </div>
             </div>
@@ -202,26 +207,35 @@
     }
 </div>
 
-<script>
-function selectType(type, el) {
-    document.querySelectorAll('.type-opt').forEach(o => o.classList.remove('selected'));
-    el.classList.add('selected');
-    el.querySelector('input').checked = true;
-    document.getElementById('max-discount-group').style.display = type === 'PERCENT' ? 'block' : 'none';
-    updatePreview();
-}
+@section Scripts {
+    <script>
+    function selectType(type, el) {
+        document.querySelectorAll('.type-opt').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+        el.querySelector('input').checked = true;
+        document.getElementById('max-discount-group').style.display = type === 'PERCENT' ? 'block' : 'none';
+        updatePreview();
+    }
 
-function updatePreview() {
-    var code = document.getElementById('code-input').value || 'MÃVOUCHER';
-    var name = document.getElementById('name-input').value || 'Tên voucher...';
-    var val = parseFloat(document.getElementById('discount-val-input').value) || 0;
-    var type = document.querySelector('input[name=DiscountType]:checked');
-    var typeVal = type ? type.value : 'PERCENT';
+    function updatePreview() {
+        var code = document.getElementById('code-input').value || 'MÃVOUCHER';
+        var name = document.getElementById('name-input').value || 'Tên voucher...';
+        var val = parseFloat(document.getElementById('discount-val-input').value) || 0;
+        var type = document.querySelector('input[name=DiscountType]:checked');
+        var typeVal = type ? type.value : 'PERCENT';
 
-    document.getElementById('prev-code').textContent = code;
-    document.getElementById('prev-name').textContent = name;
-    document.getElementById('prev-value').textContent = val > 0
-        ? (typeVal === 'PERCENT' ? val + '%' : val.toLocaleString('vi-VN') + 'đ')
-        : '--';
+        document.getElementById('prev-code').textContent = code;
+        document.getElementById('prev-name').textContent = name;
+        
+        if (val > 0) {
+            if (typeVal === 'PERCENT') {
+                document.getElementById('prev-value').textContent = val + '%';
+            } else {
+                document.getElementById('prev-value').textContent = val.toLocaleString('vi-VN') + 'đ';
+            }
+        } else {
+            document.getElementById('prev-value').textContent = '--';
+        }
+    }
+    </script>
 }
-</script>

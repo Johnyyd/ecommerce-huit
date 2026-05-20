@@ -428,6 +428,7 @@ namespace HuitShopDB.Services
                 {
                     var itemDto = new OrderItemDto();
                     itemDto.Id = oi.id;
+                    itemDto.VariantId = oi.variant_id;
                     itemDto.ProductName = oi.product_name;
                     itemDto.Sku = oi.sku;
                     itemDto.Quantity = oi.quantity;

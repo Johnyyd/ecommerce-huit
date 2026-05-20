@@ -20,9 +20,21 @@ namespace HuitShopDB.Controllers
             _inventoryService = inventoryService;
         }
 
+        private bool IsAdminOrStaff()
+        {
+            string role = Session["UserRole"] as string;
+            return role == "ADMIN" || role == "STAFF";
+        }
+
         // GET: /Inventory/
         public async Task<ActionResult> Index(int warehouseId = 0, bool lowStock = false)
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             ViewBag.Title = "Quản lý kho hàng";
             
             var warehouses = await _inventoryService.GetWarehousesAsync();
@@ -43,6 +55,12 @@ namespace HuitShopDB.Controllers
         // GET: /Inventory/Dashboard
         public async Task<ActionResult> Dashboard()
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             ViewBag.Title = "Dashboard - Quản lý kho";
             var analytics = await _inventoryService.GetWarehouseAnalyticsAsync();
             var reorderReport = await _inventoryService.GetReorderReportAsync();
@@ -55,6 +73,12 @@ namespace HuitShopDB.Controllers
         [HttpPost]
         public async Task<ActionResult> Adjust(AdjustStockRequest request)
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             if (ModelState.IsValid)
             {
                 bool success = await _inventoryService.AdjustStockAsync(request);
@@ -73,6 +97,12 @@ namespace HuitShopDB.Controllers
         // GET: /Inventory/Import
         public async Task<ActionResult> Import()
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             ViewBag.Warehouses = await _inventoryService.GetWarehousesAsync();
             return View(new ImportStockRequest());
         }
@@ -81,6 +111,12 @@ namespace HuitShopDB.Controllers
         [HttpPost]
         public async Task<ActionResult> Import(ImportStockRequest request, string serialsRaw)
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             if (!string.IsNullOrEmpty(serialsRaw))
             {
                 request.Serials = new System.Collections.Generic.List<string>(
@@ -104,6 +140,12 @@ namespace HuitShopDB.Controllers
         // GET: /Inventory/Transfer
         public async Task<ActionResult> Transfer(int warehouseId = 0, int variantId = 0)
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             ViewBag.Title = "Chuyển kho";
             ViewBag.Warehouses = await _inventoryService.GetWarehousesAsync();
             var model = new TransferStockRequest
@@ -119,6 +161,12 @@ namespace HuitShopDB.Controllers
         [HttpPost]
         public async Task<ActionResult> Transfer(TransferStockRequest request)
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             if (ModelState.IsValid)
             {
                 bool success = await _inventoryService.TransferStockAsync(request);
@@ -137,6 +185,12 @@ namespace HuitShopDB.Controllers
         // GET: /Inventory/History
         public async Task<ActionResult> History(int warehouseId = 0, int? variantId = null)
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             ViewBag.Title = "Lịch sử tồn kho";
             ViewBag.Warehouses = await _inventoryService.GetWarehousesAsync();
             ViewBag.CurrentWarehouseId = warehouseId;
@@ -149,6 +203,12 @@ namespace HuitShopDB.Controllers
         // GET: /Inventory/ReorderReport
         public async Task<ActionResult> ReorderReport()
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             ViewBag.Title = "Báo cáo hàng cần đặt lại";
             var report = await _inventoryService.GetReorderReportAsync();
             return View(report);

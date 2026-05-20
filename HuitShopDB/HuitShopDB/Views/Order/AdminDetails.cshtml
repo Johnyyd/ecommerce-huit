@@ -1,0 +1,371 @@
+@model HuitShopDB.Models.DTOs.Order.OrderResponseDto
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    ViewBag.Title = "Chi tiết đơn hàng " + Model.Code;
+    var statusOrder = new[] { "PENDING", "CONFIRMED", "SHIPPING", "COMPLETED" };
+    int currentIdx = Array.IndexOf(statusOrder, Model.Status);
+    bool isCancelled = Model.Status == "CANCELLED";
+    var availableSerials = ViewBag.AvailableSerials as IEnumerable<HuitShopDB.Models.product_serial>;
+}
+
+<div class="container-fluid mt-4">
+    <!-- Breadcrumb & Back -->
+    <div class="mb-4">
+        <a href="@Url.Action("Manage")" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            <i class="bi bi-arrow-left me-1"></i>Quay lại danh sách đơn hàng
+        </a>
+    </div>
+
+    <!-- Title and Quick Info -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <h2 class="fw-bold mb-0 text-dark">Đơn hàng #@Model.Code</h2>
+                <span class="badge @(Model.Status == "COMPLETED" ? "bg-success" : Model.Status == "CANCELLED" ? "bg-danger" : Model.Status == "SHIPPING" ? "bg-info" : "bg-warning") fs-6 rounded-pill">
+                    @(Model.Status == "PENDING" ? "Chờ xử lý" :
+                      Model.Status == "CONFIRMED" ? "Đã xác nhận" :
+                      Model.Status == "SHIPPING" ? "Đang giao hàng" :
+                      Model.Status == "COMPLETED" ? "Hoàn tất" : "Đã hủy")
+                </span>
+            </div>
+            <p class="text-secondary mb-0 mt-1">
+                Đặt bởi: <strong>@Model.RecipientName</strong> | Ngày tạo: @Model.CreatedAt.AddHours(7).ToString("dd/MM/yyyy HH:mm")
+            </p>
+        </div>
+        <div>
+            @if (Model.Status == "PENDING")
+            {
+                <button onclick="updateStatus('CONFIRMED')" class="btn btn-success me-2 rounded-pill px-4">
+                    <i class="bi bi-check2-circle me-1"></i>Xác nhận đơn
+                </button>
+                <button onclick="cancelOrderPrompt()" class="btn btn-outline-danger rounded-pill px-4">
+                    <i class="bi bi-x-circle me-1"></i>Hủy đơn
+                </button>
+            }
+            else if (Model.Status == "CONFIRMED")
+            {
+                <button onclick="shipOrderPrompt()" class="btn btn-primary me-2 rounded-pill px-4">
+                    <i class="bi bi-truck me-1"></i>Giao hàng
+                </button>
+                <button onclick="cancelOrderPrompt()" class="btn btn-outline-danger rounded-pill px-4">
+                    <i class="bi bi-x-circle me-1"></i>Hủy đơn
+                </button>
+            }
+            else if (Model.Status == "SHIPPING")
+            {
+                <button onclick="updateStatus('COMPLETED')" class="btn btn-success rounded-pill px-4">
+                    <i class="bi bi-house-check me-1"></i>Hoàn tất đơn
+                </button>
+            }
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Main Details (Left Column) -->
+        <div class="col-lg-8">
+            <!-- Order Timeline -->
+            <div class="card shadow-sm border-0 mb-4" style="border-radius: 1rem;">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-clock-history text-primary me-2"></i>Lịch sử trạng thái</h5>
+                </div>
+                <div class="card-body">
+                    <div class="position-relative ps-4" style="border-left: 2px solid #e2e8f0; margin-left: 10px;">
+                        @if (isCancelled)
+                        {
+                            <div class="position-relative mb-4">
+                                <span class="position-absolute translate-middle bg-success border border-white rounded-circle d-flex align-items-center justify-content-center text-white" style="left: -26px; top: 12px; width: 24px; height: 24px;">
+                                    <i class="bi bi-check" style="font-size: 0.8rem;"></i>
+                                </span>
+                                <div class="ms-2">
+                                    <h6 class="fw-bold mb-1">Đơn hàng được tạo</h6>
+                                    <small class="text-muted">@Model.CreatedAt.AddHours(7).ToString("dd/MM/yyyy HH:mm")</small>
+                                </div>
+                            </div>
+                            <div class="position-relative">
+                                <span class="position-absolute translate-middle bg-danger border border-white rounded-circle d-flex align-items-center justify-content-center text-white" style="left: -26px; top: 12px; width: 24px; height: 24px;">
+                                    <i class="bi bi-x" style="font-size: 0.8rem;"></i>
+                                </span>
+                                <div class="ms-2">
+                                    <h6 class="fw-bold mb-1 text-danger">Đơn hàng đã bị hủy</h6>
+                                    @{
+                                        var cancelEntry = Model.StatusHistory.LastOrDefault(h => h.Status == "CANCELLED");
+                                    }
+                                    @if (cancelEntry != null)
+                                    {
+                                        <p class="text-secondary small mb-1">Lý do: @cancelEntry.Note</p>
+                                        <small class="text-muted">@cancelEntry.CreatedAt.AddHours(7).ToString("dd/MM/yyyy HH:mm")</small>
+                                    }
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            foreach (var sh in Model.StatusHistory)
+                            {
+                                bool isCurrent = sh.Status == Model.Status;
+                                <div class="position-relative mb-4">
+                                    <span class="position-absolute translate-middle @(isCurrent ? "bg-primary" : "bg-secondary") border border-white rounded-circle d-flex align-items-center justify-content-center text-white" style="left: -26px; top: 12px; width: 24px; height: 24px;">
+                                        <i class="bi bi-check" style="font-size: 0.8rem;"></i>
+                                    </span>
+                                    <div class="ms-2">
+                                        <h6 class="fw-bold mb-1 @(isCurrent ? "text-primary" : "")">
+                                            @(sh.Status == "PENDING" ? "Đơn hàng được tạo" :
+                                              sh.Status == "CONFIRMED" ? "Đã xác nhận đơn hàng" :
+                                              sh.Status == "SHIPPING" ? "Đang vận chuyển" : "Giao hàng thành công")
+                                        </h6>
+                                        @if (!string.IsNullOrEmpty(sh.Note))
+                                        {
+                                            <p class="text-secondary small mb-1">@sh.Note</p>
+                                        }
+                                        <small class="text-muted">@sh.CreatedAt.AddHours(7).ToString("dd/MM/yyyy HH:mm")</small>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Table -->
+            <div class="card shadow-sm border-0 mb-4" style="border-radius: 1rem;">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-box-seam text-primary me-2"></i>Sản phẩm trong đơn hàng</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Sản phẩm</th>
+                                <th class="text-center">Số lượng</th>
+                                <th class="text-end">Đơn giá</th>
+                                <th class="text-end pe-4">Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model.Items)
+                            {
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <img src="@(string.IsNullOrEmpty(item.ThumbnailUrl) ? "https://via.placeholder.com/52" : item.ThumbnailUrl)" class="rounded border me-3" style="width: 52px; height: 52px; object-fit: cover;" />
+                                            <div>
+                                                <div class="fw-bold text-dark">@item.ProductName</div>
+                                                <div class="text-muted small">SKU: @item.Sku</div>
+                                                
+                                                <!-- Serial Numbers Assigned -->
+                                                @if (item.SerialNumbers != null && item.SerialNumbers.Any())
+                                                {
+                                                    <div class="mt-2">
+                                                        @foreach (var sn in item.SerialNumbers)
+                                                        {
+                                                            <span class="badge bg-success-subtle text-success border border-success-subtle me-1">
+                                                                <i class="bi bi-shield-check me-1"></i>SN: @sn
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                }
+                                                else if (Model.Status == "CONFIRMED" && availableSerials != null && item.VariantId.HasValue)
+                                                {
+                                                    var itemSerials = availableSerials.Where(s => s.variant_id == item.VariantId.Value).ToList();
+                                                    if (itemSerials.Any())
+                                                    {
+                                                        <div class="mt-2 p-2 border rounded bg-light" style="max-width: 400px;">
+                                                            <label class="form-label text-muted small fw-bold mb-1">Gán mã Serial (Cần @item.Quantity):</label>
+                                                            <select class="form-select form-select-sm serial-selector" data-item-id="@item.Id" data-qty="@item.Quantity" multiple style="height: 80px;">
+                                                                @foreach (var s in itemSerials)
+                                                                {
+                                                                    <option value="@s.serial_number">@s.serial_number (@(s.warehouse != null ? s.warehouse.name : "N/A"))</option>
+                                                                }
+                                                            </select>
+                                                            <div class="form-text small text-danger text-qty-warning" id="warning-@item.Id" style="display:none;">
+                                                                Vui lòng chọn đúng @item.Quantity mã serial.
+                                                            </div>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="mt-2 text-danger small">
+                                                            <i class="bi bi-exclamation-triangle-fill me-1"></i>Hết mã Serial trong kho! Không thể giao sản phẩm này.
+                                                        </div>
+                                                    }
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center fw-bold">@item.Quantity</td>
+                                    <td class="text-end">@item.UnitPrice.ToString("N0")đ</td>
+                                    <td class="text-end fw-bold text-primary pe-4">@item.TotalPrice.ToString("N0")đ</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Details (Right Column) -->
+        <div class="col-lg-4">
+            <!-- Customer & Shipping Information -->
+            <div class="card shadow-sm border-0 mb-4" style="border-radius: 1rem;">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-person-lines-fill text-primary me-2"></i>Thông tin vận chuyển</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="text-muted small fw-bold">Tên khách hàng</label>
+                        <div class="fw-bold text-dark">@Model.RecipientName</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="text-muted small fw-bold">Số điện thoại</label>
+                        <div>
+                            <a href="tel:@Model.RecipientPhone" class="text-decoration-none">
+                                <i class="bi bi-telephone me-1"></i>@Model.RecipientPhone
+                            </a>
+                        </div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.UserEmail))
+                    {
+                        <div class="mb-3">
+                            <label class="text-muted small fw-bold">Email tài khoản</label>
+                            <div>@Model.UserEmail</div>
+                        </div>
+                    }
+                    <div class="mb-3">
+                        <label class="text-muted small fw-bold">Địa chỉ nhận hàng</label>
+                        <div class="text-dark small"><i class="bi bi-geo-alt me-1 text-danger"></i>@Model.FullAddress</div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(Model.Note))
+                    {
+                        <div class="mb-0">
+                            <label class="text-muted small fw-bold">Ghi chú từ khách</label>
+                            <div class="p-2 bg-light rounded text-secondary small">@Model.Note</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Payment Summary -->
+            <div class="card shadow-sm border-0 mb-4" style="border-radius: 1rem;">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-receipt text-primary me-2"></i>Tóm tắt thanh toán</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between py-2 border-bottom">
+                        <span class="text-secondary">Tạm tính</span>
+                        <span class="fw-bold text-dark">@Model.Subtotal.ToString("N0")đ</span>
+                    </div>
+                    @if (Model.Discount > 0)
+                    {
+                        <div class="d-flex justify-content-between py-2 border-bottom text-success">
+                            <span>Giảm giá voucher</span>
+                            <span>-@Model.Discount.ToString("N0")đ</span>
+                        </div>
+                    }
+                    <div class="d-flex justify-content-between py-2 border-bottom">
+                        <span class="text-secondary">Phí vận chuyển</span>
+                        <span class="text-dark">@(Model.ShippingFee == 0 ? "Miễn phí" : Model.ShippingFee.ToString("N0") + "đ")</span>
+                    </div>
+                    <div class="d-flex justify-content-between py-3">
+                        <span class="fw-bold text-dark fs-5">Tổng cộng</span>
+                        <span class="fw-bold text-danger fs-5">@Model.Total.ToString("N0")đ</span>
+                    </div>
+
+                    <div class="p-3 bg-light rounded" style="border-left: 4px solid #3b82f6;">
+                        <div class="small text-muted">Phương thức thanh toán:</div>
+                        <div class="fw-bold text-dark">
+                            @(Model.PaymentMethod == "COD" ? "💵 Thanh toán khi nhận hàng (COD)" :
+                              Model.PaymentMethod == "BANK_TRANSFER" ? "🏦 Chuyển khoản ngân hàng" : "💜 Ví điện tử MoMo")
+                        </div>
+                        <div class="small text-muted mt-2">Trạng thái thanh toán:</div>
+                        <span class="badge @(Model.PaymentStatus == "PAID" ? "bg-success-subtle text-success border border-success-subtle" : "bg-warning-subtle text-warning border border-warning-subtle") mt-1">
+                            @(Model.PaymentStatus == "PAID" ? "Đã thanh toán" : "Chưa thanh toán")
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts for status updating & serial assigning -->
+@section Scripts {
+    <script>
+        function updateStatus(status) {
+            if (!confirm('Xác nhận thay đổi trạng thái đơn hàng thành ' + status + '?')) return;
+            
+            fetch('@Url.Action("UpdateStatus")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'orderId=' + @Model.Id + '&newStatus=' + encodeURIComponent(status) + '&note='
+            }).then(r => r.json()).then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            });
+        }
+
+        function cancelOrderPrompt() {
+            var reason = prompt('Lý do hủy đơn hàng:', 'Khách hàng yêu cầu hủy hoặc hết hàng');
+            if (reason === null) return; // cancel clicked
+            
+            fetch('@Url.Action("UpdateStatus")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'orderId=' + @Model.Id + '&newStatus=CANCELLED&note=' + encodeURIComponent(reason)
+            }).then(r => r.json()).then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            });
+        }
+
+        function shipOrderPrompt() {
+            var selectors = document.querySelectorAll('.serial-selector');
+            var serialMap = {};
+            var hasError = false;
+
+            selectors.forEach(select => {
+                var itemId = select.getAttribute('data-item-id');
+                var requiredQty = parseInt(select.getAttribute('data-qty'));
+                
+                // Lấy các options được chọn
+                var selectedOptions = Array.from(select.selectedOptions).map(opt => opt.value);
+                
+                var warningEl = document.getElementById('warning-' + itemId);
+                if (selectedOptions.length !== requiredQty) {
+                    warningEl.style.display = 'block';
+                    hasError = true;
+                } else {
+                    warningEl.style.display = 'none';
+                    serialMap[itemId] = selectedOptions;
+                }
+            });
+
+            if (hasError) {
+                alert('Vui lòng chọn đúng số lượng mã serial cho mỗi sản phẩm.');
+                return;
+            }
+
+            if (!confirm('Xác nhận bắt đầu giao hàng và gán mã serial đã chọn?')) return;
+
+            var serialNumbersJson = JSON.stringify(serialMap);
+
+            fetch('@Url.Action("AssignSerial")', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'orderId=' + @Model.Id + '&serialNumbersJson=' + encodeURIComponent(serialNumbersJson)
+            }).then(r => r.json()).then(data => {
+                if (data.success) {
+                    alert('Thành công: ' + data.message);
+                    location.reload();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            });
+        }
+    </script>
+}

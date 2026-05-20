@@ -21,9 +21,21 @@ namespace HuitShopDB.Controllers
             _userService = userService;
         }
 
+        private bool IsAdminOrStaff()
+        {
+            string role = Session["UserRole"] as string;
+            return role == "ADMIN" || role == "STAFF";
+        }
+
         // GET: /User/
         public async Task<ActionResult> Index(string search, string role, string status)
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             ViewBag.Title = "Quản lý người dùng";
             ViewBag.Search = search;
             ViewBag.Role = role;
@@ -36,6 +48,12 @@ namespace HuitShopDB.Controllers
         // GET: /User/Edit/5
         public async Task<ActionResult> Edit(int id)
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             var user = await _userService.GetUserByIdAsync(id);
             if (user == null) return HttpNotFound();
 
@@ -47,6 +65,12 @@ namespace HuitShopDB.Controllers
         [HttpPost]
         public async Task<ActionResult> Edit(int id, string role, string status)
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             bool success = true;
             success &= await _userService.UpdateUserRoleAsync(id, role);
             success &= await _userService.UpdateUserStatusAsync(id, status);
@@ -67,6 +91,12 @@ namespace HuitShopDB.Controllers
         [HttpPost]
         public async Task<ActionResult> ToggleStatus(int id, string currentStatus)
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             string newStatus = (currentStatus == "ACTIVE") ? "SUSPENDED" : "ACTIVE";
             bool success = await _userService.UpdateUserStatusAsync(id, newStatus);
             
@@ -80,6 +110,12 @@ namespace HuitShopDB.Controllers
         // GET: /User/Details/5
         public async Task<ActionResult> Details(int id)
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             var user = await _userService.GetUserByIdAsync(id);
             if (user == null) return HttpNotFound();
 

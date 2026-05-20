@@ -1,63 +1,269 @@
 @{
-    ViewBag.Title = "Trang chủ";
+    ViewBag.Title = "Trang chủ - HUIT Shop";
+    var userRole = Session["UserRole"] as string;
+    var isAdminOrStaff = userRole == "ADMIN" || userRole == "STAFF";
+    var isLoggedIn = Session["UserId"] != null;
 }
 
-<div class="bg-white shadow-sm rounded-4 p-5 mb-5">
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #1e3a5f 100%);
+        border-radius: 1.25rem;
+        padding: 4rem 2.5rem;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 2.5rem;
+    }
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(circle, rgba(59,130,246,0.15) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(59,130,246,0.15);
+        border: 1px solid rgba(59,130,246,0.3);
+        color: #93c5fd;
+        border-radius: 999px;
+        padding: 0.35rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        margin-bottom: 1.25rem;
+    }
+    .hero-title {
+        font-size: 2.75rem;
+        font-weight: 800;
+        color: #f8fafc;
+        line-height: 1.15;
+        margin-bottom: 1rem;
+    }
+    .hero-title span {
+        background: linear-gradient(90deg, #60a5fa, #a78bfa);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    .hero-subtitle {
+        color: #94a3b8;
+        font-size: 1.05rem;
+        line-height: 1.7;
+        max-width: 500px;
+        margin-bottom: 2rem;
+    }
+    .feature-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 1rem;
+        background: #fff;
+        padding: 1.75rem;
+        height: 100%;
+        transition: all 0.25s ease;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    .feature-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 32px rgba(15,23,42,0.1);
+        border-color: #bfdbfe;
+        color: inherit;
+        text-decoration: none;
+    }
+    .feature-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 0.875rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        margin-bottom: 1rem;
+    }
+    .admin-panel-section {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border: 1px solid #fbbf24;
+        border-radius: 1rem;
+        padding: 1.5rem 2rem;
+        margin-bottom: 2rem;
+    }
+    .stat-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.15);
+        color: #e2e8f0;
+        border-radius: 999px;
+        padding: 0.45rem 1.1rem;
+        font-size: 0.82rem;
+        font-weight: 500;
+    }
+    .stat-pill i { color: #93c5fd; }
+    .section-title {
+        font-size: 1.35rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.35rem;
+    }
+    .section-subtitle {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin-bottom: 1.75rem;
+    }
+</style>
+
+<!-- Hero Section (Customer-facing) -->
+<div class="hero-section">
     <div class="row align-items-center">
         <div class="col-lg-7">
-            <h1 class="display-5 fw-bold">ECommerce HUIT</h1>
-            <p class="lead text-muted mb-4">Nền tảng bán hàng và quản trị kho hàng được thiết kế để giúp bạn quản lý sản phẩm, người dùng, đánh giá và bảo hành một cách trực quan và hiệu quả.</p>
+            <div class="hero-badge">
+                <i class="bi bi-lightning-charge-fill text-warning"></i>
+                Cửa hàng điện tử hàng đầu
+            </div>
+            <h1 class="hero-title">
+                Mua sắm thông minh<br>
+                tại <span>HUIT Shop</span>
+            </h1>
+            <p class="hero-subtitle">
+                Khám phá hàng nghìn sản phẩm công nghệ chính hãng. Bảo hành đầy đủ, giao hàng nhanh, dịch vụ tận tâm.
+            </p>
             <div class="d-flex flex-column flex-sm-row gap-3">
-                <a href="/Product" class="btn btn-primary btn-lg px-4">Xem sản phẩm</a>
-                <a href="/Inventory" class="btn btn-outline-primary btn-lg px-4">Quản lý kho</a>
+                <a href="/Product" class="btn btn-primary btn-lg px-4 fw-semibold" style="border-radius:0.75rem;">
+                    <i class="bi bi-grid me-2"></i>Xem sản phẩm
+                </a>
+                <a href="/Warranty" class="btn btn-outline-light btn-lg px-4 fw-semibold" style="border-radius:0.75rem;">
+                    <i class="bi bi-shield-check me-2"></i>Tra cứu bảo hành
+                </a>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                <span class="stat-pill"><i class="bi bi-box-seam"></i> Hàng chính hãng 100%</span>
+                <span class="stat-pill"><i class="bi bi-truck"></i> Giao hàng toàn quốc</span>
+                <span class="stat-pill"><i class="bi bi-shield-check"></i> Bảo hành 12-24 tháng</span>
             </div>
         </div>
-        <div class="col-lg-5 text-center mt-4 mt-lg-0">
-            <img src="https://via.placeholder.com/520x360?text=HUIT+Shop" class="img-fluid rounded-4 shadow" alt="ECommerce HUIT" />
+        <div class="col-lg-5 text-center mt-4 mt-lg-0 d-none d-lg-block">
+            <i class="bi bi-bag-heart-fill" style="font-size: 10rem; color: rgba(59,130,246,0.3);"></i>
         </div>
     </div>
 </div>
 
-<div class="row gy-4">
+<!-- Admin Quick Access (only visible to Admin/Staff) -->
+@if (isAdminOrStaff)
+{
+    <div class="admin-panel-section">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div>
+                <h6 class="fw-bold text-amber-900 mb-1" style="color:#92400e;">
+                    <i class="bi bi-shield-lock me-2" style="color:#d97706;"></i>Bảng điều khiển Admin
+                </h6>
+                <small class="text-muted">Truy cập nhanh trang quản trị hệ thống</small>
+            </div>
+            <a href="@Url.Action("Revenue", "Order")" class="btn btn-warning fw-semibold btn-sm px-4" style="border-radius:0.75rem;">
+                <i class="bi bi-speedometer2 me-2"></i>Vào trang quản trị
+            </a>
+        </div>
+    </div>
+}
+
+<!-- Customer Feature Cards -->
+<div class="mb-3">
+    <p class="section-title">Dịch vụ cho bạn</p>
+    <p class="section-subtitle">Tất cả những gì bạn cần cho trải nghiệm mua sắm tuyệt vời</p>
+</div>
+
+<div class="row gy-4 mb-5">
+    <!-- Browse Products -->
     <div class="col-md-6 col-xl-3">
-        <div class="card h-100 shadow-sm border-0">
-            <div class="card-body text-center p-4">
-                <i class="bi bi-box-seam text-primary display-4 mb-3"></i>
-                <h5 class="fw-bold">Quản lý kho</h5>
-                <p class="text-muted small">Kiểm soát tồn kho, cảnh báo hàng sắp hết và nhập kho nhanh chóng.</p>
-                <a href="/Inventory" class="btn btn-outline-primary btn-sm">Mở ngay</a>
+        <a href="/Product" class="feature-card">
+            <div class="feature-icon" style="background: #eff6ff;">
+                <i class="bi bi-grid-3x3-gap" style="color:#3b82f6;"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Danh mục sản phẩm</h5>
+            <p class="text-muted small mb-3">Khám phá hàng nghìn sản phẩm công nghệ, phụ kiện và thiết bị điện tử chính hãng.</p>
+            <span class="text-primary small fw-semibold">Xem ngay <i class="bi bi-arrow-right"></i></span>
+        </a>
+    </div>
+
+    <!-- My Orders -->
+    <div class="col-md-6 col-xl-3">
+        <a href="@(isLoggedIn ? Url.Action("History","Order") : Url.Action("Login","Auth"))" class="feature-card">
+            <div class="feature-icon" style="background: #f0fdf4;">
+                <i class="bi bi-bag-check" style="color:#22c55e;"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Đơn hàng của tôi</h5>
+            <p class="text-muted small mb-3">Theo dõi trạng thái đơn hàng, xem lịch sử mua sắm và yêu cầu đổi trả dễ dàng.</p>
+            <span class="text-success small fw-semibold">Xem đơn hàng <i class="bi bi-arrow-right"></i></span>
+        </a>
+    </div>
+
+    <!-- Warranty Lookup -->
+    <div class="col-md-6 col-xl-3">
+        <a href="/Warranty" class="feature-card">
+            <div class="feature-icon" style="background: #f0f9ff;">
+                <i class="bi bi-shield-check" style="color:#0ea5e9;"></i>
+            </div>
+            <h5 class="fw-bold mb-2">Tra cứu bảo hành</h5>
+            <p class="text-muted small mb-3">Kiểm tra thời hạn bảo hành sản phẩm bằng mã Serial Number, nhanh chóng và chính xác.</p>
+            <span class="small fw-semibold" style="color:#0ea5e9;">Tra cứu ngay <i class="bi bi-arrow-right"></i></span>
+        </a>
+    </div>
+
+    <!-- Profile / Cart -->
+    <div class="col-md-6 col-xl-3">
+        <a href="@(isLoggedIn ? Url.Action("Profile","User") : Url.Action("Register","Auth"))" class="feature-card">
+            <div class="feature-icon" style="background: #fdf4ff;">
+                <i class="bi bi-person-circle" style="color:#a855f7;"></i>
+            </div>
+            <h5 class="fw-bold mb-2">@(isLoggedIn ? "Tài khoản của tôi" : "Tạo tài khoản")</h5>
+            <p class="text-muted small mb-3">@(isLoggedIn ? "Quản lý thông tin cá nhân, địa chỉ giao hàng và lịch sử đánh giá." : "Đăng ký để nhận ưu đãi độc quyền, theo dõi đơn hàng và quản lý bảo hành.")</p>
+            <span class="small fw-semibold" style="color:#a855f7;">@(isLoggedIn ? "Vào trang cá nhân" : "Đăng ký miễn phí") <i class="bi bi-arrow-right"></i></span>
+        </a>
+    </div>
+</div>
+
+<!-- Why Choose Us -->
+<div class="row g-3 mt-1">
+    <div class="col-12">
+        <p class="section-title">Tại sao chọn HUIT Shop?</p>
+    </div>
+    <div class="col-md-4">
+        <div class="d-flex align-items-start gap-3">
+            <div style="width:44px;height:44px;border-radius:0.75rem;background:#eff6ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="bi bi-patch-check-fill" style="color:#3b82f6;font-size:1.25rem;"></i>
+            </div>
+            <div>
+                <h6 class="fw-bold mb-1">Hàng chính hãng 100%</h6>
+                <p class="text-muted small mb-0">Cam kết nguồn gốc xuất xứ rõ ràng, có đầy đủ hóa đơn và giấy tờ theo hàng.</p>
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="card h-100 shadow-sm border-0">
-            <div class="card-body text-center p-4">
-                <i class="bi bi-people text-success display-4 mb-3"></i>
-                <h5 class="fw-bold">Quản lý người dùng</h5>
-                <p class="text-muted small">Quản lý tài khoản admin và người dùng, khóa/mở khóa, thay đổi vai trò.</p>
-                <a href="/User" class="btn btn-outline-success btn-sm">Mở ngay</a>
+    <div class="col-md-4">
+        <div class="d-flex align-items-start gap-3">
+            <div style="width:44px;height:44px;border-radius:0.75rem;background:#f0fdf4;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="bi bi-truck" style="color:#22c55e;font-size:1.25rem;"></i>
+            </div>
+            <div>
+                <h6 class="fw-bold mb-1">Giao hàng nhanh chóng</h6>
+                <p class="text-muted small mb-0">Giao hàng toàn quốc trong 1-3 ngày làm việc, miễn phí vận chuyển cho đơn từ 500k.</p>
             </div>
         </div>
     </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="card h-100 shadow-sm border-0">
-            <div class="card-body text-center p-4">
-                <i class="bi bi-chat-left-text text-warning display-4 mb-3"></i>
-                <h5 class="fw-bold">Đánh giá & Phản hồi</h5>
-                <p class="text-muted small">Duyệt đánh giá, phản hồi khách hàng và cải thiện chất lượng sản phẩm.</p>
-                <a href="/Review" class="btn btn-outline-warning btn-sm">Mở ngay</a>
+    <div class="col-md-4">
+        <div class="d-flex align-items-start gap-3">
+            <div style="width:44px;height:44px;border-radius:0.75rem;background:#fdf4ff;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="bi bi-headset" style="color:#a855f7;font-size:1.25rem;"></i>
             </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-xl-3">
-        <div class="card h-100 shadow-sm border-0">
-            <div class="card-body text-center p-4">
-                <i class="bi bi-shield-check text-info display-4 mb-3"></i>
-                <h5 class="fw-bold">Bảo hành</h5>
-                <p class="text-muted small">Tra cứu bảo hành nhanh, xem tình trạng và chi tiết thời hạn.</p>
-                <a href="/Warranty" class="btn btn-outline-info btn-sm">Mở ngay</a>
+            <div>
+                <h6 class="fw-bold mb-1">Hỗ trợ 24/7</h6>
+                <p class="text-muted small mb-0">Đội ngũ tư vấn viên sẵn sàng hỗ trợ mọi thắc mắc và yêu cầu bảo hành của bạn.</p>
             </div>
         </div>
     </div>
 </div>
-

@@ -54,6 +54,7 @@ namespace HuitShopDB.Models.DTOs.Order
         }
 
         public int Id { get; set; }
+        public int? VariantId { get; set; }
         public string ProductName { get; set; }
         public string Sku { get; set; }
         public string ThumbnailUrl { get; set; }

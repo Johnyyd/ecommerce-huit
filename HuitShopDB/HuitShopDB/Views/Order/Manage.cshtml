@@ -1,5 +1,6 @@
 @model IEnumerable<HuitShopDB.Models.DTOs.Order.OrderResponseDto>
 @{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     ViewBag.Title = "Quản lý đơn hàng - Admin";
     string currentStatus = ViewBag.Status ?? "ALL";
     string keyword = ViewBag.Keyword ?? "";
@@ -7,39 +8,42 @@
     int totalPages = ViewBag.TotalPages ?? 1;
 }
 <style>
-    body { background: #0f0f17; }
-    .manage-wrap { max-width: 1300px; margin: 0 auto; padding: 30px 20px 80px; }
-    .page-title { color: #fff; font-size: 1.7rem; font-weight: 800; margin-bottom: 8px; }
+    .manage-wrap { max-width: 1300px; margin: 0 auto; padding: 10px 0 80px; }
+    .page-title { color: #1e293b; font-size: 1.7rem; font-weight: 800; margin-bottom: 8px; }
     .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 28px; }
-    .kpi-card { background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 14px; padding: 16px; text-align: center; }
+    .kpi-card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
     .kpi-num { font-size: 1.6rem; font-weight: 800; }
-    .kpi-label { color: #888; font-size: 0.78rem; margin-top: 4px; }
-    .filter-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
-    .filter-input { background: #1a1a2e; border: 1px solid #2a2a3e; color: #fff; padding: 9px 14px; border-radius: 10px; font-size: 0.85rem; min-width: 220px; }
-    .filter-input:focus { outline: none; border-color: #6c63ff; }
-    .filter-select { background: #1a1a2e; border: 1px solid #2a2a3e; color: #fff; padding: 9px 14px; border-radius: 10px; font-size: 0.85rem; }
-    .btn-filter { background: #6c63ff; color: #fff; border: none; padding: 9px 20px; border-radius: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+    .kpi-label { color: #475569; font-size: 0.78rem; margin-top: 4px; font-weight: 500; }
+    .filter-bar { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; background: #ffffff; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+    .filter-input { background: #ffffff; border: 1px solid #cbd5e1; color: #1e293b; padding: 9px 14px; border-radius: 10px; font-size: 0.85rem; min-width: 220px; }
+    .filter-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); }
+    .filter-select { background: #ffffff; border: 1px solid #cbd5e1; color: #1e293b; padding: 9px 14px; border-radius: 10px; font-size: 0.85rem; }
+    .btn-filter { background: #3b82f6; color: #fff; border: none; padding: 9px 20px; border-radius: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-filter:hover { background: #2563eb; }
+    .table-container { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
     .admin-table { width: 100%; border-collapse: collapse; }
-    .admin-table th { background: #12122a; color: #888; font-size: 0.75rem; font-weight: 700; padding: 10px 12px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; }
-    .admin-table td { padding: 14px 12px; border-bottom: 1px solid #1f1f35; vertical-align: middle; color: #e0e0e0; font-size: 0.85rem; }
-    .admin-table tr:hover td { background: rgba(108,99,255,0.04); }
-    .order-code-link { color: #6c63ff; font-weight: 700; text-decoration: none; }
-    .order-code-link:hover { text-decoration: underline; }
-    .s-badge { display: inline-block; padding: 3px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
-    .s-PENDING { background: rgba(255,193,7,0.15); color: #ffc107; }
-    .s-CONFIRMED { background: rgba(0,191,255,0.15); color: #00bfff; }
-    .s-SHIPPING { background: rgba(108,99,255,0.15); color: #6c63ff; }
-    .s-COMPLETED { background: rgba(46,213,115,0.15); color: #2ed573; }
-    .s-CANCELLED { background: rgba(255,71,87,0.15); color: #ff4757; }
-    .status-select { background: #12122a; border: 1px solid #2a2a3e; color: #fff; padding: 5px 10px; border-radius: 8px; font-size: 0.78rem; cursor: pointer; }
-    .btn-view { background: rgba(108,99,255,0.15); color: #6c63ff; border: 1px solid rgba(108,99,255,0.3); padding: 5px 12px; border-radius: 7px; text-decoration: none; font-size: 0.78rem; font-weight: 600; }
-    .btn-view:hover { background: #6c63ff; color: #fff; text-decoration: none; }
+    .admin-table th { background: #f8fafc; color: #475569; font-size: 0.75rem; font-weight: 700; padding: 12px 16px; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e2e8f0; }
+    .admin-table td { padding: 14px 16px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; color: #334155; font-size: 0.85rem; }
+    .admin-table tr:last-child td { border-bottom: none; }
+    .admin-table tr:hover td { background: #f8fafc; }
+    .order-code-link { color: #3b82f6; font-weight: 700; text-decoration: none; }
+    .order-code-link:hover { text-decoration: underline; color: #2563eb; }
+    .s-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+    .s-PENDING { background: rgba(245,158,11,0.15); color: #d97706; }
+    .s-CONFIRMED { background: rgba(59,130,246,0.15); color: #2563eb; }
+    .s-SHIPPING { background: rgba(139,92,246,0.15); color: #7c3aed; }
+    .s-COMPLETED { background: rgba(16,185,129,0.15); color: #059669; }
+    .s-CANCELLED { background: rgba(239,68,68,0.15); color: #dc2626; }
+    .status-select { background: #ffffff; border: 1px solid #cbd5e1; color: #1e293b; padding: 5px 10px; border-radius: 8px; font-size: 0.78rem; cursor: pointer; }
+    .btn-view { background: rgba(59,130,246,0.1); color: #3b82f6; border: 1px solid rgba(59,130,246,0.2); padding: 5px 12px; border-radius: 7px; text-decoration: none; font-size: 0.78rem; font-weight: 600; transition: all 0.2s; }
+    .btn-view:hover { background: #3b82f6; color: #fff; text-decoration: none; }
     .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 28px; }
-    .page-btn { width: 36px; height: 36px; border-radius: 9px; background: #1a1a2e; border: 1px solid #2a2a3e; color: #aaa; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 0.82rem; }
-    .page-btn.active { background: #6c63ff; border-color: #6c63ff; color: #fff; }
-    .page-btn:hover { border-color: #6c63ff; color: #fff; text-decoration: none; }
-    .customer-cell .name { color: #e0e0e0; font-weight: 600; font-size: 0.83rem; }
-    .customer-cell .email { color: #666; font-size: 0.75rem; }
+    .page-btn { width: 36px; height: 36px; border-radius: 9px; background: #ffffff; border: 1px solid #cbd5e1; color: #475569; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 0.82rem; transition: all 0.2s; }
+    .page-btn.active { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+    .page-btn:hover { border-color: #3b82f6; color: #3b82f6; text-decoration: none; }
+    .page-btn.active:hover { color: #fff; }
+    .customer-cell .name { color: #1e293b; font-weight: 600; font-size: 0.83rem; }
+    .customer-cell .email { color: #64748b; font-size: 0.75rem; }
     @@media (max-width: 900px) { .kpi-row { grid-template-columns: repeat(3,1fr); } }
 </style>
 
@@ -70,66 +74,68 @@
         </div>
     </form>
 
-    <table class="admin-table">
-        <thead>
-            <tr>
-                <th>Mã đơn</th>
-                <th>Khách hàng</th>
-                <th>Sản phẩm</th>
-                <th>Tổng tiền</th>
-                <th>Thanh toán</th>
-                <th>Trạng thái</th>
-                <th>Ngày đặt</th>
-                <th>Hành động</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in Model)
-            {
+    <div class="table-container">
+        <table class="admin-table">
+            <thead>
                 <tr>
-                    <td>
-                        <a href="@Url.Action("AdminDetails", "Order", new { id = order.Id })" class="order-code-link">@order.Code</a>
-                    </td>
-                    <td>
-                        <div class="customer-cell">
-                            <div class="name">@(string.IsNullOrEmpty(order.UserName) ? order.RecipientName : order.UserName)</div>
-                            <div class="email">@order.UserEmail</div>
-                        </div>
-                    </td>
-                    <td style="color:#aaa;">@order.Items.Count sản phẩm</td>
-                    <td style="color:#6c63ff;font-weight:700;">@order.Total.ToString("N0")đ</td>
-                    <td style="color:#aaa;font-size:0.78rem;">@(order.PaymentMethod == "COD" ? "💵 COD" : order.PaymentMethod == "BANK_TRANSFER" ? "🏦 CK" : "💜 MoMo")</td>
-                    <td>
-                        <span class="s-badge s-@order.Status" id="status-badge-@order.Id">
-                            @(order.Status == "PENDING" ? "⏳ Chờ xử lý" :
-                              order.Status == "CONFIRMED" ? "✅ Xác nhận" :
-                              order.Status == "SHIPPING" ? "🚚 Đang giao" :
-                              order.Status == "COMPLETED" ? "🏠 Hoàn tất" : "❌ Đã hủy")
-                        </span>
-                    </td>
-                    <td style="color:#888;font-size:0.78rem;">@order.CreatedAt.AddHours(7).ToString("dd/MM HH:mm")</td>
-                    <td>
-                        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-                            <a href="@Url.Action("AdminDetails", "Order", new { id = order.Id })" class="btn-view">Chi tiết</a>
-                            @if (order.Status != "COMPLETED" && order.Status != "CANCELLED")
-                            {
-                                <select class="status-select" onchange="updateOrderStatus(@order.Id, this.value, this)">
-                                    <option value="">-- Đổi TT --</option>
-                                    @if (order.Status == "PENDING") { <option value="CONFIRMED">✅ Xác nhận</option> <option value="CANCELLED">❌ Hủy</option> }
-                                    @if (order.Status == "CONFIRMED") { <option value="SHIPPING">🚚 Giao hàng</option> <option value="CANCELLED">❌ Hủy</option> }
-                                    @if (order.Status == "SHIPPING") { <option value="COMPLETED">🏠 Hoàn tất</option> }
-                                </select>
-                            }
-                        </div>
-                    </td>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Sản phẩm</th>
+                    <th>Tổng tiền</th>
+                    <th>Thanh toán</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày đặt</th>
+                    <th>Hành động</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var order in Model)
+                {
+                    <tr>
+                        <td>
+                            <a href="@Url.Action("AdminDetails", "Order", new { id = order.Id })" class="order-code-link">@order.Code</a>
+                        </td>
+                        <td>
+                            <div class="customer-cell">
+                                <div class="name">@(string.IsNullOrEmpty(order.UserName) ? order.RecipientName : order.UserName)</div>
+                                <div class="email">@order.UserEmail</div>
+                            </div>
+                        </td>
+                        <td style="color:#64748b;">@order.Items.Count sản phẩm</td>
+                        <td style="color:#3b82f6;font-weight:700;">@order.Total.ToString("N0")đ</td>
+                        <td style="color:#64748b;font-size:0.78rem;">@(order.PaymentMethod == "COD" ? "💵 COD" : order.PaymentMethod == "BANK_TRANSFER" ? "🏦 CK" : "💜 MoMo")</td>
+                        <td>
+                            <span class="s-badge s-@order.Status" id="status-badge-@order.Id">
+                                @(order.Status == "PENDING" ? "⏳ Chờ xử lý" :
+                                  order.Status == "CONFIRMED" ? "✅ Xác nhận" :
+                                  order.Status == "SHIPPING" ? "🚚 Đang giao" :
+                                  order.Status == "COMPLETED" ? "🏠 Hoàn tất" : "❌ Đã hủy")
+                            </span>
+                        </td>
+                        <td style="color:#64748b;font-size:0.78rem;">@order.CreatedAt.AddHours(7).ToString("dd/MM HH:mm")</td>
+                        <td>
+                            <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+                                <a href="@Url.Action("AdminDetails", "Order", new { id = order.Id })" class="btn-view">Chi tiết</a>
+                                @if (order.Status != "COMPLETED" && order.Status != "CANCELLED")
+                                {
+                                    <select class="status-select" onchange="updateOrderStatus(@order.Id, this.value, this)">
+                                        <option value="">-- Đổi TT --</option>
+                                        @if (order.Status == "PENDING") { <option value="CONFIRMED">✅ Xác nhận</option> <option value="CANCELLED">❌ Hủy</option> }
+                                        @if (order.Status == "CONFIRMED") { <option value="SHIPPING">🚚 Giao hàng</option> <option value="CANCELLED">❌ Hủy</option> }
+                                        @if (order.Status == "SHIPPING") { <option value="COMPLETED">🏠 Hoàn tất</option> }
+                                    </select>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 
     @if (!Model.Any())
     {
-        <div style="text-align:center;padding:60px;color:#888;">
+        <div style="text-align:center;padding:60px;color:#64748b;">
             <div style="font-size:3rem;margin-bottom:14px;">📭</div>
             <p>Không có đơn hàng nào phù hợp với bộ lọc</p>
         </div>

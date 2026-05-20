@@ -1,6 +1,6 @@
 @model IEnumerable<HuitShopDB.Models.DTOs.Admin.InventoryDto>
 @{
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
     var warehouses = ViewBag.Warehouses as IEnumerable<HuitShopDB.Models.warehouse>;
 }
 
@@ -12,14 +12,6 @@
             <a href="@Url.Action("Import")" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Nhập kho</a>
         </div>
     </div>
-
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
 
     <div class="card shadow-sm border-0 mb-4">
         <div class="card-body bg-light">

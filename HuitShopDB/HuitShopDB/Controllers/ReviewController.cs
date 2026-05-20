@@ -20,9 +20,21 @@ namespace HuitShopDB.Controllers
             _reviewService = reviewService;
         }
 
+        private bool IsAdminOrStaff()
+        {
+            string role = Session["UserRole"] as string;
+            return role == "ADMIN" || role == "STAFF";
+        }
+
         // GET: /Review/
         public async Task<ActionResult> Index(bool? approved, int? minRating)
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             ViewBag.Title = "Quản lý đánh giá";
             ViewBag.ApprovedFilter = approved;
             ViewBag.MinRating = minRating;
@@ -35,6 +47,12 @@ namespace HuitShopDB.Controllers
         [HttpPost]
         public async Task<ActionResult> Approve(int id)
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             bool success = await _reviewService.ApproveReviewAsync(id);
             if (success)
             {
@@ -47,6 +65,12 @@ namespace HuitShopDB.Controllers
         [HttpPost]
         public async Task<ActionResult> Delete(int id)
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             bool success = await _reviewService.DeleteReviewAsync(id);
             if (success)
             {
@@ -59,14 +83,19 @@ namespace HuitShopDB.Controllers
         [HttpPost]
         public async Task<ActionResult> Reply(AddReviewResponseRequest request)
         {
+            if (!IsAdminOrStaff())
+            {
+                TempData["ErrorMessage"] = "Bạn không có quyền truy cập trang quản trị này.";
+                return RedirectToAction("Login", "Auth");
+            }
+
             if (string.IsNullOrEmpty(request.Content))
             {
                 TempData["ErrorMessage"] = "Nội dung phản hồi không được để trống.";
                 return RedirectToAction("Index");
             }
 
-            // Hardcoded admin ID 1 for now (as per ProductController pattern)
-            int adminId = 1;
+            int adminId = Session["UserId"] != null ? (int)Session["UserId"] : 1;
 
             bool success = await _reviewService.AddReviewResponseAsync(request.ReviewId, request, adminId);
             if (success)
