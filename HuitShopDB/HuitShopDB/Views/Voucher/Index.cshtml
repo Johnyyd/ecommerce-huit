@@ -89,9 +89,17 @@
                 </div>
                 <div class="col-md-4">
                     <select name="status" class="form-select" style="border-radius: 10px; height: 43px;">
-                        @foreach (var (val, lbl) in new[] { ("ALL","Tất cả"), ("ACTIVE","Đang hoạt động"), ("EXPIRED","Đã hết hạn"), ("DISABLED","Vô hiệu hóa") })
+                        @{
+                            var statusOpts = new string[][] {
+                                new[]{ "ALL", "Tất cả" },
+                                new[]{ "ACTIVE", "Đang hoạt động" },
+                                new[]{ "EXPIRED", "Đã hết hạn" },
+                                new[]{ "DISABLED", "Vô hiệu hóa" }
+                            };
+                        }
+                        @foreach (var opt in statusOpts)
                         {
-                            <option value="@val" @(currentStatus == val ? "selected" : "")>@lbl</option>
+                            <option value="@opt[0]" @(currentStatus == opt[0] ? "selected" : "")>@opt[1]</option>
                         }
                     </select>
                 </div>

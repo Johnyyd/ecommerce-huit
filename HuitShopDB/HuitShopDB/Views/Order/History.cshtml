@@ -51,10 +51,20 @@
     <p class="page-sub">Theo dõi tất cả đơn hàng của bạn</p>
 
     <div class="status-tabs">
-        @foreach (var (val, lbl) in new[] { ("ALL","Tất cả"), ("PENDING","Chờ xử lý"), ("CONFIRMED","Đã xác nhận"), ("SHIPPING","Đang giao"), ("COMPLETED","Hoàn tất"), ("CANCELLED","Đã hủy") })
+        @{
+            var tabOpts = new string[][] {
+                new[]{ "ALL", "Tất cả" },
+                new[]{ "PENDING", "Chờ xử lý" },
+                new[]{ "CONFIRMED", "Đã xác nhận" },
+                new[]{ "SHIPPING", "Đang giao" },
+                new[]{ "COMPLETED", "Hoàn tất" },
+                new[]{ "CANCELLED", "Đã hủy" }
+            };
+        }
+        @foreach (var tab in tabOpts)
         {
-            <a href="@Url.Action("History", "Order", new { status = val, page = 1 })"
-               class="status-tab @(currentStatus == val ? "active" : "")">@lbl</a>
+            <a href="@Url.Action("History", "Order", new { status = tab[0], page = 1 })"
+               class="status-tab @(currentStatus == tab[0] ? "active" : "")">@tab[1]</a>
         }
     </div>
 

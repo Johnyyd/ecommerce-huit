@@ -61,18 +61,20 @@
         <div class="confirm-card-title"><i class="fas fa-route"></i> Theo dõi trạng thái đơn hàng</div>
         <div class="timeline-mini">
             @{
-                var steps = new[] { ("PENDING","⏳","Chờ xử lý"), ("CONFIRMED","✅","Xác nhận"), ("SHIPPING","🚚","Đang giao"), ("COMPLETED","🏠","Hoàn tất") };
-                int activeStep = 0;
-            }
-            @foreach (var (key, icon, label) in steps)
-            {
-                bool isActive = Model.Status == key || activeStep == 0;
-                bool isPast = false;
+                var steps = new string[][] {
+                    new[]{ "PENDING",   "⏳", "Chờ xử lý" },
+                    new[]{ "CONFIRMED", "✅", "Xác nhận"    },
+                    new[]{ "SHIPPING",  "🚚", "Đang giao"    },
+                    new[]{ "COMPLETED", "🏠", "Hoàn tất"    }
+                };
                 var stepOrder = new[] { "PENDING", "CONFIRMED", "SHIPPING", "COMPLETED" };
-                isPast = Array.IndexOf(stepOrder, Model.Status) >= Array.IndexOf(stepOrder, key);
+            }
+            @foreach (var step in steps)
+            {
+                bool isPast = Array.IndexOf(stepOrder, Model.Status) >= Array.IndexOf(stepOrder, step[0]);
                 <div class="tl-step">
-                    <div class="tl-dot @(isPast ? "active" : "")">@(isPast ? "✓" : icon)</div>
-                    <div class="tl-label @(Model.Status == key ? "active" : "")">@label</div>
+                    <div class="tl-dot @(isPast ? "active" : "")">@(isPast ? "✓" : step[1])</div>
+                    <div class="tl-label @(Model.Status == step[0] ? "active" : "")">@step[2]</div>
                 </div>
             }
         </div>
