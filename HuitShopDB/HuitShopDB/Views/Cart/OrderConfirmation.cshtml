@@ -3,48 +3,47 @@
     ViewBag.Title = "Đặt hàng thành công - HUIT Shop";
 }
 <style>
-    body { background: #0f0f17; }
-    .confirm-wrap { max-width: 780px; margin: 60px auto; padding: 0 20px 80px; text-align: center; }
+    .confirm-wrap { max-width: 780px; margin: 40px auto; padding: 0 20px 60px; text-align: center; }
     .success-icon { font-size: 5rem; margin-bottom: 20px; animation: bounceIn 0.8s ease; }
     @@keyframes bounceIn { 0%{transform:scale(0);opacity:0} 60%{transform:scale(1.15)} 100%{transform:scale(1);opacity:1} }
-    .confirm-title { color: #fff; font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
-    .confirm-sub { color: #aaa; font-size: 0.95rem; margin-bottom: 40px; }
-    .order-code-badge { display: inline-block; background: rgba(108,99,255,0.15); border: 1px solid rgba(108,99,255,0.4); color: #6c63ff; font-size: 1.1rem; font-weight: 700; padding: 10px 28px; border-radius: 50px; margin-bottom: 40px; }
-    .confirm-card { background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 20px; padding: 30px; margin-bottom: 24px; text-align: left; }
-    .confirm-card-title { color: #fff; font-size: 0.95rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-    .confirm-card-title i { color: #6c63ff; }
-    .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1f1f35; font-size: 0.88rem; }
+    .confirm-title { color: #0f172a; font-size: 2rem; font-weight: 800; margin-bottom: 8px; }
+    .confirm-sub { color: #64748b; font-size: 0.95rem; margin-bottom: 30px; }
+    .order-code-badge { display: inline-block; background: rgba(215,0,24,0.08); border: 1px solid rgba(215,0,24,0.2); color: #d70018; font-size: 1.1rem; font-weight: 700; padding: 10px 28px; border-radius: 50px; margin-bottom: 30px; }
+    .confirm-card { background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-radius: 16px; padding: 30px; margin-bottom: 24px; text-align: left; }
+    .confirm-card-title { color: #0f172a; font-size: 1.05rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .confirm-card-title i { color: #d70018; }
+    .info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #e2e8f0; font-size: 0.95rem; }
     .info-row:last-child { border-bottom: none; }
-    .info-label { color: #888; }
-    .info-val { color: #e0e0e0; font-weight: 600; }
-    .item-row { display: flex; gap: 14px; align-items: center; padding: 12px 0; border-bottom: 1px solid #1f1f35; }
+    .info-label { color: #64748b; }
+    .info-val { color: #0f172a; font-weight: 600; }
+    .item-row { display: flex; gap: 16px; align-items: center; padding: 16px 0; border-bottom: 1px dashed #e2e8f0; }
     .item-row:last-child { border-bottom: none; }
-    .item-thumb { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; background: #12122a; flex-shrink: 0; }
+    .item-thumb { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; background: #f8fafc; flex-shrink: 0; border: 1px solid #e2e8f0; }
     .item-details { flex: 1; }
-    .item-name { color: #e0e0e0; font-size: 0.88rem; }
-    .item-sku { color: #666; font-size: 0.78rem; }
-    .item-qty { color: #aaa; font-size: 0.83rem; }
-    .item-total { color: #6c63ff; font-weight: 700; font-size: 0.9rem; flex-shrink: 0; }
-    .totals-section { background: #12122a; border-radius: 14px; padding: 20px; }
-    .totals-row { display: flex; justify-content: space-between; font-size: 0.88rem; color: #aaa; padding: 6px 0; }
-    .totals-row.grand { font-size: 1.1rem; color: #fff; font-weight: 800; border-top: 1px solid #2a2a3e; margin-top: 10px; padding-top: 14px; }
-    .totals-row.grand .tval { color: #6c63ff; }
-    .payment-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(46,213,115,0.1); border: 1px solid #2ed573; border-radius: 8px; padding: 5px 12px; color: #2ed573; font-size: 0.82rem; }
+    .item-name { color: #0f172a; font-size: 0.95rem; font-weight: 600; margin-bottom: 4px; }
+    .item-sku { color: #64748b; font-size: 0.8rem; }
+    .item-qty { color: #64748b; font-size: 0.85rem; margin-top: 4px; }
+    .item-total { color: #d70018; font-weight: 700; font-size: 1rem; flex-shrink: 0; }
+    .totals-section { background: #f8fafc; border-radius: 12px; padding: 20px; border: 1px solid #f1f5f9; }
+    .totals-row { display: flex; justify-content: space-between; font-size: 0.95rem; color: #64748b; padding: 8px 0; }
+    .totals-row.grand { font-size: 1.15rem; color: #0f172a; font-weight: 800; border-top: 2px solid #e2e8f0; margin-top: 10px; padding-top: 14px; }
+    .totals-row.grand .tval { color: #d70018; }
+    .payment-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(46,213,115,0.1); border: 1px solid #2ed573; border-radius: 8px; padding: 5px 12px; color: #10b981; font-weight: 600; font-size: 0.82rem; }
     .status-badge { display: inline-block; padding: 4px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: 700; }
-    .status-PENDING { background: rgba(255,193,7,0.15); color: #ffc107; }
+    .status-PENDING { background: rgba(255,193,7,0.15); color: #d97706; }
     .action-btns { display: flex; gap: 14px; justify-content: center; margin-top: 40px; flex-wrap: wrap; }
-    .btn-primary-action { background: linear-gradient(135deg, #6c63ff, #a855f7); color: #fff; padding: 13px 30px; border-radius: 14px; text-decoration: none; font-weight: 700; font-size: 0.95rem; border: none; }
-    .btn-secondary-action { background: #1a1a2e; border: 1px solid #2a2a3e; color: #e0e0e0; padding: 13px 30px; border-radius: 14px; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
-    .btn-primary-action:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(108,99,255,0.4); color: #fff; text-decoration: none; }
-    .btn-secondary-action:hover { border-color: #6c63ff; color: #fff; text-decoration: none; }
+    .btn-primary-action { background: #d70018; color: #fff; padding: 13px 30px; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 0.95rem; border: none; box-shadow: 0 4px 10px rgba(215,0,24,0.25); transition: all 0.2s ease; }
+    .btn-secondary-action { background: #fff; border: 1px solid #cbd5e1; color: #0f172a; padding: 13px 30px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 0.95rem; transition: all 0.2s ease; }
+    .btn-primary-action:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(215,0,24,0.35); color: #fff; text-decoration: none; }
+    .btn-secondary-action:hover { border-color: #d70018; color: #d70018; text-decoration: none; background: #fffafb; }
     .timeline-mini { display: flex; gap: 0; margin-top: 10px; }
     .tl-step { flex: 1; text-align: center; position: relative; }
-    .tl-step::before { content:''; position: absolute; top: 14px; left: 50%; right: -50%; height: 2px; background: #2a2a3e; z-index: 0; }
+    .tl-step::before { content:''; position: absolute; top: 14px; left: 50%; right: -50%; height: 3px; background: #e2e8f0; z-index: 0; }
     .tl-step:last-child::before { display: none; }
-    .tl-dot { width: 30px; height: 30px; border-radius: 50%; background: #2a2a3e; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; position: relative; z-index: 1; }
-    .tl-dot.active { background: #6c63ff; }
-    .tl-label { color: #666; font-size: 0.72rem; }
-    .tl-label.active { color: #6c63ff; font-weight: 700; }
+    .tl-dot { width: 32px; height: 32px; border-radius: 50%; background: #e2e8f0; color: #64748b; margin: 0 auto 8px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: bold; position: relative; z-index: 1; box-shadow: 0 0 0 4px #fff; }
+    .tl-dot.active { background: #10b981; color: #fff; }
+    .tl-label { color: #64748b; font-size: 0.75rem; font-weight: 500; }
+    .tl-label.active { color: #10b981; font-weight: 700; }
 </style>
 
 <div class="confirm-wrap">
