@@ -34,15 +34,18 @@ namespace HuitShopDB.Controllers
             query.SortBy = sortBy ?? "newest";
             query.InStockOnly = inStockOnly;
             query.Page = page;
-            query.PageSize = 9;
+            query.PageSize = 12;
 
             var products = await _productService.GetProductsAsync(query);
+            var totalCount = await _productService.GetProductsCountAsync(query);
             var categories = await _productService.GetCategoriesAsync();
             var brands = await _productService.GetBrandsAsync();
 
             ViewBag.Categories = categories;
             ViewBag.Brands = brands;
             ViewBag.QueryParams = query;
+            ViewBag.TotalCount = totalCount;
+            ViewBag.TotalPages = (int)Math.Ceiling((double)totalCount / query.PageSize);
 
             // Maintain backward compatibility for standard parameters
             ViewBag.CurrentCategory = categoryId;

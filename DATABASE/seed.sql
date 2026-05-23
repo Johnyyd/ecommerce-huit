@@ -1,4 +1,4 @@
--- =====================================================
+﻿-- =====================================================
 -- SEED DATA FOR ECOMMERCE HUIT
 -- Database: HuitShopDB
 -- Note: Chạy file này SAU khi đã chạy init.sql
@@ -96,9 +96,9 @@ INSERT INTO products (id, name, slug, brand_id, category_id, description, specif
  N'<p>S24 Ultra với S-Pen, camera 200MP, AI tích hợp</p>',
  N'{"screen":"6.8 inch","chip":"Snapdragon 8 Gen 3","ram":"12GB","battery":"5000 mAh","camera":"200MP"}',
  'ACTIVE', 1),
-(3, N'Dell XPS 13 Plus', 'dell-xps-13-plus', 3, 2,
- N'<p>Laptop mỏng nhẹ, màn hình OLED, chip Intel Core i7 thế hệ mới</p>',
- N'{"screen":"13.4 inch OLED","cpu":"Intel Core i7 1360P","ram":"16GB","storage":"512GB SSD","weight":"1.23 kg"}',
+(3, N'MacBook Air M3', 'macbook-air-m3', 1, 2,
+ N'<p>Laptop mỏng nhẹ, sang trọng, chip Apple M3 mạnh mẽ</p>',
+ N'{"screen":"13.6 inch Liquid Retina","cpu":"Apple M3","ram":"8GB","storage":"256GB SSD","weight":"1.24 kg"}',
  'ACTIVE', 1),
 (4, N'Asus ROG Strix G16', 'asus-rog-strix-g16', 4, 1,
  N'<p>Gaming laptop mạnh với card RTX 4060, màn hình 165Hz</p>',
@@ -114,15 +114,15 @@ GO
 
 SET IDENTITY_INSERT product_variants ON;
 
-INSERT INTO product_variants (id, product_id, sku, variant_name, price, original_price, cost_price, display_order) VALUES
-(1, 1, 'IP15PM-256-TI', N'256GB - Titan Tự Nhiên', 28990000, 34990000, 26000000, 1),
-(2, 1, 'IP15PM-512-BL', N'512GB - Titan Xanh', 34990000, 40990000, 31000000, 2),
-(3, 2, 'SS-S24U-256-GR', N'256GB - Xám Titan', 26990000, 31990000, 24000000, 1),
-(4, 2, 'SS-S24U-512-BK', N'512GB - Đen', 31990000, 36990000, 28000000, 2),
-(5, 3, 'DELL-XPS13-16-512', N'i7/16GB/512GB', 45000000, 48000000, 40000000, 1),
-(6, 4, 'ASUS-ROG-G16', N'i9/RTX4060/16GB/1TB', 32000000, 35000000, 29000000, 1),
-(7, 5, 'SONY-XM5-BLK', N'Màu Đen', 6990000, 8490000, 5500000, 1),
-(8, 5, 'SONY-XM5-SLV', N'Màu Bạc', 7190000, 8690000, 5600000, 2);
+INSERT INTO product_variants (id, product_id, sku, variant_name, price, original_price, cost_price, thumbnail_url, display_order) VALUES
+(1, 1, 'IP15PM-256-TI', N'256GB - Titan Tự Nhiên', 28990000, 34990000, 26000000, '/Content/Anh/iPhone_15_Pro_Max.png', 1),
+(2, 1, 'IP15PM-512-BL', N'512GB - Titan Xanh', 34990000, 40990000, 31000000, '/Content/Anh/iPhone_15_Pro_Max.png', 2),
+(3, 2, 'SS-S24U-256-GR', N'256GB - Xám Titan', 26990000, 31990000, 24000000, '/Content/Anh/Samsung_Galaxy_S24_Ultra.jpg', 1),
+(4, 2, 'SS-S24U-512-BK', N'512GB - Đen', 31990000, 36990000, 28000000, '/Content/Anh/Samsung_Galaxy_S24_Ultra.jpg', 2),
+(5, 3, 'MAC-AIR-M3-8-256', N'M3/8GB/256GB', 27990000, 29990000, 25000000, '/Content/Anh/MacBook Air M3.jpg', 1),
+(6, 4, 'ASUS-ROG-G16', N'i9/RTX4060/16GB/1TB', 32000000, 35000000, 29000000, NULL, 1),
+(7, 5, 'SONY-XM5-BLK', N'Màu Đen', 6990000, 8490000, 5500000, NULL, 1),
+(8, 5, 'SONY-XM5-SLV', N'Màu Bạc', 7190000, 8690000, 5600000, NULL, 2);
 
 SET IDENTITY_INSERT product_variants OFF;
 GO
@@ -179,3 +179,83 @@ INSERT INTO reviews (user_id, product_id, variant_id, rating, title, content, is
 
 PRINT N'SEED DATA ENRICHED SUCCESSFULLY!';
 GO
+
+
+-- =====================================================
+
+-- =====================================================
+-- MORE ELECTRONICS: LAPTOP, WEARABLES, PC COMPONENTS
+-- =====================================================
+SET IDENTITY_INSERT products ON;
+INSERT INTO products (id, name, slug, brand_id, category_id, description, specifications, status, created_by) VALUES 
+(6, N'Asus ROG Zephyrus G14', 'asus-rog-zephyrus-g14', 4, 1, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng Asus ROG Zephyrus G14</p>', N'{}', 'ACTIVE', 1),
+(7, N'Dell XPS 15', 'dell-xps-15', 3, 2, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng Dell XPS 15</p>', N'{}', 'ACTIVE', 1),
+(8, N'MacBook Pro 16 M3 Max', 'macbook-pro-16-m3-max', 1, 2, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng MacBook Pro 16 M3 Max</p>', N'{}', 'ACTIVE', 1),
+(9, N'Lenovo Legion 5', 'lenovo-legion-5', 4, 1, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng Lenovo Legion 5</p>', N'{}', 'ACTIVE', 1),
+(10, N'HP Spectre x360', 'hp-spectre-x360', 3, 2, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng HP Spectre x360</p>', N'{}', 'ACTIVE', 1),
+(11, N'Apple Watch Series 9', 'apple-watch-series-9', 1, 5, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng Apple Watch Series 9</p>', N'{}', 'ACTIVE', 1),
+(12, N'Samsung Galaxy Watch 6 Classic', 'samsung-galaxy-watch-6-classic', 2, 5, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng Samsung Galaxy Watch 6 Classic</p>', N'{}', 'ACTIVE', 1),
+(13, N'Garmin Fenix 7', 'garmin-fenix-7', 5, 5, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng Garmin Fenix 7</p>', N'{}', 'ACTIVE', 1),
+(14, N'Xiaomi Mi Band 8', 'xiaomi-mi-band-8', 6, 5, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng Xiaomi Mi Band 8</p>', N'{}', 'ACTIVE', 1),
+(15, N'Huawei Watch GT 4', 'huawei-watch-gt-4', 6, 5, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng Huawei Watch GT 4</p>', N'{}', 'ACTIVE', 1),
+(16, N'CPU Intel Core i9-14900K', 'cpu-intel-core-i9-14900k', 3, 5, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng CPU Intel Core i9-14900K</p>', N'{}', 'ACTIVE', 1),
+(17, N'CPU AMD Ryzen 9 7950X3D', 'cpu-amd-ryzen-9-7950x3d', 3, 5, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng CPU AMD Ryzen 9 7950X3D</p>', N'{}', 'ACTIVE', 1),
+(18, N'VGA NVIDIA RTX 4090', 'vga-nvidia-rtx-4090', 4, 5, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng VGA NVIDIA RTX 4090</p>', N'{}', 'ACTIVE', 1),
+(19, N'VGA AMD Radeon RX 7900 XTX', 'vga-amd-radeon-rx-7900-xtx', 4, 5, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng VGA AMD Radeon RX 7900 XTX</p>', N'{}', 'ACTIVE', 1),
+(20, N'Mainboard Asus ROG Maximus Z790', 'mainboard-asus-rog-maximus-z790', 4, 5, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng Mainboard Asus ROG Maximus Z790</p>', N'{}', 'ACTIVE', 1),
+(21, N'Mainboard MSI MAG B650 Tomahawk', 'mainboard-msi-mag-b650-tomahawk', 4, 5, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng Mainboard MSI MAG B650 Tomahawk</p>', N'{}', 'ACTIVE', 1),
+(22, N'RAM Corsair Vengeance 32GB DDR5', 'ram-corsair-vengeance-32gb-ddr5', 5, 5, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng RAM Corsair Vengeance 32GB DDR5</p>', N'{}', 'ACTIVE', 1),
+(23, N'RAM G.Skill Trident Z5 64GB', 'ram-g-skill-trident-z5-64gb', 5, 5, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng RAM G.Skill Trident Z5 64GB</p>', N'{}', 'ACTIVE', 1),
+(24, N'SSD Samsung 990 Pro 2TB', 'ssd-samsung-990-pro-2tb', 2, 5, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng SSD Samsung 990 Pro 2TB</p>', N'{}', 'ACTIVE', 1),
+(25, N'SSD WD Black SN850X 1TB', 'ssd-wd-black-sn850x-1tb', 5, 5, N'<p>Sáº£n pháº©m chÃ­nh hÃ£ng SSD WD Black SN850X 1TB</p>', N'{}', 'ACTIVE', 1);
+SET IDENTITY_INSERT products OFF;
+GO
+
+SET IDENTITY_INSERT product_variants ON;
+INSERT INTO product_variants (id, product_id, sku, variant_name, price, original_price, cost_price, thumbnail_url, display_order) VALUES 
+(9, 6, 'SKU-6', N'Máº·c Ä‘á»‹nh', 35000000, 42000000, 28000000, '/Content/Anh/Asus_ROG_Zephyrus_G14.jpg', 1),
+(10, 7, 'SKU-7', N'Máº·c Ä‘á»‹nh', 45000000, 54000000, 36000000, '/Content/Anh/Dell_XPS_15.jpg', 1),
+(11, 8, 'SKU-8', N'Máº·c Ä‘á»‹nh', 85000000, 102000000, 68000000, '/Content/Anh/MacBook_Pro_16_M3_Max.jpg', 1),
+(12, 9, 'SKU-9', N'Máº·c Ä‘á»‹nh', 30000000, 36000000, 24000000, '/Content/Anh/Lenovo_Legion_5.jpg', 1),
+(13, 10, 'SKU-10', N'Máº·c Ä‘á»‹nh', 40000000, 48000000, 32000000, '/Content/Anh/HP_Spectre_x360.jpg', 1),
+(14, 11, 'SKU-11', N'Máº·c Ä‘á»‹nh', 10000000, 12000000, 8000000, '/Content/Anh/Apple_Watch_Series_9.jpg', 1),
+(15, 12, 'SKU-12', N'Máº·c Ä‘á»‹nh', 8000000, 9600000, 6400000, '/Content/Anh/Samsung_Galaxy_Watch_6_Classic.jpg', 1),
+(16, 13, 'SKU-13', N'Máº·c Ä‘á»‹nh', 15000000, 18000000, 12000000, '/Content/Anh/Garmin_Fenix_7.jpg', 1),
+(17, 14, 'SKU-14', N'Máº·c Ä‘á»‹nh', 1000000, 1200000, 800000, '/Content/Anh/Xiaomi_Mi_Band_8.jpg', 1),
+(18, 15, 'SKU-15', N'Máº·c Ä‘á»‹nh', 6000000, 7200000, 4800000, '/Content/Anh/Huawei_Watch_GT_4.jpg', 1),
+(19, 16, 'SKU-16', N'Máº·c Ä‘á»‹nh', 16000000, 19200000, 12800000, '/Content/Anh/CPU_Intel_Core_i9_14900K.jpg', 1),
+(20, 17, 'SKU-17', N'Máº·c Ä‘á»‹nh', 18000000, 21600000, 14400000, '/Content/Anh/CPU_AMD_Ryzen_9_7950X3D.jpg', 1),
+(21, 18, 'SKU-18', N'Máº·c Ä‘á»‹nh', 45000000, 54000000, 36000000, '/Content/Anh/VGA_NVIDIA_RTX_4090.jpg', 1),
+(22, 19, 'SKU-19', N'Máº·c Ä‘á»‹nh', 30000000, 36000000, 24000000, '/Content/Anh/VGA_AMD_Radeon_RX_7900_XTX.jpg', 1),
+(23, 20, 'SKU-20', N'Máº·c Ä‘á»‹nh', 15000000, 18000000, 12000000, '/Content/Anh/Mainboard_Asus_ROG_Maximus_Z790.jpg', 1),
+(24, 21, 'SKU-21', N'Máº·c Ä‘á»‹nh', 6000000, 7200000, 4800000, '/Content/Anh/Mainboard_MSI_MAG_B650_Tomahawk.jpg', 1),
+(25, 22, 'SKU-22', N'Máº·c Ä‘á»‹nh', 3500000, 4200000, 2800000, '/Content/Anh/RAM_Corsair_Vengeance_32GB_DDR5.jpg', 1),
+(26, 23, 'SKU-23', N'Máº·c Ä‘á»‹nh', 7000000, 8400000, 5600000, '/Content/Anh/RAM_G_Skill_Trident_Z5_64GB.jpg', 1),
+(27, 24, 'SKU-24', N'Máº·c Ä‘á»‹nh', 4500000, 5400000, 3600000, '/Content/Anh/SSD_Samsung_990_Pro_2TB.jpg', 1),
+(28, 25, 'SKU-25', N'Máº·c Ä‘á»‹nh', 2500000, 3000000, 2000000, '/Content/Anh/SSD_WD_Black_SN850X_1TB.jpg', 1);
+SET IDENTITY_INSERT product_variants OFF;
+GO
+
+INSERT INTO inventories (warehouse_id, variant_id, quantity_on_hand, quantity_reserved, reorder_point) VALUES 
+(1, 9, 100, 0, 10),
+(1, 10, 100, 0, 10),
+(1, 11, 100, 0, 10),
+(1, 12, 100, 0, 10),
+(1, 13, 100, 0, 10),
+(1, 14, 100, 0, 10),
+(1, 15, 100, 0, 10),
+(1, 16, 100, 0, 10),
+(1, 17, 100, 0, 10),
+(1, 18, 100, 0, 10),
+(1, 19, 100, 0, 10),
+(1, 20, 100, 0, 10),
+(1, 21, 100, 0, 10),
+(1, 22, 100, 0, 10),
+(1, 23, 100, 0, 10),
+(1, 24, 100, 0, 10),
+(1, 25, 100, 0, 10),
+(1, 26, 100, 0, 10),
+(1, 27, 100, 0, 10),
+(1, 28, 100, 0, 10);
+GO
+

@@ -66,6 +66,36 @@ namespace HuitShopDB.Services
             return await Task.FromResult(result);
         }
 
+        public async Task<int> GetProductsCountAsync(ProductQueryParams query)
+        {
+            var productsQuery = _context.products
+                .Where(p => p.status == "ACTIVE")
+                .AsQueryable();
+
+            if (query.CategoryId.HasValue)
+                productsQuery = productsQuery.Where(p => p.category_id == query.CategoryId.Value);
+
+            if (query.BrandId.HasValue)
+                productsQuery = productsQuery.Where(p => p.brand_id == query.BrandId.Value);
+
+            if (query.MinPrice.HasValue)
+                productsQuery = productsQuery.Where(p => p.product_variants.Any(v => v.price >= query.MinPrice.Value));
+
+            if (query.MaxPrice.HasValue)
+                productsQuery = productsQuery.Where(p => p.product_variants.Any(v => v.price <= query.MaxPrice.Value));
+
+            if (!string.IsNullOrEmpty(query.Search))
+                productsQuery = productsQuery.Where(p =>
+                    p.name.Contains(query.Search) ||
+                    (p.description != null && p.description.Contains(query.Search)));
+
+            if (query.InStockOnly)
+                productsQuery = productsQuery.Where(p =>
+                    p.product_variants.Any(v => v.inventories.Any(i => i.quantity_on_hand - i.quantity_reserved > 0)));
+
+            return await Task.FromResult(productsQuery.Count());
+        }
+
         public async Task<ProductDetailDto> GetProductDetailAsync(int productId)
         {
             var p = _context.products

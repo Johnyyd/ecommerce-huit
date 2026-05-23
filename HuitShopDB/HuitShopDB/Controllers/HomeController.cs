@@ -1,12 +1,28 @@
+using System.Threading.Tasks;
 using System.Web.Mvc;
+using HuitShopDB.Services.Interfaces;
+using HuitShopDB.Models.DTOs.Product;
 
 namespace HuitShopDB.Controllers
 {
     public class HomeController : Controller
     {
-        public ActionResult Index()
+        private readonly IProductService _productService;
+
+        public HomeController()
         {
-            ViewBag.Message = "Chào mừng bạn đến với ECommerce HUIT - Hệ thống quản lý bán hàng điện tử (VS 2013).";
+            _productService = new Services.ProductService();
+        }
+
+        public async Task<ActionResult> Index()
+        {
+            var categories = await _productService.GetCategoriesAsync();
+            var query = new ProductQueryParams { PageSize = 10, SortBy = "newest" };
+            var products = await _productService.GetProductsAsync(query);
+
+            ViewBag.Categories = categories;
+            ViewBag.FeaturedProducts = products;
+
             return View();
         }
 

@@ -108,7 +108,7 @@
                     }
                     else
                     {
-                        @foreach (var sh in Model.StatusHistory)
+                        foreach (var sh in Model.StatusHistory)
                         {
                             bool isDone = Array.IndexOf(statusOrder, sh.Status) <= currentIdx;
                             bool isCurrent = sh.Status == Model.Status;

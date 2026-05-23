@@ -7,6 +7,7 @@ namespace HuitShopDB.Services.Interfaces
     public interface IProductService
     {
         Task<IEnumerable<ProductListDto>> GetProductsAsync(ProductQueryParams queryParams);
+        Task<int> GetProductsCountAsync(ProductQueryParams queryParams);
         Task<ProductDetailDto> GetProductDetailAsync(int productId);
         Task<IEnumerable<CategoryDto>> GetCategoriesAsync();
         Task<IEnumerable<BrandDto>> GetBrandsAsync();

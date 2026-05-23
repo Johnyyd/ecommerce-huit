@@ -10,13 +10,13 @@
         transition: opacity 0.2s ease;
     }
     input.btn-check:checked + label {
-        border-color: #3b82f6 !important;
-        background-color: #f0f7ff !important;
-        color: #1e40af !important;
+        border-color: #d70018 !important;
+        background-color: #fef2f2 !important;
+        color: #d70018 !important;
     }
     input.btn-check:checked + label .checked-icon {
         opacity: 1 !important;
-        color: #3b82f6;
+        color: #d70018;
     }
     .quantity-control {
         display: flex;
@@ -79,10 +79,24 @@
         <!-- Left Column: Product Images (col-6) -->
         <div class="col-lg-6">
             @{
-                var firstImage = (Model.Images != null && Model.Images.Count > 0) ? Model.Images[0].ImageUrl : "";
+                string firstImage = "";
+                if (Model.Images != null && Model.Images.Count > 0)
+                {
+                    firstImage = Model.Images[0].ImageUrl;
+                }
+                else if (Model.Variants != null && Model.Variants.Count > 0 && !string.IsNullOrEmpty(Model.Variants[0].ThumbnailUrl))
+                {
+                    firstImage = Model.Variants[0].ThumbnailUrl;
+                }
+                
+                // Fix relative paths missing leading slash
+                if (!string.IsNullOrEmpty(firstImage) && !firstImage.StartsWith("http") && !firstImage.StartsWith("/") && !firstImage.StartsWith("~"))
+                {
+                    firstImage = "/" + firstImage;
+                }
             }
             <div class="bg-light rounded-4 overflow-hidden border border-light-subtle shadow-sm p-4 text-center">
-                <img id="mainProductImg" src="@(string.IsNullOrEmpty(firstImage) ? "https://via.placeholder.com/600x600?text=No+Image" : firstImage)" class="img-fluid rounded-3" alt="@Model.Name" style="max-height: 480px; object-fit: contain; transition: transform 0.3s ease;" />
+                <img id="mainProductImg" src="@(string.IsNullOrEmpty(firstImage) ? "https://via.placeholder.com/600x600?text=No+Image" : (firstImage.StartsWith("~") ? Url.Content(firstImage) : firstImage))" class="img-fluid rounded-3" alt="@Model.Name" style="max-height: 480px; object-fit: contain; transition: transform 0.3s ease;" />
             </div>
             
             <!-- Gallery Thumbnails -->
@@ -312,10 +326,13 @@
     // Update variant price / thumbnail
     function updateVariantSelection(radio) {
         const price = radio.getAttribute('data-price');
-        const img = radio.getAttribute('data-img');
+        let img = radio.getAttribute('data-img');
         
         document.getElementById('detailPriceLabel').innerText = price;
         if (img) {
+            if (!img.startsWith('http') && !img.startsWith('/')) {
+                img = '/' + img;
+            }
             document.getElementById('mainProductImg').src = img;
         }
     }

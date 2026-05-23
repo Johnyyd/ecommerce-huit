@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -183,6 +183,13 @@
     <Compile Include="Controllers\VoucherController.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Anh\Apple_Watch_Ultra_2.jpg" />
+    <Content Include="Content\Anh\Dell_XPS_13_Plus.jpg" />
+    <Content Include="Content\Anh\iPad_Pro_M4.jpg" />
+    <Content Include="Content\Anh\iPhone_15_Pro_Max.jpg" />
+    <Content Include="Content\Anh\iPhone_15_Pro_Max_Deep_Mind_Edition.jpg" />
+    <Content Include="Content\Anh\MacBook Air M3.jpg" />
+    <Content Include="Content\Anh\Samsung_Galaxy_S24_Ultra.jpg" />
     <Content Include="Content\themes\base\images\ui-bg_flat_0_aaaaaa_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_flat_75_ffffff_40x100.png" />
     <Content Include="Content\themes\base\images\ui-bg_glass_55_fbf9ee_1x400.png" />
