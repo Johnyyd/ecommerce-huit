@@ -107,7 +107,7 @@ namespace HuitShopDB.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
-            if (ModelState.IsValid)
+            try
             {
                 bool success = await _reviewService.SubmitReviewAsync(userId, request);
                 if (success)
@@ -119,6 +119,12 @@ namespace HuitShopDB.Controllers
                     TempData["ErrorMessage"] = "Không thể gửi đánh giá. Vui lòng kiểm tra lại.";
                 }
             }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Đã xảy ra lỗi hệ thống khi lưu đánh giá. Vui lòng thử lại sau.";
+                // Log exception if needed: System.Diagnostics.Debug.WriteLine(ex.Message);
+            }
+            
             return RedirectToAction("Detail", new { id = request.ProductId });
         }
 
