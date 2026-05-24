@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
@@ -11,6 +11,7 @@ namespace HuitShopDB.Models.DTOs.Auth
             FullName = string.Empty;
             Email = string.Empty;
             Password = string.Empty;
+            ConfirmPassword = string.Empty;
         }
 
         [Required]
@@ -30,6 +31,11 @@ namespace HuitShopDB.Models.DTOs.Auth
         [Required]
         [StringLength(100, MinimumLength = 6)]
         public string Password { get; set; }
+        [Required]
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirm password")]
+        [Compare("Password", ErrorMessage = "Mật khẩu và xác nhận mật khẩu không khớp.")]
+        public string ConfirmPassword { get; set; }
     }
 }
 
