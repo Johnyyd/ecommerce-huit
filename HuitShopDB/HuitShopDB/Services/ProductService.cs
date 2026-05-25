@@ -20,7 +20,7 @@ namespace HuitShopDB.Services
         public async Task<IEnumerable<ProductListDto>> GetProductsAsync(ProductQueryParams query)
         {
             var productsQuery = _context.products
-                .Where(p => p.status == "ACTIVE")
+                .Where(p => p.status == "ACTIVE" && p.product_variants.Any(v => v.is_active == true && v.inventories.Any(i => i.quantity_on_hand - i.quantity_reserved > 0)))
                 .AsQueryable();
 
             if (query.CategoryId.HasValue)
@@ -69,7 +69,7 @@ namespace HuitShopDB.Services
         public async Task<int> GetProductsCountAsync(ProductQueryParams query)
         {
             var productsQuery = _context.products
-                .Where(p => p.status == "ACTIVE")
+                .Where(p => p.status == "ACTIVE" && p.product_variants.Any(v => v.is_active == true && v.inventories.Any(i => i.quantity_on_hand - i.quantity_reserved > 0)))
                 .AsQueryable();
 
             if (query.CategoryId.HasValue)

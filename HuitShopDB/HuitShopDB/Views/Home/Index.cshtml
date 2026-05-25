@@ -51,10 +51,15 @@
         color: #aaa;
     }
     .cps-slider-container {
-        width: 80%;
+        width: 100%;
         display: flex;
         flex-direction: column;
         gap: 15px;
+    }
+    @@media (min-width: 1200px) {
+        .cps-slider-container {
+            width: 80%;
+        }
     }
     .cps-main-slider {
         border-radius: 10px;
@@ -146,7 +151,7 @@
             </ol>
             <div class="carousel-inner">
                 <div class="carousel-item active">
-                    <div class="d-flex align-items-center justify-content-between w-100 px-md-5 px-3" style="height: 220px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
+                    <div class="d-flex align-items-center justify-content-between w-100 px-md-5 px-5" style="height: 220px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">
                         <div class="text-white text-start z-1">
                             <h2 class="fw-bold mb-2" style="font-size: 1.8rem;">iPhone 15 Pro Max</h2>
                             <p class="mb-3 text-info" style="font-size: 1.1rem;">Giảm sốc đến 3 triệu - Trả góp 0%</p>
@@ -156,7 +161,7 @@
                     </div>
                 </div>
                 <div class="carousel-item">
-                    <div class="d-flex align-items-center justify-content-between w-100 px-md-5 px-3" style="height: 220px; background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);">
+                    <div class="d-flex align-items-center justify-content-between w-100 px-md-5 px-5" style="height: 220px; background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);">
                         <div class="text-white text-start z-1">
                             <h2 class="fw-bold mb-2" style="font-size: 1.8rem;">Galaxy S24 Ultra</h2>
                             <p class="mb-3 text-warning" style="font-size: 1.1rem;">Quyền năng AI đỉnh cao - Tặng 2 Triệu</p>
@@ -234,5 +239,5 @@
 
 <!-- Extra Banner Footer -->
 <div style="margin-bottom: 30px;">
-    <img src="~/Content/Anh/footer_banner.png" style="width: 100%; border-radius: 10px; height: 100px; object-fit: cover;" alt="Footer Banner">
+    <img src="@Url.Content("~/Content/Anh/footer_banner.png")" style="width: 100%; border-radius: 10px; height: 100px; object-fit: cover;" alt="Footer Banner">
 </div>

@@ -206,10 +206,8 @@
 
                     <!-- Stock switch -->
                     <div class="mb-4 d-flex align-items-center justify-content-between">
-                        <label class="text-secondary small fw-semibold mb-0" for="inStockOnly">Chỉ hiện sản phẩm còn hàng</label>
-                        <div class="form-check form-switch m-0 p-0 d-flex align-items-center">
-                            <input class="form-check-input m-0 ms-2" type="checkbox" role="switch" name="inStockOnly" id="inStockOnly" value="true" @(query.InStockOnly ? "checked" : "") style="cursor: pointer; width: 40px; height: 20px;" />
-                        </div>
+                        <label class="text-secondary small fw-semibold mb-0" for="inStockOnly" style="cursor: pointer;">Chỉ hiện sản phẩm còn hàng</label>
+                        <input type="checkbox" name="inStockOnly" id="inStockOnly" value="true" @(query.InStockOnly ? "checked" : "") style="cursor: pointer; width: 18px; height: 18px; accent-color: #d70018; margin: 0;" />
                     </div>
 
                     <!-- Hidden Sort Option -->

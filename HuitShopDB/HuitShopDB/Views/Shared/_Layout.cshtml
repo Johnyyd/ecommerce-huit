@@ -131,6 +131,34 @@
             border-bottom: 1px solid #f1f5f9;
             align-items: center;
         }
+        /* Premium Footer Styles */
+        .footer-hover-link {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+        .footer-hover-link:hover {
+            color: #f8fafc !important;
+            transform: translateX(4px);
+        }
+        .footer-social-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.08);
+            color: #cbd5e1;
+            transition: all 0.25s ease;
+            text-decoration: none;
+        }
+        .footer-social-btn:hover {
+            background: #d70018;
+            color: #fff;
+            transform: translateY(-3px);
+        }
     </style>
 </head>
 <body>
@@ -220,14 +248,81 @@
             </div>
         </div>
     </nav>
-    <main class="container body-content">
+    <main class="container body-content" style="min-height: calc(100vh - 450px);">
         @RenderBody()
-        <hr class="my-5" />
-        <footer class="pb-4 text-muted small d-flex flex-column flex-md-row justify-content-between align-items-center">
-            <div>&copy; @DateTime.Now.Year ECommerce HUIT</div>
-            <div class="footer-brand">Thiết kế thân thiện cho quản trị và người dùng.</div>
-        </footer>
     </main>
+
+    <!-- Premium Full-Width Dark Footer -->
+    <footer class="bg-dark text-light pt-5 pb-4 mt-5 border-top border-secondary" style="background-color: #0f172a !important;">
+        <div class="container" style="max-width: 1200px;">
+            <div class="row g-4">
+                <!-- Column 1: Brand Info -->
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <h5 class="fw-bold mb-3 text-uppercase text-danger">HUIT Shop</h5>
+                    <p class="small text-secondary mb-3" style="line-height: 1.6; color: #94a3b8 !important;">
+                        Hệ thống bán lẻ điện thoại, máy tính, phụ kiện chính hãng giá tốt nhất. Trải nghiệm mua sắm hoàn hảo và dịch vụ chăm sóc khách hàng hàng đầu.
+                    </p>
+                    <div class="d-flex gap-2">
+                        <a href="#" class="footer-social-btn" title="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" class="footer-social-btn" title="Youtube"><i class="bi bi-youtube"></i></a>
+                        <a href="#" class="footer-social-btn" title="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="#" class="footer-social-btn" title="TikTok"><i class="bi bi-tiktok"></i></a>
+                    </div>
+                </div>
+                <!-- Column 2: Customer Support -->
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <h5 class="fw-bold mb-3 text-uppercase text-white" style="font-size: 1rem;">Hỗ Trợ Khách Hàng</h5>
+                    <ul class="list-unstyled small d-flex flex-column gap-2 mb-0">
+                        <li><a href="#" class="footer-hover-link">Chính sách bảo hành</a></li>
+                        <li><a href="#" class="footer-hover-link">Chính sách đổi trả 30 ngày</a></li>
+                        <li><a href="#" class="footer-hover-link">Hướng dẫn mua hàng trả góp</a></li>
+                        <li><a href="#" class="footer-hover-link">Chính sách bảo mật thông tin</a></li>
+                        <li><a href="#" class="footer-hover-link">Phương thức vận chuyển & giao nhận</a></li>
+                    </ul>
+                </div>
+                <!-- Column 3: Contact & Hotline -->
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <h5 class="fw-bold mb-3 text-uppercase text-white" style="font-size: 1rem;">Thông Tin Liên Hệ</h5>
+                    <div class="small d-flex flex-column gap-3 text-secondary" style="color: #94a3b8 !important;">
+                        <div>
+                            <span class="d-block text-white fw-bold">Tổng đài hỗ trợ (Miễn phí):</span>
+                            <span class="d-block mt-1">
+                                Gọi mua hàng: <a href="tel:18002097" class="text-danger fw-bold text-decoration-none">1800.2097</a> (7h30 - 22h00)
+                            </span>
+                            <span class="d-block">
+                                Khiếu nại, góp ý: <a href="tel:18002098" class="text-danger fw-bold text-decoration-none">1800.2098</a> (8h00 - 21h30)
+                            </span>
+                        </div>
+                        <div>
+                            <span class="d-block text-white fw-bold">Địa chỉ văn phòng:</span>
+                            <span class="d-block mt-1">140 Lê Trọng Tấn, P. Tây Thạnh, Q. Tân Phú, TP. HCM</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Column 4: Payment Methods & Certifications -->
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <h5 class="fw-bold mb-3 text-uppercase text-white" style="font-size: 1rem;">Thanh Toán & Hợp Tác</h5>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <span class="badge bg-secondary p-2" style="background-color: #1e293b !important; color: #cbd5e1;"><i class="bi bi-credit-card-2-front me-1"></i> Visa / Master</span>
+                        <span class="badge bg-secondary p-2" style="background-color: #1e293b !important; color: #cbd5e1;"><i class="bi bi-wallet2 me-1"></i> MoMo</span>
+                        <span class="badge bg-secondary p-2" style="background-color: #1e293b !important; color: #cbd5e1;"><i class="bi bi-cash-coin me-1"></i> COD</span>
+                        <span class="badge bg-secondary p-2" style="background-color: #1e293b !important; color: #cbd5e1;"><i class="bi bi-bank me-1"></i> VNPAY</span>
+                    </div>
+                    <h6 class="fw-bold text-white mb-2 small text-uppercase" style="font-size: 0.8rem;">Chứng nhận bởi</h6>
+                    <a href="http://online.gov.vn/" target="_blank" class="d-inline-block text-decoration-none mt-1">
+                        <span class="d-inline-flex align-items-center bg-danger text-white px-2 py-1.5 rounded fw-bold text-uppercase" style="border: 1.5px solid rgba(255,255,255,0.4); font-size: 0.65rem; letter-spacing: 0.05em; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
+                            <i class="bi bi-patch-check-fill text-warning me-1" style="font-size: 0.85rem;"></i> Đã Thông Báo BCT
+                        </span>
+                    </a>
+                </div>
+            </div>
+            <hr class="my-4 border-secondary opacity-25" style="border-color: #334155 !important;" />
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center small text-secondary gap-2" style="color: #64748b !important;">
+                <div>&copy; @DateTime.Now.Year ECommerce HUIT. Tất cả các quyền được bảo lưu.</div>
+                <div>Thiết kế thân thiện cho quản trị và người dùng.</div>
+            </div>
+        </div>
+    </footer>
 
     <!-- Sliding Mini-Cart Drawer -->
     <div id="miniCartDrawer" class="mini-cart-drawer">
