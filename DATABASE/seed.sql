@@ -1,4 +1,4 @@
-﻿-- =====================================================
+-- =====================================================
 -- SEED DATA FOR ECOMMERCE HUIT
 -- Database: HuitShopDB
 -- Note: Chạy file này SAU khi đã chạy init.sql
@@ -161,8 +161,8 @@ SET IDENTITY_INSERT vouchers OFF;
 -- Orders
 SET IDENTITY_INSERT orders ON;
 INSERT INTO orders (id, code, user_id, subtotal, discount, shipping_fee, total, payment_method, payment_status, status, shipping_address, created_at) VALUES
-(1, 'ORD-2025-001', 4, 28990000, 0, 0, 28990000, 'MOMO', 'PAID', 'COMPLETED', N'{"street":"140 Lê Trọng Tấn"}', '2025-01-10'),
-(2, 'ORD-2026-002', 4, 6990000, 200000, 0, 6790000, 'COD', 'PENDING', 'PROCESSING', N'{"street":"Quận 1"}', '2026-02-10');
+(1, 'ORD-2025-001', 4, 28990000, 0, 0, 28990000, 'MOMO', 'PAID', 'COMPLETED', N'{"street":"140 Lê Trọng Tấn"}', GETDATE()),
+(2, 'ORD-2026-002', 4, 6990000, 200000, 0, 6790000, 'COD', 'PENDING', 'PROCESSING', N'{"street":"Quận 1"}', GETDATE());
 SET IDENTITY_INSERT orders OFF;
 
 -- Order Items
@@ -259,3 +259,294 @@ INSERT INTO inventories (warehouse_id, variant_id, quantity_on_hand, quantity_re
 (1, 28, 100, 0, 10);
 GO
 
+
+
+-- =====================================================
+-- ADDITIONAL DATA
+-- =====================================================
+GO
+USE HuitShopDB;
+GO
+
+-- Add new products
+INSERT INTO products (name, slug, brand_id, category_id, short_description, description, specifications, status, is_featured, created_at, updated_at, created_by)
+VALUES 
+('MacBook Pro M3 Max', 'macbook-pro-m3-max', 1, 2, 'MacBook Pro 16 inch v?i chip M3 Max', '<p>MacBook Pro M3 Max 16 inch v?i chip M3 Max</p>', '{"screen":"16 inch","chip":"M3 Max","ram":"36GB"}', 'ACTIVE', 0, GETDATE(), GETDATE(), 1),
+('iPad Pro M4', 'ipad-pro-m4', 1, 4, 'iPad Pro M4 m?n h?nh OLED', '<p>iPad Pro M4 m?n h?nh OLED</p>', '{"screen":"11 inch","chip":"M4","ram":"8GB"}', 'ACTIVE', 0, GETDATE(), GETDATE(), 1),
+('Apple Watch Ultra 2', 'apple-watch-ultra-2', 1, 5, 'Apple Watch Ultra 2 titan', '<p>Apple Watch Ultra 2 titan</p>', '{"screen":"1.92 inch","chip":"S9","ram":"1GB"}', 'ACTIVE', 0, GETDATE(), GETDATE(), 1);
+
+DECLARE @ProductId1 INT = IDENT_CURRENT('products') - 2;
+DECLARE @ProductId2 INT = IDENT_CURRENT('products') - 1;
+DECLARE @ProductId3 INT = IDENT_CURRENT('products');
+
+-- Add variants
+INSERT INTO product_variants (product_id, sku, variant_name, price, original_price, cost_price, thumbnail_url, display_order, is_active, created_at, updated_at)
+VALUES 
+(@ProductId1, 'MBP-M3M-16-36-1TB', '16-inch, M3 Max, 36GB, 1TB', 89990000, 95990000, 80000000, '/Content/Anh/MacBook_Pro_M3_Max.png', 1, 1, GETDATE(), GETDATE()),
+(@ProductId2, 'IPAD-M4-11-256', '11-inch, M4, 256GB WiFi', 28990000, 30990000, 25000000, '/Content/Anh/iPad_Pro_M4.png', 1, 1, GETDATE(), GETDATE()),
+(@ProductId3, 'AW-U2-49-O', '49mm Titanium, Ocean Band', 21990000, 22990000, 19000000, '/Content/Anh/Apple_Watch_Ultra_2.png', 1, 1, GETDATE(), GETDATE());
+
+DECLARE @VariantId1 INT = IDENT_CURRENT('product_variants') - 2;
+DECLARE @VariantId2 INT = IDENT_CURRENT('product_variants') - 1;
+DECLARE @VariantId3 INT = IDENT_CURRENT('product_variants');
+
+-- Create cart for customerA (user_id = 4)
+DECLARE @CartId INT;
+
+SELECT @CartId = id FROM carts WHERE user_id = 4;
+
+IF @CartId IS NULL
+BEGIN
+    INSERT INTO carts (user_id, created_at, updated_at) VALUES (4, GETDATE(), GETDATE());
+    SET @CartId = SCOPE_IDENTITY();
+END
+
+-- Add items to cart
+IF NOT EXISTS (SELECT 1 FROM cart_items WHERE cart_id = @CartId AND variant_id = @VariantId1)
+    INSERT INTO cart_items (cart_id, variant_id, quantity, added_at, updated_at) VALUES (@CartId, @VariantId1, 1, GETDATE(), GETDATE());
+ELSE
+    UPDATE cart_items SET quantity = quantity + 1 WHERE cart_id = @CartId AND variant_id = @VariantId1;
+
+IF NOT EXISTS (SELECT 1 FROM cart_items WHERE cart_id = @CartId AND variant_id = @VariantId2)
+    INSERT INTO cart_items (cart_id, variant_id, quantity, added_at, updated_at) VALUES (@CartId, @VariantId2, 2, GETDATE(), GETDATE());
+ELSE
+    UPDATE cart_items SET quantity = quantity + 2 WHERE cart_id = @CartId AND variant_id = @VariantId2;
+
+IF NOT EXISTS (SELECT 1 FROM cart_items WHERE cart_id = @CartId AND variant_id = @VariantId3)
+    INSERT INTO cart_items (cart_id, variant_id, quantity, added_at, updated_at) VALUES (@CartId, @VariantId3, 1, GETDATE(), GETDATE());
+ELSE
+    UPDATE cart_items SET quantity = quantity + 1 WHERE cart_id = @CartId AND variant_id = @VariantId3;
+
+-- Add an existing variant to the cart as well (e.g. variant 1 - iPhone 15 Pro Max)
+IF NOT EXISTS (SELECT 1 FROM cart_items WHERE cart_id = @CartId AND variant_id = 1)
+    INSERT INTO cart_items (cart_id, variant_id, quantity, added_at, updated_at) VALUES (@CartId, 1, 1, GETDATE(), GETDATE());
+ELSE
+    UPDATE cart_items SET quantity = quantity + 1 WHERE cart_id = @CartId AND variant_id = 1;
+
+PRINT 'Data added successfully.';
+GO
+
+
+-- =====================================================
+-- FIX DB DATA
+-- =====================================================
+GO
+-- 1. Remove duplicate serial numbers that exceed the quantity
+WITH CTE AS (
+    SELECT ois.serial_number, 
+           ROW_NUMBER() OVER(PARTITION BY ois.order_item_id ORDER BY ois.serial_number DESC) as rn,
+           oi.quantity
+    FROM order_item_serials ois
+    JOIN order_items oi ON ois.order_item_id = oi.id
+)
+DELETE FROM order_item_serials WHERE serial_number IN (
+    SELECT serial_number FROM CTE WHERE rn > quantity
+);
+
+-- 2. Update generic SKUs to more realistic SKUs
+UPDATE pv
+SET pv.sku = 
+    CASE pv.id
+        WHEN 9 THEN 'ASUS-ROG-G14'
+        WHEN 10 THEN 'DELL-XPS-15'
+        WHEN 11 THEN 'MAC-PRO16-M3'
+        WHEN 12 THEN 'LENOVO-LEG5'
+        WHEN 13 THEN 'HP-SPCTX360'
+        WHEN 14 THEN 'AW-SERIES-9'
+        WHEN 15 THEN 'SS-GW6-CLASSIC'
+        WHEN 16 THEN 'GARMIN-FNX7'
+        WHEN 17 THEN 'XIAOMI-MB8'
+        WHEN 18 THEN 'HUAWEI-GT4'
+        WHEN 19 THEN 'INTEL-I9-14900K'
+        WHEN 20 THEN 'AMD-R9-7950X3D'
+        WHEN 21 THEN 'NVIDIA-RTX4090'
+        WHEN 22 THEN 'AMD-RX7900XTX'
+        WHEN 23 THEN 'ASUS-ROG-Z790'
+        WHEN 24 THEN 'MSI-MAG-B650'
+        WHEN 25 THEN 'CORSAIR-V-32G'
+        WHEN 26 THEN 'GSKILL-TZ5-64G'
+        WHEN 27 THEN 'SS-990PRO-2T'
+        WHEN 28 THEN 'WD-SN850X-1T'
+        ELSE pv.sku
+    END
+FROM product_variants pv
+WHERE pv.sku LIKE 'SKU-%';
+
+-- 3. Ensure ALL order items have serial numbers up to their quantity
+DECLARE @order_item_id INT;
+DECLARE @o_variant_id INT;
+DECLARE @o_quantity INT;
+DECLARE @o_sku VARCHAR(100);
+
+DECLARE oi_cursor CURSOR FOR 
+SELECT oi.id, oi.variant_id, oi.quantity, pv.sku 
+FROM order_items oi
+JOIN product_variants pv ON oi.variant_id = pv.id;
+
+OPEN oi_cursor;
+FETCH NEXT FROM oi_cursor INTO @order_item_id, @o_variant_id, @o_quantity, @o_sku;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    DECLARE @current_count INT;
+    SELECT @current_count = COUNT(*) FROM order_item_serials WHERE order_item_id = @order_item_id;
+
+    DECLARE @q INT = @current_count + 1;
+    WHILE @q <= @o_quantity
+    BEGIN
+        DECLARE @sn2 VARCHAR(100) = 'SN-' + ISNULL(@o_sku, 'VAR' + CAST(@o_variant_id AS VARCHAR)) + '-S' + CAST(@order_item_id AS VARCHAR) + CAST(@q AS VARCHAR);
+        
+        IF NOT EXISTS (SELECT 1 FROM product_serials WHERE serial_number = @sn2)
+        BEGIN
+            INSERT INTO product_serials (variant_id, serial_number, warehouse_id, status, inbound_date, outbound_date, warranty_expire_date, notes, created_at, updated_at)
+            VALUES (@o_variant_id, @sn2, 1, 'SOLD', DATEADD(month, -1, GETDATE()), GETDATE(), DATEADD(year, 1, GETDATE()), N'Bán theo đơn hàng', GETDATE(), GETDATE());
+        END
+        
+        IF NOT EXISTS (SELECT 1 FROM order_item_serials WHERE order_item_id = @order_item_id AND serial_number = @sn2)
+        BEGIN
+            INSERT INTO order_item_serials (order_item_id, serial_number)
+            VALUES (@order_item_id, @sn2);
+        END
+
+        SET @q = @q + 1;
+    END
+
+    FETCH NEXT FROM oi_cursor INTO @order_item_id, @o_variant_id, @o_quantity, @o_sku;
+END
+
+CLOSE oi_cursor;
+DEALLOCATE oi_cursor;
+
+
+-- =====================================================
+-- SEED SERIALS
+-- =====================================================
+GO
+DECLARE @variant_id INT;
+DECLARE @sku VARCHAR(100);
+
+DECLARE variant_cursor CURSOR FOR 
+SELECT id, sku FROM product_variants;
+
+OPEN variant_cursor;
+FETCH NEXT FROM variant_cursor INTO @variant_id, @sku;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    -- Insert 3 AVAILABLE serials for each variant
+    DECLARE @i INT = 1;
+    WHILE @i <= 3
+    BEGIN
+        DECLARE @sn VARCHAR(100) = 'SN-' + ISNULL(@sku, 'VAR' + CAST(@variant_id AS VARCHAR)) + '-A' + CAST(@i AS VARCHAR);
+        IF NOT EXISTS (SELECT 1 FROM product_serials WHERE serial_number = @sn)
+        BEGIN
+            INSERT INTO product_serials (variant_id, serial_number, warehouse_id, status, inbound_date, created_at, updated_at)
+            VALUES (@variant_id, @sn, 1, 'AVAILABLE', GETDATE(), GETDATE(), GETDATE());
+        END
+        SET @i = @i + 1;
+    END
+
+    FETCH NEXT FROM variant_cursor INTO @variant_id, @sku;
+END
+
+CLOSE variant_cursor;
+DEALLOCATE variant_cursor;
+
+DECLARE @order_item_id INT;
+DECLARE @o_variant_id INT;
+DECLARE @o_quantity INT;
+DECLARE @o_sku VARCHAR(100);
+
+DECLARE oi_cursor CURSOR FOR 
+SELECT oi.id, oi.variant_id, oi.quantity, pv.sku 
+FROM order_items oi
+JOIN orders o ON oi.order_id = o.id
+JOIN product_variants pv ON oi.variant_id = pv.id
+WHERE o.status = 'COMPLETED';
+
+OPEN oi_cursor;
+FETCH NEXT FROM oi_cursor INTO @order_item_id, @o_variant_id, @o_quantity, @o_sku;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    DECLARE @q INT = 1;
+    WHILE @q <= @o_quantity
+    BEGIN
+        DECLARE @sn2 VARCHAR(100) = 'SN-' + ISNULL(@o_sku, 'VAR' + CAST(@o_variant_id AS VARCHAR)) + '-S' + CAST(@order_item_id AS VARCHAR) + CAST(@q AS VARCHAR);
+        
+        IF NOT EXISTS (SELECT 1 FROM product_serials WHERE serial_number = @sn2)
+        BEGIN
+            INSERT INTO product_serials (variant_id, serial_number, warehouse_id, status, inbound_date, outbound_date, warranty_expire_date, notes, created_at, updated_at)
+            VALUES (@o_variant_id, @sn2, 1, 'SOLD', DATEADD(month, -1, GETDATE()), GETDATE(), DATEADD(year, 1, GETDATE()), N'Bán theo đơn hàng', GETDATE(), GETDATE());
+        END
+        
+        IF NOT EXISTS (SELECT 1 FROM order_item_serials WHERE order_item_id = @order_item_id AND serial_number = @sn2)
+        BEGIN
+            INSERT INTO order_item_serials (order_item_id, serial_number)
+            VALUES (@order_item_id, @sn2);
+        END
+
+        SET @q = @q + 1;
+    END
+
+    FETCH NEXT FROM oi_cursor INTO @order_item_id, @o_variant_id, @o_quantity, @o_sku;
+END
+
+CLOSE oi_cursor;
+DEALLOCATE oi_cursor;
+
+
+-- =====================================================
+-- SEED MISSING SERIALS
+-- =====================================================
+GO
+-- Kịch bản: Bổ sung Serial Number cho các sản phẩm trong đơn hàng bị thiếu
+-- Chạy script này mỗi khi có đơn hàng mới được tạo để tự động cấp mã Serial (chỉ dùng cho môi trường Test/Demo)
+
+DECLARE @order_item_id INT;
+DECLARE @o_variant_id INT;
+DECLARE @o_quantity INT;
+DECLARE @o_sku VARCHAR(100);
+
+DECLARE oi_cursor CURSOR FOR 
+SELECT oi.id, oi.variant_id, oi.quantity, pv.sku 
+FROM order_items oi
+JOIN product_variants pv ON oi.variant_id = pv.id;
+
+OPEN oi_cursor;
+FETCH NEXT FROM oi_cursor INTO @order_item_id, @o_variant_id, @o_quantity, @o_sku;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    -- Đếm số lượng Serial Number hiện có của order_item này
+    DECLARE @current_count INT;
+    SELECT @current_count = COUNT(*) FROM order_item_serials WHERE order_item_id = @order_item_id;
+
+    -- Nếu số lượng Serial Number ít hơn số lượng đặt mua, tiến hành sinh thêm
+    DECLARE @q INT = @current_count + 1;
+    WHILE @q <= @o_quantity
+    BEGIN
+        DECLARE @sn2 VARCHAR(100) = 'SN-' + ISNULL(@o_sku, 'VAR' + CAST(@o_variant_id AS VARCHAR)) + '-S' + CAST(@order_item_id AS VARCHAR) + CAST(@q AS VARCHAR);
+        
+        IF NOT EXISTS (SELECT 1 FROM product_serials WHERE serial_number = @sn2)
+        BEGIN
+            INSERT INTO product_serials (variant_id, serial_number, warehouse_id, status, inbound_date, outbound_date, warranty_expire_date, notes, created_at, updated_at)
+            VALUES (@o_variant_id, @sn2, 1, 'SOLD', DATEADD(month, -1, GETDATE()), GETDATE(), DATEADD(year, 1, GETDATE()), N'Bán theo đơn hàng (Auto-generated)', GETDATE(), GETDATE());
+        END
+        
+        IF NOT EXISTS (SELECT 1 FROM order_item_serials WHERE order_item_id = @order_item_id AND serial_number = @sn2)
+        BEGIN
+            INSERT INTO order_item_serials (order_item_id, serial_number)
+            VALUES (@order_item_id, @sn2);
+        END
+
+        SET @q = @q + 1;
+    END
+
+    FETCH NEXT FROM oi_cursor INTO @order_item_id, @o_variant_id, @o_quantity, @o_sku;
+END
+
+CLOSE oi_cursor;
+DEALLOCATE oi_cursor;
+
+GO

@@ -1,7 +1,6 @@
 USE master;
 GO
 
--- Tạo Database nếu chưa có
 IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'HuitShopDB')
 BEGIN
     CREATE DATABASE HuitShopDB;
@@ -12,39 +11,22 @@ USE HuitShopDB;
 GO
 
 -- =====================================================
--- 1. CLEANUP (Xóa theo thứ tự để tránh lỗi FK)
+-- 1. CLEANUP (Drop all constraints and tables safely)
 -- =====================================================
+DECLARE @Sql NVARCHAR(MAX) = '';
 
-DROP TABLE IF EXISTS audit_logs;
-DROP TABLE IF EXISTS role_permissions;
-DROP TABLE IF EXISTS permissions;
-DROP TABLE IF EXISTS returns;
-DROP TABLE IF EXISTS support_tickets;
-DROP TABLE IF EXISTS reviews;
-DROP TABLE IF EXISTS voucher_usages;
-DROP TABLE IF EXISTS vouchers;
-DROP TABLE IF EXISTS order_status_history;
-DROP TABLE IF EXISTS order_item_serials;
-DROP TABLE IF EXISTS order_items;
-DROP TABLE IF EXISTS orders;
-DROP TABLE IF EXISTS payments;
-DROP TABLE IF EXISTS cart_items;
-DROP TABLE IF EXISTS carts;
-DROP TABLE IF EXISTS product_images;
-DROP TABLE IF EXISTS product_serials;
-DROP TABLE IF EXISTS inventories;
-DROP TABLE IF EXISTS stock_movements;
-DROP TABLE IF EXISTS product_variants;
-DROP TABLE IF EXISTS products;
-DROP TABLE IF EXISTS brands;
-DROP TABLE IF EXISTS categories;
-DROP TABLE IF EXISTS warehouses;
-DROP TABLE IF EXISTS suppliers;
-DROP TABLE IF EXISTS addresses;
-DROP TABLE IF EXISTS wishlists;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS stock_movement_types;
+-- Drop all foreign keys
+SELECT @Sql += 'ALTER TABLE ' + QUOTENAME(OBJECT_SCHEMA_NAME(parent_object_id)) + '.' + QUOTENAME(OBJECT_NAME(parent_object_id)) + ' DROP CONSTRAINT ' + QUOTENAME(name) + ';' + CHAR(13)
+FROM sys.foreign_keys;
+EXEC sp_executesql @Sql;
+
+-- Drop all tables
+SET @Sql = '';
+SELECT @Sql += 'DROP TABLE ' + QUOTENAME(TABLE_SCHEMA) + '.' + QUOTENAME(TABLE_NAME) + ';' + CHAR(13)
+FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE';
+EXEC sp_executesql @Sql;
 GO
+
 
 -- =====================================================
 -- 2. LOOKUP TABLES
@@ -512,98 +494,121 @@ CREATE OR ALTER TRIGGER trg_UpdateOrders ON orders AFTER UPDATE AS BEGIN UPDATE 
 -- Tương tự cho các bảng khác cần tracked updated_at
 GO
 
+
 -- =====================================================
--- 12. STORED PROCEDURES (Unified & Fixed)
+-- 12. VIEWS
 -- =====================================================
 
-CREATE OR ALTER PROCEDURE sp_ImportStock
-    @WarehouseID INT,
-    @VariantID INT,
-    @CostPrice DECIMAL(15,2),
-    @SupplierID INT = NULL,
-    @ListIMEI NVARCHAR(MAX), -- JSON: ["IMEI001","IMEI002"]
-    @CreatedBy INT = NULL
-AS
-BEGIN
-    SET NOCOUNT ON;
-    BEGIN TRY
-        BEGIN TRANSACTION;
-        DECLARE @Quantity INT;
-        SELECT @Quantity = COUNT(*) FROM OPENJSON(@ListIMEI);
-
-        INSERT INTO product_serials (variant_id, warehouse_id, serial_number, status, inbound_date, notes)
-        SELECT @VariantID, @WarehouseID, value, 'AVAILABLE', GETDATE(), N'Nhập kho lô mới'
-        FROM OPENJSON(@ListIMEI);
-
-        MERGE inventories AS target
-        USING (SELECT @WarehouseID AS warehouse_id, @VariantID AS variant_id) AS source
-        ON (target.warehouse_id = source.warehouse_id AND target.variant_id = source.variant_id)
-        WHEN MATCHED THEN
-            UPDATE SET quantity_on_hand = quantity_on_hand + @Quantity, last_updated = GETDATE()
-        WHEN NOT MATCHED THEN
-            INSERT (warehouse_id, variant_id, quantity_on_hand, quantity_reserved)
-            VALUES (@WarehouseID, @VariantID, @Quantity, 0);
-
-        INSERT INTO stock_movements (warehouse_id, variant_id, quantity, movement_type, supplier_id, note, created_by)
-        VALUES (@WarehouseID, @VariantID, @Quantity, 'PURCHASE', @SupplierID, N'Nhập hàng từ nhà cung cấp', @CreatedBy);
-
-        UPDATE product_variants SET cost_price = @CostPrice, updated_at = GETDATE() WHERE id = @VariantID;
-
-        COMMIT TRANSACTION;
-    END TRY
-    BEGIN CATCH
-        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
-        THROW;
-    END CATCH
-END;
+CREATE OR ALTER VIEW vw_ProductDetails AS
+SELECT
+    p.id,
+    p.name,
+    p.slug,
+    p.description,
+    p.specifications,
+    b.id as brand_id,
+    b.name as brand_name,
+    b.origin as brand_origin,
+    b.logo_url as brand_logo,
+    c.id as category_id,
+    c.name as category_name,
+    c.slug as category_slug,
+    v.id as variant_id,
+    v.sku,
+    v.variant_name,
+    v.price,
+    v.original_price,
+    v.thumbnail_url,
+    v.is_active as variant_active,
+    ISNULL(SUM(i.quantity_on_hand), 0) as total_stock
+FROM products p
+LEFT JOIN brands b ON p.brand_id = b.id
+LEFT JOIN categories c ON p.category_id = c.id
+LEFT JOIN product_variants v ON v.product_id = p.id
+LEFT JOIN inventories i ON i.variant_id = v.id
+WHERE p.status = 'ACTIVE'
+GROUP BY p.id, p.name, p.slug, p.description, p.specifications,
+         b.id, b.name, b.origin, b.logo_url,
+         c.id, c.name, c.slug,
+         v.id, v.sku, v.variant_name, v.price, v.original_price, v.thumbnail_url, v.is_active;
 GO
 
-CREATE OR ALTER PROCEDURE sp_CreateOrder
-    @UserID INT,
-    @ShippingAddress NVARCHAR(MAX),
-    @PaymentMethod VARCHAR(50),
-    @OrderItemsJSON NVARCHAR(MAX), 
-    @OrderID INT OUTPUT,
-    @OrderCode VARCHAR(20) OUTPUT
-AS
-BEGIN
-    SET NOCOUNT ON;
-    BEGIN TRY
-        BEGIN TRANSACTION;
-        SET @OrderCode = 'ORD-' + FORMAT(GETDATE(), 'yyyyMMddHHmmss');
-        
-        DECLARE @Subtotal DECIMAL(15,2);
-        SELECT @Subtotal = SUM(CAST(JSON_VALUE(value, '$.quantity') AS INT) * CAST(JSON_VALUE(value, '$.price') AS DECIMAL(15,2)))
-        FROM OPENJSON(@OrderItemsJSON);
-
-        INSERT INTO orders (code, user_id, subtotal, total, payment_method, shipping_address, status)
-        VALUES (@OrderCode, @UserID, @Subtotal, @Subtotal, @PaymentMethod, @ShippingAddress, 'PENDING');
-        SET @OrderID = SCOPE_IDENTITY();
-
-        INSERT INTO order_items (order_id, variant_id, product_name, sku, quantity, unit_price, total_price)
-        SELECT @OrderID, CAST(JSON_VALUE(value, '$.variant_id') AS INT), 
-               p.name + ISNULL(' ' + v.variant_name, ''), v.sku, 
-               CAST(JSON_VALUE(value, '$.quantity') AS INT), CAST(JSON_VALUE(value, '$.price') AS DECIMAL(15,2)),
-               CAST(JSON_VALUE(value, '$.quantity') AS INT) * CAST(JSON_VALUE(value, '$.price') AS DECIMAL(15,2))
-        FROM OPENJSON(@OrderItemsJSON)
-        JOIN product_variants v ON v.id = CAST(JSON_VALUE(value, '$.variant_id') AS INT)
-        JOIN products p ON v.product_id = p.id;
-
-        -- Update inventories (Reserve)
-        UPDATE inv
-        SET quantity_reserved = quantity_reserved + CAST(JSON_VALUE(item.value, '$.quantity') AS INT),
-            last_updated = GETDATE()
-        FROM inventories inv
-        JOIN OPENJSON(@OrderItemsJSON) item ON inv.variant_id = CAST(JSON_VALUE(item.value, '$.variant_id') AS INT)
-        WHERE inv.warehouse_id = 1; -- Giả định warehouse 1
-
-        COMMIT TRANSACTION;
-    END TRY
-    BEGIN CATCH
-        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
-        THROW;
-    END CATCH
-END;
+CREATE OR ALTER VIEW vw_OrderDetails AS
+SELECT
+    o.id,
+    o.code,
+    o.subtotal,
+    o.discount,
+    o.shipping_fee,
+    o.total,
+    o.payment_method,
+    o.payment_status,
+    o.status as order_status,
+    o.created_at,
+    o.shipping_address,
+    u.id as user_id,
+    u.full_name as user_name,
+    u.email as user_email,
+    u.phone as user_phone,
+    oi.id as item_id,
+    oi.product_name,
+    oi.sku,
+    oi.quantity,
+    oi.unit_price,
+    oi.total_price,
+    ois.serial_number
+FROM orders o
+JOIN users u ON o.user_id = u.id
+LEFT JOIN order_items oi ON oi.order_id = o.id
+LEFT JOIN order_item_serials ois ON ois.order_item_id = oi.id;
 GO
 
-PRINT N'DATABASE INITIALIZED SUCCESSFULLY!';
+CREATE OR ALTER VIEW vw_InventoryDashboard AS
+SELECT
+    w.id as warehouse_id,
+    w.code as warehouse_code,
+    w.name as warehouse_name,
+    v.id as variant_id,
+    v.sku,
+    p.name as product_name,
+    v.variant_name,
+    ISNULL(i.quantity_on_hand, 0) as quantity_on_hand,
+    ISNULL(i.quantity_reserved, 0) as quantity_reserved,
+    ISNULL(i.quantity_on_hand - i.quantity_reserved, 0) as available_quantity,
+    i.reorder_point
+FROM warehouses w
+CROSS JOIN product_variants v
+JOIN products p ON v.product_id = p.id
+LEFT JOIN inventories i ON i.warehouse_id = w.id AND i.variant_id = v.id
+WHERE w.is_active = 1 AND v.is_active = 1;
+GO
+
+
+-- =====================================================
+-- 10. INDEXES ADDITIONAL
+-- =====================================================
+-- Index for orders (common queries)
+CREATE INDEX idx_orders_user_created ON orders(user_id, created_at DESC);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_orders_code ON orders(code);
+
+-- Index for order_items
+CREATE INDEX idx_order_items_order ON order_items(order_id);
+CREATE INDEX idx_order_items_variant ON order_items(variant_id);
+
+-- Index for inventory queries
+CREATE INDEX idx_inventories_variant_warehouse ON inventories(variant_id, warehouse_id);
+
+-- Index for stock movements
+
+-- Index for vouchers
+CREATE INDEX idx_vouchers_code ON vouchers(code);
+CREATE INDEX idx_vouchers_active_dates ON vouchers(is_active, start_date, end_date);
+
+-- Index for return requests
+
+-- Index for reviews
+CREATE INDEX idx_reviews_product ON reviews(product_id);
+CREATE INDEX idx_reviews_user ON reviews(user_id);
+
+GO
