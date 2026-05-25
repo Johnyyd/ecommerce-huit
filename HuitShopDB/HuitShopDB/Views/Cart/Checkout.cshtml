@@ -9,65 +9,65 @@
     string userPhone = ViewBag.UserPhone != null ? (string)ViewBag.UserPhone : "";
 }
 <style>
-    body { background: #0f0f17; }
     .checkout-wrap { max-width: 1100px; margin: 0 auto; padding: 30px 20px 60px; }
-    .checkout-title { color: #fff; font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; }
-    .checkout-subtitle { color: #888; font-size: 0.95rem; margin-bottom: 36px; }
+    .checkout-title { color: #0f172a; font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; }
+    .checkout-subtitle { color: #64748b; font-size: 0.95rem; margin-bottom: 36px; }
     .steps-bar { display: flex; align-items: center; gap: 0; margin-bottom: 40px; }
     .step { display: flex; align-items: center; gap: 10px; flex: 1; }
-    .step-num { width: 32px; height: 32px; border-radius: 50%; background: #6c63ff; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
-    .step-label { color: #fff; font-size: 0.85rem; font-weight: 600; }
-    .step-divider { flex: 1; height: 2px; background: #2a2a3e; max-width: 60px; }
-    .card-section { background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 16px; padding: 28px; margin-bottom: 24px; }
-    .section-title { color: #fff; font-size: 1rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-    .section-title i { color: #6c63ff; }
-    .form-label { color: #aaa; font-size: 0.82rem; margin-bottom: 6px; display: block; }
-    .form-control-dark { background: #12122a; border: 1px solid #2a2a3e; color: #fff; border-radius: 10px; padding: 10px 14px; width: 100%; font-size: 0.9rem; transition: border-color 0.2s; box-sizing: border-box; }
-    .form-control-dark:focus { outline: none; border-color: #6c63ff; background: #16163a; }
-    .form-control-dark::placeholder { color: #555; }
+    .step-num { width: 32px; height: 32px; border-radius: 50%; background: #d70018; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
+    .step-label { color: #0f172a; font-size: 0.85rem; font-weight: 600; }
+    .step-divider { flex: 1; height: 2px; background: #e2e8f0; max-width: 60px; }
+    .card-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 28px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .section-title { color: #0f172a; font-size: 1.05rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .section-title i { color: #d70018; }
+    .form-label { color: #64748b; font-size: 0.85rem; margin-bottom: 6px; display: block; font-weight: 500; }
+    .form-control-dark { background: #fff; border: 1px solid #cbd5e1; color: #0f172a; border-radius: 10px; padding: 10px 14px; width: 100%; font-size: 0.9rem; transition: border-color 0.2s; box-sizing: border-box; }
+    .form-control-dark:focus { outline: none; border-color: #d70018; background: #fff; box-shadow: 0 0 0 3px rgba(215,0,24,0.1); }
+    .form-control-dark::placeholder { color: #94a3b8; }
     .payment-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    .pay-card { background: #12122a; border: 2px solid #2a2a3e; border-radius: 14px; padding: 18px 16px; cursor: pointer; text-align: center; transition: all 0.25s; position: relative; }
-    .pay-card:hover, .pay-card.selected { border-color: #6c63ff; background: rgba(108,99,255,0.08); }
+    .pay-card { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 14px; padding: 18px 16px; cursor: pointer; text-align: center; transition: all 0.25s; position: relative; }
+    .pay-card:hover, .pay-card.selected { border-color: #d70018; background: rgba(215,0,24,0.04); }
     .pay-card input[type=radio] { position: absolute; opacity: 0; }
     .pay-card .pay-icon { font-size: 2rem; margin-bottom: 8px; display: block; }
-    .pay-card .pay-name { color: #fff; font-size: 0.85rem; font-weight: 600; }
-    .pay-card .pay-desc { color: #666; font-size: 0.75rem; margin-top: 4px; }
+    .pay-card .pay-name { color: #0f172a; font-size: 0.85rem; font-weight: 600; }
+    .pay-card .pay-desc { color: #64748b; font-size: 0.75rem; margin-top: 4px; }
     .voucher-row { display: flex; gap: 10px; }
-    .btn-apply { background: #6c63ff; color: #fff; border: none; border-radius: 10px; padding: 10px 20px; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 0.88rem; }
-    .btn-apply:hover { background: #5a52e0; }
-    .btn-apply.remove { background: #3a3a5e; }
-    .voucher-success { background: rgba(46,213,115,0.1); border: 1px solid #2ed573; border-radius: 10px; padding: 10px 14px; color: #2ed573; font-size: 0.85rem; display: none; margin-top: 10px; }
-    .voucher-error { background: rgba(255,71,87,0.1); border: 1px solid #ff4757; border-radius: 10px; padding: 10px 14px; color: #ff4757; font-size: 0.85rem; display: none; margin-top: 10px; }
-    .order-summary { background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 16px; padding: 28px; position: sticky; top: 20px; }
-    .summary-title { color: #fff; font-size: 1rem; font-weight: 700; margin-bottom: 20px; }
+    .btn-apply { background: #d70018; color: #fff; border: none; border-radius: 10px; padding: 10px 20px; font-weight: 600; cursor: pointer; white-space: nowrap; font-size: 0.88rem; transition: 0.2s; }
+    .btn-apply:hover { background: #b50014; }
+    .btn-apply.remove { background: #64748b; }
+    .btn-apply.remove:hover { background: #475569; }
+    .voucher-success { background: rgba(16,185,129,0.1); border: 1px solid #10b981; border-radius: 10px; padding: 10px 14px; color: #10b981; font-size: 0.85rem; display: none; margin-top: 10px; font-weight: 500; }
+    .voucher-error { background: rgba(239,68,68,0.1); border: 1px solid #ef4444; border-radius: 10px; padding: 10px 14px; color: #ef4444; font-size: 0.85rem; display: none; margin-top: 10px; font-weight: 500; }
+    .order-summary { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 28px; position: sticky; top: 20px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .summary-title { color: #0f172a; font-size: 1.05rem; font-weight: 700; margin-bottom: 20px; }
     .summary-item { display: flex; gap: 12px; margin-bottom: 14px; align-items: center; }
-    .summary-item img { width: 52px; height: 52px; border-radius: 10px; object-fit: cover; background: #0f0f17; flex-shrink: 0; }
-    .summary-img-placeholder { width: 52px; height: 52px; border-radius: 10px; background: #12122a; display: flex; align-items: center; justify-content: center; color: #555; flex-shrink: 0; }
+    .summary-item img { width: 52px; height: 52px; border-radius: 10px; object-fit: cover; background: #f8fafc; flex-shrink: 0; border: 1px solid #e2e8f0; }
+    .summary-img-placeholder { width: 52px; height: 52px; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; color: #94a3b8; flex-shrink: 0; }
     .item-info { flex: 1; }
-    .item-name { color: #e0e0e0; font-size: 0.83rem; line-height: 1.4; }
-    .item-qty { color: #666; font-size: 0.78rem; }
-    .item-price { color: #6c63ff; font-size: 0.88rem; font-weight: 700; flex-shrink: 0; }
-    .summary-divider { border: none; border-top: 1px solid #2a2a3e; margin: 16px 0; }
-    .summary-row { display: flex; justify-content: space-between; font-size: 0.88rem; color: #aaa; margin-bottom: 10px; }
-    .summary-row.grand-total { color: #fff; font-size: 1.1rem; font-weight: 700; margin-top: 14px; }
-    .summary-row .val { color: #e0e0e0; }
-    .summary-row.grand-total .val { color: #6c63ff; font-size: 1.25rem; }
-    .free-ship-badge { background: rgba(46,213,115,0.12); color: #2ed573; font-size: 0.75rem; padding: 3px 9px; border-radius: 6px; }
-    .btn-place-order { width: 100%; background: linear-gradient(135deg, #6c63ff, #a855f7); color: #fff; border: none; border-radius: 14px; padding: 15px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.25s; margin-top: 20px; }
-    .btn-place-order:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(108,99,255,0.4); }
-    .security-badges { display: flex; justify-content: center; gap: 16px; margin-top: 12px; color: #555; font-size: 0.75rem; }
-    .addr-card { background: #12122a; border: 2px solid #2a2a3e; border-radius: 12px; padding: 14px 16px; cursor: pointer; margin-bottom: 10px; transition: border-color 0.2s; position: relative; }
-    .addr-card.selected, .addr-card:hover { border-color: #6c63ff; }
+    .item-name { color: #0f172a; font-size: 0.88rem; line-height: 1.4; font-weight: 500; }
+    .item-qty { color: #64748b; font-size: 0.8rem; margin-top: 2px; }
+    .item-price { color: #d70018; font-size: 0.95rem; font-weight: 700; flex-shrink: 0; }
+    .summary-divider { border: none; border-top: 1px dashed #e2e8f0; margin: 16px 0; }
+    .summary-row { display: flex; justify-content: space-between; font-size: 0.95rem; color: #64748b; margin-bottom: 12px; }
+    .summary-row.grand-total { color: #0f172a; font-size: 1.15rem; font-weight: 800; margin-top: 16px; }
+    .summary-row .val { color: #0f172a; font-weight: 600; }
+    .summary-row.grand-total .val { color: #d70018; font-size: 1.3rem; }
+    .free-ship-badge { background: rgba(16,185,129,0.12); color: #10b981; font-size: 0.75rem; padding: 4px 10px; border-radius: 6px; font-weight: 600; }
+    .btn-place-order { width: 100%; background: #d70018; color: #fff; border: none; border-radius: 12px; padding: 15px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; margin-top: 20px; box-shadow: 0 4px 10px rgba(215,0,24,0.25); }
+    .btn-place-order:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(215,0,24,0.35); }
+    .security-badges { display: flex; justify-content: center; gap: 16px; margin-top: 16px; color: #64748b; font-size: 0.8rem; }
+    .addr-card { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 16px; cursor: pointer; margin-bottom: 12px; transition: border-color 0.2s; position: relative; }
+    .addr-card.selected, .addr-card:hover { border-color: #d70018; background: rgba(215,0,24,0.02); }
     .addr-card input[type=radio] { position: absolute; opacity: 0; }
-    .addr-label-tag { background: rgba(108,99,255,0.15); color: #6c63ff; font-size: 0.72rem; padding: 2px 8px; border-radius: 5px; margin-right: 6px; }
-    .new-addr-toggle { color: #6c63ff; font-size: 0.88rem; cursor: pointer; margin-top: 4px; }
+    .addr-label-tag { background: rgba(215,0,24,0.1); color: #d70018; font-size: 0.75rem; padding: 3px 8px; border-radius: 6px; margin-right: 8px; font-weight: 600; }
+    .new-addr-toggle { color: #d70018; font-size: 0.9rem; cursor: pointer; margin-top: 8px; font-weight: 600; display: inline-block; }
     .new-addr-toggle:hover { text-decoration: underline; }
-    .qr-demo-box { background: #12122a; border: 1px dashed #3a3a5e; border-radius: 14px; padding: 24px; text-align: center; display: none; margin-top: 16px; }
-    .qr-demo-box img { width: 140px; height: 140px; border-radius: 10px; }
-    .qr-demo-box p { color: #aaa; font-size: 0.82rem; margin-top: 10px; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 14px; }
-    .form-group { margin-bottom: 14px; }
+    .qr-demo-box { background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 12px; padding: 24px; text-align: center; display: none; margin-top: 16px; }
+    .qr-demo-box img { width: 140px; height: 140px; border-radius: 10px; border: 1px solid #e2e8f0; }
+    .qr-demo-box p { color: #64748b; font-size: 0.85rem; margin-top: 12px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+    .form-group { margin-bottom: 16px; }
 </style>
 
 <div class="checkout-wrap">
@@ -84,9 +84,9 @@
     <div class="steps-bar">
         <div class="step"><div class="step-num">✓</div><span class="step-label">Giỏ hàng</span></div>
         <div class="step-divider"></div>
-        <div class="step"><div class="step-num" style="background:#6c63ff;">2</div><span class="step-label" style="color:#6c63ff;">Thanh toán</span></div>
+        <div class="step"><div class="step-num" style="background:#d70018;">2</div><span class="step-label" style="color:#d70018;">Thanh toán</span></div>
         <div class="step-divider"></div>
-        <div class="step"><div class="step-num" style="background:#2a2a3e;color:#666;">3</div><span class="step-label" style="color:#666;">Hoàn tất</span></div>
+        <div class="step"><div class="step-num" style="background:#e2e8f0;color:#64748b;">3</div><span class="step-label" style="color:#64748b;">Hoàn tất</span></div>
     </div>
 
     <form action="@Url.Action("PlaceOrder", "Cart")" method="post" id="checkout-form">
@@ -109,9 +109,9 @@
                                 <label class="addr-card @(isFirst ? "selected" : "")">
                                     <input type="radio" name="savedAddressId" value="@addr.id" @(isFirst ? "checked=\"checked\"" : "") />
                                     <span class="addr-label-tag">@(addr.label ?? "Địa chỉ")</span>
-                                    <strong style="color:#fff;">@addr.receiver_name</strong>
-                                    &nbsp;<span style="color:#888;">@addr.receiver_phone</span>
-                                    <div style="color:#aaa;font-size:0.82rem;margin-top:4px;">
+                                    <strong style="color:#0f172a;">@addr.receiver_name</strong>
+                                    &nbsp;<span style="color:#64748b;">@addr.receiver_phone</span>
+                                    <div style="color:#64748b;font-size:0.85rem;margin-top:4px;">
                                         @addr.street_address, @addr.ward, @addr.district, @addr.province
                                     </div>
                                 </label>
@@ -212,7 +212,7 @@
                     </div>
                     <div class="qr-demo-box" id="qr-demo">
                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=HUIT-SHOP-DEMO" alt="QR" />
-                        <p><strong style="color:#fff;">HUIT SHOP — TÀI KHOẢN DEMO</strong><br />
+                        <p><strong style="color:#0f172a;">HUIT SHOP — TÀI KHOẢN DEMO</strong><br />
                         Vietcombank | STK: 0123456789<br />Nội dung: THANH TOAN HUIT</p>
                         <span style="color:#ff4757;font-size:0.8rem;">⚠️ Demo — không chuyển tiền thật</span>
                     </div>

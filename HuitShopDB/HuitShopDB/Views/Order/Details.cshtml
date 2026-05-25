@@ -6,60 +6,60 @@
     bool isCancelled = Model.Status == "CANCELLED";
 }
 <style>
-    body { background: #0f0f17; }
     .detail-wrap { max-width: 920px; margin: 0 auto; padding: 30px 20px 80px; }
-    .back-link { color: #6c63ff; text-decoration: none; font-size: 0.88rem; margin-bottom: 20px; display: inline-flex; align-items: center; gap: 6px; }
-    .back-link:hover { text-decoration: underline; color: #6c63ff; }
-    .detail-title { color: #fff; font-size: 1.6rem; font-weight: 800; margin-bottom: 6px; }
-    .detail-sub { color: #888; font-size: 0.88rem; margin-bottom: 30px; }
+    .back-link { color: #d70018; text-decoration: none; font-size: 0.9rem; margin-bottom: 20px; display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+    .back-link:hover { text-decoration: underline; color: #b50014; }
+    .detail-title { color: #0f172a; font-size: 1.8rem; font-weight: 800; margin-bottom: 6px; }
+    .detail-sub { color: #64748b; font-size: 0.95rem; margin-bottom: 30px; }
     .status-badge { display: inline-block; padding: 6px 18px; border-radius: 20px; font-size: 0.85rem; font-weight: 700; margin-left: 14px; vertical-align: middle; }
-    .s-PENDING { background: rgba(255,193,7,0.15); color: #ffc107; }
-    .s-CONFIRMED { background: rgba(0,191,255,0.15); color: #00bfff; }
-    .s-SHIPPING { background: rgba(108,99,255,0.15); color: #6c63ff; }
-    .s-COMPLETED { background: rgba(46,213,115,0.15); color: #2ed573; }
-    .s-CANCELLED { background: rgba(255,71,87,0.15); color: #ff4757; }
-    .card-section { background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 16px; padding: 26px; margin-bottom: 22px; }
-    .section-title { color: #fff; font-size: 0.95rem; font-weight: 700; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
-    .section-title i { color: #6c63ff; }
+    .s-PENDING { background: rgba(245,158,11,0.15); color: #d97706; }
+    .s-CONFIRMED { background: rgba(14,165,233,0.15); color: #0284c7; }
+    .s-SHIPPING { background: rgba(139,92,246,0.15); color: #7c3aed; }
+    .s-COMPLETED { background: rgba(16,185,129,0.15); color: #059669; }
+    .s-CANCELLED { background: rgba(239,68,68,0.15); color: #dc2626; }
+    .card-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 26px; margin-bottom: 22px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .section-title { color: #0f172a; font-size: 1.05rem; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+    .section-title i { color: #d70018; }
     /* Timeline */
     .timeline { position: relative; padding-left: 30px; }
-    .timeline::before { content:''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: #2a2a3e; }
+    .timeline::before { content:''; position: absolute; left: 10px; top: 0; bottom: 0; width: 2px; background: #e2e8f0; }
     .tl-item { position: relative; margin-bottom: 24px; }
     .tl-item:last-child { margin-bottom: 0; }
     .tl-dot { width: 22px; height: 22px; border-radius: 50%; position: absolute; left: -22px; top: 0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; border: 2px solid; }
-    .tl-dot.done { background: #6c63ff; border-color: #6c63ff; color: #fff; }
-    .tl-dot.current { background: transparent; border-color: #6c63ff; color: #6c63ff; animation: pulse 1.5s infinite; }
-    .tl-dot.future { background: #12122a; border-color: #2a2a3e; color: #555; }
-    .tl-dot.cancelled { background: rgba(255,71,87,0.2); border-color: #ff4757; color: #ff4757; }
-    @@keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(108,99,255,0.4)} 50%{box-shadow:0 0 0 6px rgba(108,99,255,0)} }
+    .tl-dot.done { background: #d70018; border-color: #d70018; color: #fff; }
+    .tl-dot.current { background: #fff; border-color: #d70018; color: #d70018; animation: pulse 1.5s infinite; }
+    .tl-dot.future { background: #f8fafc; border-color: #cbd5e1; color: #94a3b8; }
+    .tl-dot.cancelled { background: rgba(239,68,68,0.1); border-color: #ef4444; color: #ef4444; }
+    @@keyframes pulse { 0%,100%{box-shadow:0 0 0 0 rgba(215,0,24,0.3)} 50%{box-shadow:0 0 0 6px rgba(215,0,24,0)} }
     .tl-content { padding-left: 6px; }
-    .tl-status { color: #fff; font-weight: 700; font-size: 0.88rem; }
-    .tl-note { color: #888; font-size: 0.82rem; margin-top: 2px; }
-    .tl-time { color: #555; font-size: 0.78rem; margin-top: 2px; }
+    .tl-status { color: #0f172a; font-weight: 700; font-size: 0.95rem; }
+    .tl-note { color: #64748b; font-size: 0.85rem; margin-top: 2px; }
+    .tl-time { color: #94a3b8; font-size: 0.8rem; margin-top: 4px; font-weight: 500; }
     /* Info rows */
     .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-    .info-item { padding: 10px 0; border-bottom: 1px solid #1f1f35; }
+    .info-item { padding: 12px 0; border-bottom: 1px dashed #e2e8f0; }
     .info-item:nth-last-child(-n+2) { border-bottom: none; }
-    .info-label { color: #666; font-size: 0.8rem; margin-bottom: 4px; }
-    .info-val { color: #e0e0e0; font-size: 0.88rem; font-weight: 600; }
+    .info-label { color: #64748b; font-size: 0.85rem; margin-bottom: 4px; font-weight: 500; }
+    .info-val { color: #0f172a; font-size: 0.95rem; font-weight: 600; }
     /* Product table */
     .product-table { width: 100%; border-collapse: collapse; }
-    .product-table th { color: #666; font-size: 0.78rem; font-weight: 600; padding: 8px 0; border-bottom: 1px solid #2a2a3e; text-align: left; }
-    .product-table td { padding: 14px 0; border-bottom: 1px solid #1f1f35; vertical-align: middle; }
+    .product-table th { color: #64748b; font-size: 0.85rem; font-weight: 600; padding: 10px 0; border-bottom: 1px solid #e2e8f0; text-align: left; }
+    .product-table td { padding: 16px 0; border-bottom: 1px dashed #e2e8f0; vertical-align: middle; }
     .product-table tr:last-child td { border-bottom: none; }
-    .prod-img { width: 52px; height: 52px; border-radius: 10px; object-fit: cover; background: #12122a; }
-    .prod-name { color: #e0e0e0; font-size: 0.88rem; font-weight: 600; }
-    .prod-sku { color: #666; font-size: 0.76rem; }
-    .serial-tag { display: inline-block; background: rgba(46,213,115,0.1); border: 1px solid rgba(46,213,115,0.3); color: #2ed573; font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; margin: 2px; }
+    .prod-img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; background: #f8fafc; border: 1px solid #e2e8f0; }
+    .prod-name { color: #0f172a; font-size: 0.9rem; font-weight: 600; }
+    .prod-sku { color: #64748b; font-size: 0.8rem; margin-top: 2px; }
+    .serial-tag { display: inline-block; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); color: #10b981; font-size: 0.75rem; padding: 3px 8px; border-radius: 6px; margin: 4px 4px 0 0; font-weight: 600; }
     /* Totals */
-    .totals { background: #12122a; border-radius: 12px; padding: 18px; }
-    .totals-row { display: flex; justify-content: space-between; font-size: 0.88rem; color: #aaa; padding: 6px 0; }
-    .totals-row.grand { font-size: 1.05rem; color: #fff; font-weight: 800; border-top: 1px solid #2a2a3e; margin-top: 10px; padding-top: 12px; }
-    .totals-row.grand .tv { color: #6c63ff; font-size: 1.2rem; }
+    .totals { background: #f8fafc; border-radius: 14px; padding: 20px; border: 1px solid #e2e8f0; }
+    .totals-row { display: flex; justify-content: space-between; font-size: 0.95rem; color: #64748b; padding: 8px 0; }
+    .totals-row.grand { font-size: 1.15rem; color: #0f172a; font-weight: 800; border-top: 1px dashed #cbd5e1; margin-top: 12px; padding-top: 16px; }
+    .totals-row.grand .tv { color: #d70018; font-size: 1.3rem; }
     .action-row { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
-    .btn-back { background: #1a1a2e; border: 1px solid #2a2a3e; color: #e0e0e0; padding: 10px 22px; border-radius: 12px; text-decoration: none; font-size: 0.88rem; font-weight: 600; }
-    .btn-back:hover { border-color: #6c63ff; color: #fff; text-decoration: none; }
-    .btn-cancel-order { background: rgba(255,71,87,0.1); border: 1px solid rgba(255,71,87,0.3); color: #ff4757; padding: 10px 22px; border-radius: 12px; font-size: 0.88rem; font-weight: 600; cursor: pointer; }
+    .btn-back { background: #fff; border: 1px solid #cbd5e1; color: #0f172a; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-size: 0.95rem; font-weight: 600; transition: 0.2s; }
+    .btn-back:hover { border-color: #d70018; color: #d70018; text-decoration: none; background: #fffafb; }
+    .btn-cancel-order { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); color: #ef4444; padding: 12px 24px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn-cancel-order:hover { background: rgba(239,68,68,0.2); }
 </style>
 
 <div class="detail-wrap">
@@ -74,7 +74,7 @@
               Model.Status == "COMPLETED" ? "🏠 Đã hoàn tất" : "❌ Đã hủy")
         </span>
     </h1>
-    <p class="detail-sub">Mã đơn hàng: <strong style="color:#6c63ff;">@Model.Code</strong> &bull; Đặt lúc @Model.CreatedAt.AddHours(7).ToString("HH:mm - dd/MM/yyyy")</p>
+    <p class="detail-sub">Mã đơn hàng: <strong style="color:#d70018;">@Model.Code</strong> &bull; Đặt lúc @Model.CreatedAt.AddHours(7).ToString("HH:mm - dd/MM/yyyy")</p>
 
     <div class="row">
         <div class="col-md-8">
@@ -94,7 +94,7 @@
                         <div class="tl-item">
                             <div class="tl-dot cancelled">✕</div>
                             <div class="tl-content">
-                                <div class="tl-status" style="color:#ff4757;">Đơn hàng đã bị hủy</div>
+                                <div class="tl-status" style="color:#ef4444;">Đơn hàng đã bị hủy</div>
                                 @{
                                     var cancelEntry = Model.StatusHistory.LastOrDefault(h => h.Status == "CANCELLED");
                                 }
@@ -117,7 +117,7 @@
                                     @(isDone ? "✓" : "○")
                                 </div>
                                 <div class="tl-content">
-                                    <div class="tl-status" style="@(isCurrent ? "color:#6c63ff;" : "")">
+                                    <div class="tl-status" style="@(isCurrent ? "color:#d70018;" : "")">
                                         @(sh.Status == "PENDING" ? "Đơn hàng được tạo" :
                                           sh.Status == "CONFIRMED" ? "Đã xác nhận đơn hàng" :
                                           sh.Status == "SHIPPING" ? "Đang vận chuyển" : "Giao hàng thành công")
@@ -158,7 +158,7 @@
                                         }
                                         else
                                         {
-                                            <div class="prod-img" style="display:flex;align-items:center;justify-content:center;color:#555;"><i class="fas fa-image"></i></div>
+                                            <div class="prod-img" style="display:flex;align-items:center;justify-content:center;color:#94a3b8;"><i class="fas fa-image"></i></div>
                                         }
                                         <div>
                                             <div class="prod-name">@item.ProductName</div>
@@ -175,9 +175,9 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td style="text-align:center;color:#e0e0e0;">@item.Quantity</td>
-                                <td style="text-align:right;color:#aaa;">@item.UnitPrice.ToString("N0")đ</td>
-                                <td style="text-align:right;color:#6c63ff;font-weight:700;">@item.TotalPrice.ToString("N0")đ</td>
+                                <td style="text-align:center;color:#0f172a;font-weight:600;">@item.Quantity</td>
+                                <td style="text-align:right;color:#64748b;">@item.UnitPrice.ToString("N0")đ</td>
+                                <td style="text-align:right;color:#d70018;font-weight:700;">@item.TotalPrice.ToString("N0")đ</td>
                             </tr>
                         }
                     </tbody>
@@ -199,8 +199,8 @@
                         <div style="margin-bottom:12px;">
                             <div class="info-label">Địa chỉ giao hàng</div>
                             <div class="info-val">@Model.RecipientName</div>
-                            <div style="color:#888;font-size:0.8rem;">📞 @Model.RecipientPhone</div>
-                            <div style="color:#888;font-size:0.8rem;margin-top:4px;">📍 @Model.FullAddress</div>
+                            <div style="color:#64748b;font-size:0.85rem;margin-top:2px;">📞 @Model.RecipientPhone</div>
+                            <div style="color:#64748b;font-size:0.85rem;margin-top:4px;">📍 @Model.FullAddress</div>
                         </div>
                     }
                     @if (!string.IsNullOrEmpty(Model.Note))
@@ -220,7 +220,7 @@
                     <div class="totals-row"><span>Tạm tính</span><span>@Model.Subtotal.ToString("N0")đ</span></div>
                     @if (Model.Discount > 0)
                     {
-                        <div class="totals-row" style="color:#2ed573;"><span>Giảm giá</span><span>-@Model.Discount.ToString("N0")đ</span></div>
+                        <div class="totals-row" style="color:#10b981;"><span>Giảm giá</span><span>-@Model.Discount.ToString("N0")đ</span></div>
                     }
                     <div class="totals-row"><span>Phí vận chuyển</span><span>@(Model.ShippingFee == 0 ? "Miễn phí" : Model.ShippingFee.ToString("N0") + "đ")</span></div>
                     <div class="totals-row grand"><span>Tổng cộng</span><span class="tv">@Model.Total.ToString("N0")đ</span></div>

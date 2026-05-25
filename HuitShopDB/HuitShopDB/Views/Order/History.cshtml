@@ -6,44 +6,43 @@
     int totalPages = ViewBag.TotalPages ?? 1;
 }
 <style>
-    body { background: #0f0f17; }
     .history-wrap { max-width: 960px; margin: 0 auto; padding: 30px 20px 60px; }
-    .page-title { color: #fff; font-size: 1.8rem; font-weight: 800; margin-bottom: 6px; }
-    .page-sub { color: #888; font-size: 0.9rem; margin-bottom: 30px; }
+    .page-title { color: #0f172a; font-size: 1.8rem; font-weight: 800; margin-bottom: 6px; }
+    .page-sub { color: #64748b; font-size: 0.95rem; margin-bottom: 30px; }
     .status-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; }
-    .status-tab { padding: 8px 18px; border-radius: 50px; font-size: 0.82rem; font-weight: 600; text-decoration: none; background: #1a1a2e; border: 1px solid #2a2a3e; color: #888; transition: all 0.2s; }
-    .status-tab:hover, .status-tab.active { background: #6c63ff; border-color: #6c63ff; color: #fff; text-decoration: none; }
-    .order-card { background: #1a1a2e; border: 1px solid #2a2a3e; border-radius: 16px; padding: 20px 24px; margin-bottom: 16px; transition: border-color 0.2s; }
-    .order-card:hover { border-color: #3a3a5e; }
+    .status-tab { padding: 8px 18px; border-radius: 50px; font-size: 0.85rem; font-weight: 600; text-decoration: none; background: #fff; border: 1px solid #cbd5e1; color: #64748b; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+    .status-tab:hover, .status-tab.active { background: #d70018; border-color: #d70018; color: #fff; text-decoration: none; box-shadow: 0 4px 10px rgba(215,0,24,0.25); }
+    .order-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px 24px; margin-bottom: 16px; transition: border-color 0.2s, box-shadow 0.2s; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .order-card:hover { border-color: #d70018; box-shadow: 0 6px 15px rgba(215,0,24,0.1); }
     .order-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 10px; }
-    .order-code { color: #6c63ff; font-weight: 700; font-size: 0.95rem; }
-    .order-date { color: #666; font-size: 0.8rem; }
+    .order-code { color: #d70018; font-weight: 700; font-size: 0.95rem; }
+    .order-date { color: #64748b; font-size: 0.8rem; }
     .status-badge { padding: 4px 14px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; }
-    .s-PENDING { background: rgba(255,193,7,0.15); color: #ffc107; }
-    .s-CONFIRMED { background: rgba(0,191,255,0.15); color: #00bfff; }
-    .s-SHIPPING { background: rgba(108,99,255,0.15); color: #6c63ff; }
-    .s-COMPLETED { background: rgba(46,213,115,0.15); color: #2ed573; }
-    .s-CANCELLED { background: rgba(255,71,87,0.15); color: #ff4757; }
+    .s-PENDING { background: rgba(245,158,11,0.15); color: #d97706; }
+    .s-CONFIRMED { background: rgba(14,165,233,0.15); color: #0284c7; }
+    .s-SHIPPING { background: rgba(139,92,246,0.15); color: #7c3aed; }
+    .s-COMPLETED { background: rgba(16,185,129,0.15); color: #059669; }
+    .s-CANCELLED { background: rgba(239,68,68,0.15); color: #dc2626; }
     .order-items-row { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
-    .order-thumb { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; background: #12122a; }
-    .order-thumb-placeholder { width: 56px; height: 56px; border-radius: 10px; background: #12122a; display: flex; align-items: center; justify-content: center; color: #555; font-size: 1.2rem; }
-    .more-items { width: 56px; height: 56px; border-radius: 10px; background: #12122a; display: flex; align-items: center; justify-content: center; color: #888; font-size: 0.78rem; font-weight: 700; border: 1px dashed #2a2a3e; }
-    .order-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-    .order-total { color: #fff; font-size: 1rem; font-weight: 700; }
-    .order-total span { color: #6c63ff; font-size: 1.1rem; }
-    .pay-method { color: #888; font-size: 0.8rem; }
+    .order-thumb { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; background: #f8fafc; border: 1px solid #e2e8f0; }
+    .order-thumb-placeholder { width: 64px; height: 64px; border-radius: 10px; background: #f8fafc; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 1.5rem; }
+    .more-items { width: 64px; height: 64px; border-radius: 10px; background: #f8fafc; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 0.85rem; font-weight: 700; border: 1px dashed #cbd5e1; }
+    .order-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-top: 1px dashed #e2e8f0; padding-top: 14px; margin-top: 4px; }
+    .order-total { color: #0f172a; font-size: 1.05rem; font-weight: 700; }
+    .order-total span { color: #d70018; font-size: 1.15rem; }
+    .pay-method { color: #64748b; font-size: 0.85rem; margin-top: 4px; }
     .order-actions { display: flex; gap: 8px; }
-    .btn-detail { background: #6c63ff; color: #fff; padding: 7px 16px; border-radius: 8px; text-decoration: none; font-size: 0.82rem; font-weight: 600; }
-    .btn-detail:hover { background: #5a52e0; color: #fff; text-decoration: none; }
-    .btn-cancel { background: rgba(255,71,87,0.12); color: #ff4757; border: 1px solid rgba(255,71,87,0.3); padding: 7px 14px; border-radius: 8px; font-size: 0.82rem; font-weight: 600; cursor: pointer; }
-    .btn-cancel:hover { background: rgba(255,71,87,0.25); }
-    .empty-state { text-align: center; padding: 80px 20px; }
+    .btn-detail { background: #d70018; color: #fff; padding: 8px 20px; border-radius: 10px; text-decoration: none; font-size: 0.9rem; font-weight: 600; box-shadow: 0 4px 10px rgba(215,0,24,0.25); transition: 0.2s; }
+    .btn-detail:hover { background: #b50014; color: #fff; text-decoration: none; transform: translateY(-1px); }
+    .btn-cancel { background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.2); padding: 8px 16px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .btn-cancel:hover { background: rgba(239,68,68,0.2); }
+    .empty-state { text-align: center; padding: 80px 20px; background: #fff; border-radius: 16px; border: 1px dashed #cbd5e1; }
     .empty-state .emoji { font-size: 4rem; margin-bottom: 16px; }
-    .empty-state p { color: #888; font-size: 0.95rem; margin-bottom: 24px; }
+    .empty-state p { color: #64748b; font-size: 1rem; margin-bottom: 24px; }
     .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 30px; }
-    .page-btn { width: 38px; height: 38px; border-radius: 10px; background: #1a1a2e; border: 1px solid #2a2a3e; color: #aaa; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 0.85rem; }
-    .page-btn.active { background: #6c63ff; border-color: #6c63ff; color: #fff; }
-    .page-btn:hover { border-color: #6c63ff; color: #fff; text-decoration: none; }
+    .page-btn { width: 40px; height: 40px; border-radius: 10px; background: #fff; border: 1px solid #cbd5e1; color: #0f172a; display: flex; align-items: center; justify-content: center; text-decoration: none; font-size: 0.9rem; font-weight: 600; transition: 0.2s; }
+    .page-btn.active { background: #d70018; border-color: #d70018; color: #fff; box-shadow: 0 4px 10px rgba(215,0,24,0.25); }
+    .page-btn:hover:not(.active) { border-color: #d70018; color: #d70018; text-decoration: none; background: #fffafb; }
 </style>
 
 <div class="history-wrap">

@@ -98,8 +98,17 @@ namespace HuitShopDB.Controllers
             if (order.Status != "PENDING")
                 return Json(new { success = false, message = "Chỉ có thể hủy đơn hàng đang chờ xử lý" });
 
-            var result = await _orderService.CancelOrderAsync(orderId, reason);
-            return Json(new { success = result, message = result ? "Đã hủy đơn hàng thành công" : "Không thể hủy đơn hàng" });
+            try
+            {
+                var result = await _orderService.CancelOrderAsync(orderId, reason);
+                return Json(new { success = result, message = result ? "Đã hủy đơn hàng thành công" : "Không thể hủy đơn hàng" });
+            }
+            catch (Exception ex)
+            {
+                string errorMsg = ex.Message;
+                if (ex.InnerException != null) errorMsg += " | " + ex.InnerException.Message;
+                return Json(new { success = false, message = "Lỗi hệ thống: " + errorMsg });
+            }
         }
 
         // ==================== ADMIN VIEWS ====================
