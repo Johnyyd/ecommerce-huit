@@ -16,6 +16,7 @@ namespace HuitShopDB.Controllers
 
         public async Task<ActionResult> Index()
         {
+
             var categories = await _productService.GetCategoriesAsync();
             var query = new ProductQueryParams { PageSize = 10, SortBy = "newest" };
             var products = await _productService.GetProductsAsync(query);

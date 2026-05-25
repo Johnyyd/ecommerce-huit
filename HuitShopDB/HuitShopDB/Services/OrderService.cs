@@ -251,7 +251,7 @@ namespace HuitShopDB.Services
                 sm.warehouse_id = 1;
                 sm.variant_id = oi.variant_id;
                 sm.quantity = oi.quantity;
-                sm.movement_type = "CANCEL_RELEASE";
+                sm.movement_type = "RETURN";
                 sm.reference_type = "ORDER";
                 sm.note = string.Format("Hoàn trả kho do hủy đơn {0}", o.code);
                 sm.created_at = DateTime.UtcNow;
@@ -358,7 +358,7 @@ namespace HuitShopDB.Services
                 sm.warehouse_id = 1;
                 sm.variant_id = oi.variant_id;
                 sm.quantity = -oi.quantity;
-                sm.movement_type = "SALE_COMPLETED";
+                sm.movement_type = "SALE_SHIP";
                 sm.reference_type = "ORDER";
                 sm.note = string.Format("Xuất kho hoàn tất đơn hàng {0}", o.code);
                 sm.created_at = DateTime.UtcNow;
