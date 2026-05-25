@@ -42,9 +42,18 @@
         color: #3b82f6;
         transform: translateX(4px);
     }
-    .brand-checkbox {
-        cursor: pointer;
-        padding: 0.25rem 0;
+    .brand-link {
+        color: #475569;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        padding: 0.4rem 0;
+    }
+    .brand-link:hover, .brand-link.active {
+        color: #3b82f6;
+        transform: translateX(4px);
     }
     .wishlist-heart {
         position: absolute;
@@ -170,15 +179,15 @@
                             <i class="bi bi-tag-fill text-primary me-2"></i> Thương hiệu
                         </div>
                         <input type="hidden" name="brandId" id="brandIdInput" value="@query.BrandId" />
-                        <div style="max-height: 200px; overflow-y: auto;" class="pe-1">
+                        <div style="max-height: 200px; overflow-y: auto;" class="pe-1 d-flex flex-column gap-1">
+                            <a href="#" class="brand-link small @(query.BrandId == null ? "active text-primary fw-bold" : "")" onclick="setBrand(null)">
+                                Tất cả thương hiệu
+                            </a>
                             @foreach (var brand in brands)
                             {
-                                <div class="form-check brand-checkbox mb-2">
-                                    <input class="form-check-input" type="radio" name="brandRadio" id="brand_@brand.Id" value="@brand.Id" @(query.BrandId == brand.Id ? "checked" : "") onchange="setBrand(@brand.Id)" />
-                                    <label class="form-check-label text-secondary small fw-medium" for="brand_@brand.Id">
-                                        @brand.Name
-                                    </label>
-                                </div>
+                                <a href="#" class="brand-link small @(query.BrandId == brand.Id ? "active text-primary fw-bold" : "")" onclick="setBrand(@brand.Id)">
+                                    @brand.Name
+                                </a>
                             }
                         </div>
                     </div>

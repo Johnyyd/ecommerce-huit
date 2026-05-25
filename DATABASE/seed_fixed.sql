@@ -57,8 +57,18 @@ INSERT INTO brands (id, name, origin, description) VALUES
 (3, 'Dell', 'USA', N'Máy tính để bàn và laptop'),
 (4, 'Asus', 'Taiwan', N'Laptop Gaming và Mainboard'),
 (5, 'Sony', 'Japan', N'Âm thanh và điện tử'),
-(6, 'Xiaomi', 'China', N'Điện thoại và thiết bị thông minh');
-
+(6, 'Xiaomi', 'China', N'Điện thoại và thiết bị thông minh'),
+(7, 'Lenovo', 'China', N'Máy tính xách tay Lenovo'),
+(8, 'HP', 'USA', N'Máy tính xách tay HP'),
+(9, 'Garmin', 'USA', N'Đồng hồ thông minh thể thao Garmin'),
+(10, 'Huawei', 'China', N'Thiết bị công nghệ Huawei'),
+(11, 'Intel', 'USA', N'Vi xử lý Intel'),
+(12, 'AMD', 'USA', N'Vi xử lý và card đồ họa AMD'),
+(13, 'NVIDIA', 'USA', N'Card đồ họa NVIDIA'),
+(14, 'MSI', 'Taiwan', N'Máy tính và linh kiện MSI'),
+(15, 'Corsair', 'USA', N'Linh kiện và phụ kiện gaming Corsair'),
+(16, 'G.Skill', 'Taiwan', N'Bộ nhớ RAM G.Skill'),
+(17, 'WD', 'USA', N'Thiết bị lưu trữ Western Digital');
 SET IDENTITY_INSERT brands OFF;
 
 SET IDENTITY_INSERT warehouses ON;
@@ -191,23 +201,23 @@ INSERT INTO products (id, name, slug, brand_id, category_id, description, specif
 (6, N'Asus ROG Zephyrus G14', 'asus-rog-zephyrus-g14', 4, 1, N'<p>Sản phẩm chính hãng Asus ROG Zephyrus G14</p>', N'{}', 'ACTIVE', 1),
 (7, N'Dell XPS 15', 'dell-xps-15', 3, 2, N'<p>Sản phẩm chính hãng Dell XPS 15</p>', N'{}', 'ACTIVE', 1),
 (8, N'MacBook Pro 16 M3 Max', 'macbook-pro-16-m3-max', 1, 2, N'<p>Sản phẩm chính hãng MacBook Pro 16 M3 Max</p>', N'{}', 'ACTIVE', 1),
-(9, N'Lenovo Legion 5', 'lenovo-legion-5', 4, 1, N'<p>Sản phẩm chính hãng Lenovo Legion 5</p>', N'{}', 'ACTIVE', 1),
-(10, N'HP Spectre x360', 'hp-spectre-x360', 3, 2, N'<p>Sản phẩm chính hãng HP Spectre x360</p>', N'{}', 'ACTIVE', 1),
+(9, N'Lenovo Legion 5', 'lenovo-legion-5', 7, 1, N'<p>Sản phẩm chính hãng Lenovo Legion 5</p>', N'{}', 'ACTIVE', 1),
+(10, N'HP Spectre x360', 'hp-spectre-x360', 8, 2, N'<p>Sản phẩm chính hãng HP Spectre x360</p>', N'{}', 'ACTIVE', 1),
 (11, N'Apple Watch Series 9', 'apple-watch-series-9', 1, 5, N'<p>Sản phẩm chính hãng Apple Watch Series 9</p>', N'{}', 'ACTIVE', 1),
 (12, N'Samsung Galaxy Watch 6 Classic', 'samsung-galaxy-watch-6-classic', 2, 5, N'<p>Sản phẩm chính hãng Samsung Galaxy Watch 6 Classic</p>', N'{}', 'ACTIVE', 1),
-(13, N'Garmin Fenix 7', 'garmin-fenix-7', 5, 5, N'<p>Sản phẩm chính hãng Garmin Fenix 7</p>', N'{}', 'ACTIVE', 1),
+(13, N'Garmin Fenix 7', 'garmin-fenix-7', 9, 5, N'<p>Sản phẩm chính hãng Garmin Fenix 7</p>', N'{}', 'ACTIVE', 1),
 (14, N'Xiaomi Mi Band 8', 'xiaomi-mi-band-8', 6, 5, N'<p>Sản phẩm chính hãng Xiaomi Mi Band 8</p>', N'{}', 'ACTIVE', 1),
-(15, N'Huawei Watch GT 4', 'huawei-watch-gt-4', 6, 5, N'<p>Sản phẩm chính hãng Huawei Watch GT 4</p>', N'{}', 'ACTIVE', 1),
-(16, N'CPU Intel Core i9-14900K', 'cpu-intel-core-i9-14900k', 3, 5, N'<p>Sản phẩm chính hãng CPU Intel Core i9-14900K</p>', N'{}', 'ACTIVE', 1),
-(17, N'CPU AMD Ryzen 9 7950X3D', 'cpu-amd-ryzen-9-7950x3d', 3, 5, N'<p>Sản phẩm chính hãng CPU AMD Ryzen 9 7950X3D</p>', N'{}', 'ACTIVE', 1),
-(18, N'VGA NVIDIA RTX 4090', 'vga-nvidia-rtx-4090', 4, 5, N'<p>Sản phẩm chính hãng VGA NVIDIA RTX 4090</p>', N'{}', 'ACTIVE', 1),
-(19, N'VGA AMD Radeon RX 7900 XTX', 'vga-amd-radeon-rx-7900-xtx', 4, 5, N'<p>Sản phẩm chính hãng VGA AMD Radeon RX 7900 XTX</p>', N'{}', 'ACTIVE', 1),
+(15, N'Huawei Watch GT 4', 'huawei-watch-gt-4', 10, 5, N'<p>Sản phẩm chính hãng Huawei Watch GT 4</p>', N'{}', 'ACTIVE', 1),
+(16, N'CPU Intel Core i9-14900K', 'cpu-intel-core-i9-14900k', 11, 5, N'<p>Sản phẩm chính hãng CPU Intel Core i9-14900K</p>', N'{}', 'ACTIVE', 1),
+(17, N'CPU AMD Ryzen 9 7950X3D', 'cpu-amd-ryzen-9-7950x3d', 12, 5, N'<p>Sản phẩm chính hãng CPU AMD Ryzen 9 7950X3D</p>', N'{}', 'ACTIVE', 1),
+(18, N'VGA NVIDIA RTX 4090', 'vga-nvidia-rtx-4090', 13, 5, N'<p>Sản phẩm chính hãng VGA NVIDIA RTX 4090</p>', N'{}', 'ACTIVE', 1),
+(19, N'VGA AMD Radeon RX 7900 XTX', 'vga-amd-radeon-rx-7900-xtx', 12, 5, N'<p>Sản phẩm chính hãng VGA AMD Radeon RX 7900 XTX</p>', N'{}', 'ACTIVE', 1),
 (20, N'Mainboard Asus ROG Maximus Z790', 'mainboard-asus-rog-maximus-z790', 4, 5, N'<p>Sản phẩm chính hãng Mainboard Asus ROG Maximus Z790</p>', N'{}', 'ACTIVE', 1),
-(21, N'Mainboard MSI MAG B650 Tomahawk', 'mainboard-msi-mag-b650-tomahawk', 4, 5, N'<p>Sản phẩm chính hãng Mainboard MSI MAG B650 Tomahawk</p>', N'{}', 'ACTIVE', 1),
-(22, N'RAM Corsair Vengeance 32GB DDR5', 'ram-corsair-vengeance-32gb-ddr5', 5, 5, N'<p>Sản phẩm chính hãng RAM Corsair Vengeance 32GB DDR5</p>', N'{}', 'ACTIVE', 1),
-(23, N'RAM G.Skill Trident Z5 64GB', 'ram-g-skill-trident-z5-64gb', 5, 5, N'<p>Sản phẩm chính hãng RAM G.Skill Trident Z5 64GB</p>', N'{}', 'ACTIVE', 1),
+(21, N'Mainboard MSI MAG B650 Tomahawk', 'mainboard-msi-mag-b650-tomahawk', 14, 5, N'<p>Sản phẩm chính hãng Mainboard MSI MAG B650 Tomahawk</p>', N'{}', 'ACTIVE', 1),
+(22, N'RAM Corsair Vengeance 32GB DDR5', 'ram-corsair-vengeance-32gb-ddr5', 15, 5, N'<p>Sản phẩm chính hãng RAM Corsair Vengeance 32GB DDR5</p>', N'{}', 'ACTIVE', 1),
+(23, N'RAM G.Skill Trident Z5 64GB', 'ram-g-skill-trident-z5-64gb', 16, 5, N'<p>Sản phẩm chính hãng RAM G.Skill Trident Z5 64GB</p>', N'{}', 'ACTIVE', 1),
 (24, N'SSD Samsung 990 Pro 2TB', 'ssd-samsung-990-pro-2tb', 2, 5, N'<p>Sản phẩm chính hãng SSD Samsung 990 Pro 2TB</p>', N'{}', 'ACTIVE', 1),
-(25, N'SSD WD Black SN850X 1TB', 'ssd-wd-black-sn850x-1tb', 5, 5, N'<p>Sản phẩm chính hãng SSD WD Black SN850X 1TB</p>', N'{}', 'ACTIVE', 1);
+(25, N'SSD WD Black SN850X 1TB', 'ssd-wd-black-sn850x-1tb', 17, 5, N'<p>Sản phẩm chính hãng SSD WD Black SN850X 1TB</p>', N'{}', 'ACTIVE', 1);
 SET IDENTITY_INSERT products OFF;
 GO
 
