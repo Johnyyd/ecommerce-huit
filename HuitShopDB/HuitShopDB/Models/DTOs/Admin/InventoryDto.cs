@@ -61,6 +61,7 @@ namespace HuitShopDB.Models.DTOs.Admin
         public int VariantId { get; set; }
         public decimal CostPrice { get; set; }
         public int? SupplierId { get; set; }
+        public int Quantity { get; set; }
         public List<string> Serials { get; set; }
     }
 

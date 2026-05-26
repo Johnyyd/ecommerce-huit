@@ -77,7 +77,7 @@ namespace HuitShopDB.Services
                 warehouse_id = request.WarehouseId,
                 variant_id = request.VariantId,
                 quantity = Math.Abs(request.QuantityChange),
-                movement_type = request.QuantityChange > 0 ? "ADJUST_IN" : "ADJUST_OUT",
+                movement_type = request.QuantityChange > 0 ? "ADJUSTMENT_IN" : "ADJUSTMENT_OUT",
                 note = request.Note,
                 created_at = DateTime.Now,
                 updated_at = DateTime.Now
@@ -92,7 +92,7 @@ namespace HuitShopDB.Services
         public async Task<bool> ImportStockAsync(ImportStockRequest request)
         {
             var inv = _context.inventories.FirstOrDefault(i => i.warehouse_id == request.WarehouseId && i.variant_id == request.VariantId);
-            int quantity = request.Serials.Any() ? request.Serials.Count : 1; // Simplification if no serials provided
+            int quantity = request.Serials.Any() ? request.Serials.Count : (request.Quantity > 0 ? request.Quantity : 1);
 
             if (inv == null)
             {
@@ -113,12 +113,19 @@ namespace HuitShopDB.Services
                 inv.last_updated = DateTime.Now;
             }
 
+            // Update product variant's cost price
+            var variant = _context.product_variants.FirstOrDefault(v => v.id == request.VariantId);
+            if (variant != null && request.CostPrice > 0)
+            {
+                variant.cost_price = request.CostPrice;
+            }
+
             var movement = new stock_movement
             {
                 warehouse_id = request.WarehouseId,
                 variant_id = request.VariantId,
                 quantity = quantity,
-                movement_type = "IMPORT",
+                movement_type = "PURCHASE",
                 supplier_id = request.SupplierId,
                 created_at = DateTime.Now,
                 updated_at = DateTime.Now
@@ -210,7 +217,7 @@ namespace HuitShopDB.Services
         {
             var query = from m in _context.stock_movements
                         where (warehouseId == 0 || m.warehouse_id == warehouseId)
-                              && (!variantId.HasValue || m.variant_id == variantId.Value)
+                              && (variantId == null || m.variant_id == variantId)
                         orderby m.created_at descending
                         select new StockMovementDto
                         {
@@ -233,6 +240,12 @@ namespace HuitShopDB.Services
         public async Task<IEnumerable<warehouse>> GetWarehousesAsync()
         {
             return await Task.FromResult(_context.warehouses.ToList());
+        }
+
+        public async Task<IEnumerable<product_variant>> GetProductVariantsAsync()
+        {
+            var query = _context.product_variants.Where(v => v.is_active == true).OrderBy(v => v.product.name);
+            return await Task.FromResult(query.ToList());
         }
 
         public async Task<WarehouseAnalyticsDto> GetWarehouseAnalyticsAsync()

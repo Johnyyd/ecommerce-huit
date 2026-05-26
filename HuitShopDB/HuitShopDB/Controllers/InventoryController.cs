@@ -95,7 +95,7 @@ namespace HuitShopDB.Controllers
         }
 
         // GET: /Inventory/Import
-        public async Task<ActionResult> Import()
+        public async Task<ActionResult> Import(int warehouseId = 0, int variantId = 0)
         {
             if (!IsAdminOrStaff())
             {
@@ -104,7 +104,14 @@ namespace HuitShopDB.Controllers
             }
 
             ViewBag.Warehouses = await _inventoryService.GetWarehousesAsync();
-            return View(new ImportStockRequest());
+            ViewBag.Variants = await _inventoryService.GetProductVariantsAsync();
+            
+            var request = new ImportStockRequest
+            {
+                WarehouseId = warehouseId,
+                VariantId = variantId
+            };
+            return View(request);
         }
 
         // POST: /Inventory/Import
@@ -134,6 +141,7 @@ namespace HuitShopDB.Controllers
                 }
             }
             ViewBag.Warehouses = await _inventoryService.GetWarehousesAsync();
+            ViewBag.Variants = await _inventoryService.GetProductVariantsAsync();
             return View(request);
         }
 
@@ -148,6 +156,7 @@ namespace HuitShopDB.Controllers
 
             ViewBag.Title = "Chuyển kho";
             ViewBag.Warehouses = await _inventoryService.GetWarehousesAsync();
+            ViewBag.Variants = await _inventoryService.GetProductVariantsAsync();
             var model = new TransferStockRequest
             {
                 FromWarehouseId = warehouseId,
@@ -179,6 +188,7 @@ namespace HuitShopDB.Controllers
             }
 
             ViewBag.Warehouses = await _inventoryService.GetWarehousesAsync();
+            ViewBag.Variants = await _inventoryService.GetProductVariantsAsync();
             return View(request);
         }
 
@@ -191,8 +201,11 @@ namespace HuitShopDB.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
+            if (variantId == 0) variantId = null;
+
             ViewBag.Title = "Lịch sử tồn kho";
             ViewBag.Warehouses = await _inventoryService.GetWarehousesAsync();
+            ViewBag.Variants = await _inventoryService.GetProductVariantsAsync();
             ViewBag.CurrentWarehouseId = warehouseId;
             ViewBag.CurrentVariantId = variantId;
 

@@ -22,14 +22,23 @@
                                 <option value="">-- Chọn kho --</option>
                                 @foreach (var w in warehouses)
                                 {
-                                    <option value="@w.id">@w.name (@w.code)</option>
+                                    <option value="@w.id" @(Model.WarehouseId == w.id ? "selected" : "")>@w.name (@w.code)</option>
                                 }
                             </select>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold">ID Biến thể sản phẩm (Variant ID)</label>
-                            <input type="number" name="VariantId" class="form-control" placeholder="Nhập ID từ danh sách sản phẩm" required />
+                            <label class="form-label fw-bold">Chọn biến thể sản phẩm</label>
+                            <select id="variantSelect" name="VariantId" class="form-select" required>
+                                <option value="">-- Chọn biến thể sản phẩm --</option>
+                                @foreach (var v in ViewBag.Variants as IEnumerable<HuitShopDB.Models.product_variant>)
+                                {
+                                    var displayName = v.product.name + (string.IsNullOrEmpty(v.variant_name) || v.variant_name == "Mặc định" ? "" : " - " + v.variant_name) + " (" + v.sku + ")";
+                                    var costPrice = v.cost_price ?? 0;
+                                    var price = v.price;
+                                    <option value="@v.id" data-cost-price="@((long)costPrice)" data-price="@((long)price)" @(Model.VariantId == v.id ? "selected" : "")>@displayName</option>
+                                }
+                            </select>
                         </div>
 
                         <div class="mb-3">
@@ -40,7 +49,11 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-bold">Giá nhập (VNĐ)</label>
-                            <input type="number" name="CostPrice" class="form-control" value="0" step="1000" />
+                            <input type="number" id="costPriceInput" name="CostPrice" class="form-control" value="0" step="1000" />
+                            <div id="costPriceHelp" class="form-text text-muted mt-2" style="display:none;">
+                                <span class="badge bg-secondary me-2 p-2 text-white" style="color: #fff !important;"><i class="bi bi-tag-fill me-1"></i>Giá nhập tiêu chuẩn (cũ): <span id="oldCostPriceText">0</span> VNĐ</span>
+                                <span class="badge bg-info text-dark p-2" style="color: #212529 !important;"><i class="bi bi-cart-dash-fill me-1"></i>Giá bán lẻ hiện tại: <span id="retailPriceText">0</span> VNĐ</span>
+                            </div>
                         </div>
 
                         <div class="mb-3">
@@ -58,3 +71,43 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var variantSelect = document.getElementById("variantSelect");
+        var costPriceInput = document.getElementById("costPriceInput");
+        var costPriceHelp = document.getElementById("costPriceHelp");
+        var oldCostPriceText = document.getElementById("oldCostPriceText");
+        var retailPriceText = document.getElementById("retailPriceText");
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat('vi-VN').format(num);
+        }
+
+        function updateCostPriceInfo() {
+            var selectedOption = variantSelect.options[variantSelect.selectedIndex];
+            if (selectedOption && selectedOption.value) {
+                var costPrice = parseFloat(selectedOption.getAttribute("data-cost-price")) || 0;
+                var price = parseFloat(selectedOption.getAttribute("data-price")) || 0;
+
+                // Auto-fill cost price if current input is 0 or empty
+                if (costPriceInput.value == "0" || costPriceInput.value == "") {
+                    costPriceInput.value = costPrice;
+                }
+
+                oldCostPriceText.innerText = formatNumber(costPrice);
+                retailPriceText.innerText = formatNumber(price);
+                costPriceHelp.style.display = "block";
+            } else {
+                costPriceHelp.style.display = "none";
+            }
+        }
+
+        variantSelect.addEventListener("change", updateCostPriceInfo);
+        
+        // Trigger once on load in case a variant is pre-selected
+        if (variantSelect.value) {
+            updateCostPriceInfo();
+        }
+    });
+</script>

@@ -38,8 +38,15 @@
                             </div>
 
                             <div class="col-md-6">
-                                <label class="form-label fw-bold">ID biến thể sản phẩm</label>
-                                <input type="number" name="VariantId" class="form-control" value="@Model.VariantId" required />
+                                <label class="form-label fw-bold">Chọn biến thể sản phẩm</label>
+                                <select name="VariantId" class="form-select" required>
+                                    <option value="">-- Chọn biến thể sản phẩm --</option>
+                                    @foreach (var v in ViewBag.Variants as IEnumerable<HuitShopDB.Models.product_variant>)
+                                    {
+                                        var displayName = v.product.name + (string.IsNullOrEmpty(v.variant_name) || v.variant_name == "Mặc định" ? "" : " - " + v.variant_name) + " (" + v.sku + ")";
+                                        <option value="@v.id" @(Model.VariantId == v.id ? "selected" : "")>@displayName</option>
+                                    }
+                                </select>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-bold">Số lượng</label>
