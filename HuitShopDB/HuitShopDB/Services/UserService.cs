@@ -1,7 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using HuitShopDB.Models;
 using HuitShopDB.Models.DTOs.User;
 using HuitShopDB.Services.Interfaces;
@@ -17,7 +16,7 @@ namespace HuitShopDB.Services
             _context = new HuitShopDBDataContext();
         }
 
-        public async Task<IEnumerable<UserDto>> GetUsersAsync(string search, string role, string status)
+        public IEnumerable<UserDto> GetUsers(string search, string role, string status)
         {
             var query = _context.users.AsQueryable();
 
@@ -39,18 +38,18 @@ namespace HuitShopDB.Services
             var users = query.OrderByDescending(u => u.created_at).ToList();
             var result = users.Select(u => MapToDto(u)).ToList();
 
-            return await Task.FromResult(result);
+            return result;
         }
 
-        public async Task<UserDto> GetUserByIdAsync(int id)
+        public UserDto GetUserById(int id)
         {
             var user = _context.users.FirstOrDefault(u => u.id == id);
             if (user == null) return null;
 
-            return await Task.FromResult(MapToDto(user));
+            return MapToDto(user);
         }
 
-        public async Task<bool> UpdateUserStatusAsync(int id, string status)
+        public bool UpdateUserStatus(int id, string status)
         {
             var user = _context.users.FirstOrDefault(u => u.id == id);
             if (user == null) return false;
@@ -59,10 +58,10 @@ namespace HuitShopDB.Services
             user.updated_at = DateTime.Now;
             _context.SubmitChanges();
 
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<bool> UpdateUserRoleAsync(int id, string role)
+        public bool UpdateUserRole(int id, string role)
         {
             var user = _context.users.FirstOrDefault(u => u.id == id);
             if (user == null) return false;
@@ -71,10 +70,10 @@ namespace HuitShopDB.Services
             user.updated_at = DateTime.Now;
             _context.SubmitChanges();
 
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<UserDetailDto> GetUserDetailsAsync(int id)
+        public UserDetailDto GetUserDetails(int id)
         {
             var user = _context.users.FirstOrDefault(u => u.id == id);
             if (user == null) return null;
@@ -98,10 +97,10 @@ namespace HuitShopDB.Services
                 TotalSpent = totalSpent
             };
 
-            return await Task.FromResult(detail);
+            return detail;
         }
 
-        public async Task<bool> BulkUpdateUserStatusAsync(List<int> userIds, string status)
+        public bool BulkUpdateUserStatus(List<int> userIds, string status)
         {
             var users = _context.users.Where(u => userIds.Contains(u.id)).ToList();
             foreach (var user in users)
@@ -110,10 +109,10 @@ namespace HuitShopDB.Services
                 user.updated_at = DateTime.Now;
             }
             _context.SubmitChanges();
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<bool> BulkUpdateUserRoleAsync(List<int> userIds, string role)
+        public bool BulkUpdateUserRole(List<int> userIds, string role)
         {
             var users = _context.users.Where(u => userIds.Contains(u.id)).ToList();
             foreach (var user in users)
@@ -122,24 +121,24 @@ namespace HuitShopDB.Services
                 user.updated_at = DateTime.Now;
             }
             _context.SubmitChanges();
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<IEnumerable<UserActivityDto>> GetUserActivitiesAsync(int userId)
+        public IEnumerable<UserActivityDto> GetUserActivities(int userId)
         {
             // This assumes there's an audit_log or user_activity table
             // For now, return a simple implementation
-            return await Task.FromResult(new List<UserActivityDto>());
+            return new List<UserActivityDto>();
         }
 
-        public async Task AddUserActivityAsync(int userId, string activityType, string description, string ipAddress = null)
+        public void AddUserActivity(int userId, string activityType, string description, string ipAddress = null)
         {
             // This would log user activities for tracking purposes
             // Implementation depends on your audit log table structure
-            await Task.FromResult(0);
+
         }
 
-        public async Task<bool> UpdateUserProfileAsync(int userId, string fullName, string phone, string avatarUrl)
+        public bool UpdateUserProfile(int userId, string fullName, string phone, string avatarUrl)
         {
             var user = _context.users.FirstOrDefault(u => u.id == userId);
             if (user == null) return false;
@@ -153,7 +152,7 @@ namespace HuitShopDB.Services
             user.updated_at = DateTime.Now;
 
             _context.SubmitChanges();
-            return await Task.FromResult(true);
+            return true;
         }
 
         private UserDto MapToDto(user u)
@@ -173,3 +172,5 @@ namespace HuitShopDB.Services
         }
     }
 }
+
+

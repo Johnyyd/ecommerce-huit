@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
@@ -220,19 +220,19 @@ namespace HuitShopDB.Controllers
 
         // POST AJAX: /Voucher/Apply
         [HttpPost]
-        public async System.Threading.Tasks.Task<ActionResult> Apply(string code)
+        public ActionResult Apply(string code)
         {
             var userId = GetCurrentUserId();
             if (userId == null)
                 return Json(new { success = false, message = "Vui lòng đăng nhập để áp dụng voucher" });
 
-            var result = await _cartService.ApplyVoucherAsync(userId.Value, code);
+            var result = _cartService.ApplyVoucher(userId.Value, code);
 
             if (!result.Valid)
                 return Json(new { success = false, message = result.Reason });
 
             // Tính toán discount
-            var cart = await _cartService.GetCartByUserIdAsync(userId.Value);
+            var cart = _cartService.GetCartByUserId(userId.Value);
             decimal discount = 0;
             if (result.Voucher.DiscountType == "PERCENT")
             {
@@ -264,15 +264,17 @@ namespace HuitShopDB.Controllers
 
         // POST AJAX: /Voucher/Remove
         [HttpPost]
-        public async System.Threading.Tasks.Task<ActionResult> Remove()
+        public ActionResult Remove()
         {
             var userId = GetCurrentUserId();
             if (userId == null)
                 return Json(new { success = false });
 
-            await _cartService.RemoveVoucherAsync(userId.Value);
-            var cart = await _cartService.GetCartByUserIdAsync(userId.Value);
+            _cartService.RemoveVoucher(userId.Value);
+            var cart = _cartService.GetCartByUserId(userId.Value);
             return Json(new { success = true, total = cart.Total });
         }
     }
 }
+
+

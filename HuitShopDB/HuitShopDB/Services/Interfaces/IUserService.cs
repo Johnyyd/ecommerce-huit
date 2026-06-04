@@ -1,22 +1,22 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using HuitShopDB.Models.DTOs.User;
 
 namespace HuitShopDB.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<IEnumerable<UserDto>> GetUsersAsync(string search, string role, string status);
-        Task<UserDto> GetUserByIdAsync(int id);
-        Task<bool> UpdateUserStatusAsync(int id, string status);
-        Task<bool> UpdateUserRoleAsync(int id, string role);
+        IEnumerable<UserDto> GetUsers(string search, string role, string status);
+        UserDto GetUserById(int id);
+        bool UpdateUserStatus(int id, string status);
+        bool UpdateUserRole(int id, string role);
         
         // New methods for enhanced features
-        Task<UserDetailDto> GetUserDetailsAsync(int id);
-        Task<bool> BulkUpdateUserStatusAsync(List<int> userIds, string status);
-        Task<bool> BulkUpdateUserRoleAsync(List<int> userIds, string role);
-        Task<IEnumerable<UserActivityDto>> GetUserActivitiesAsync(int userId);
-        Task AddUserActivityAsync(int userId, string activityType, string description, string ipAddress = null);
-        Task<bool> UpdateUserProfileAsync(int userId, string fullName, string phone, string avatarUrl);
+        UserDetailDto GetUserDetails(int id);
+        bool BulkUpdateUserStatus(List<int> userIds, string status);
+        bool BulkUpdateUserRole(List<int> userIds, string role);
+        IEnumerable<UserActivityDto> GetUserActivities(int userId);
+        void AddUserActivity(int userId, string activityType, string description, string ipAddress = null);
+        bool UpdateUserProfile(int userId, string fullName, string phone, string avatarUrl);
     }
 }
+

@@ -1,24 +1,25 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using HuitShopDB.Models.DTOs.Admin;
 
 namespace HuitShopDB.Services.Interfaces
 {
     public interface IInventoryService
     {
-        Task<IEnumerable<InventoryDto>> GetStockLevelByWarehouseAsync(int warehouseId);
-        Task<IEnumerable<LowStockDto>> GetLowStockVariantsAsync(int? warehouseId);
-        Task<bool> ImportStockAsync(ImportStockRequest request);
-        Task<bool> TransferStockAsync(TransferStockRequest request);
-        Task<bool> AdjustStockAsync(AdjustStockRequest request);
-        Task<IEnumerable<StockMovementDto>> GetStockMovementsAsync(int warehouseId = 0, int? variantId = null);
-        Task<IEnumerable<Models.warehouse>> GetWarehousesAsync();
-        Task<IEnumerable<Models.product_variant>> GetProductVariantsAsync();
+        IEnumerable<InventoryDto> GetStockLevelByWarehouse(int warehouseId);
+        IEnumerable<LowStockDto> GetLowStockVariants(int? warehouseId);
+        bool ImportStock(ImportStockRequest request);
+        bool TransferStock(TransferStockRequest request);
+        bool AdjustStock(AdjustStockRequest request);
+        IEnumerable<StockMovementDto> GetStockMovements(int warehouseId = 0, int? variantId = null);
+        IEnumerable<Models.warehouse> GetWarehouses();
+        IEnumerable<Models.product_variant> GetProductVariants();
         
         // New analytics methods
-        Task<WarehouseAnalyticsDto> GetWarehouseAnalyticsAsync();
-        Task<IEnumerable<InventoryReorderReportDto>> GetReorderReportAsync();
-        Task<IEnumerable<StockMovementDto>> GetStockMovementsFilteredAsync(StockMovementFilterRequest filter);
+        WarehouseAnalyticsDto GetWarehouseAnalytics();
+        IEnumerable<InventoryReorderReportDto> GetReorderReport();
+        IEnumerable<StockMovementDto> GetStockMovementsFiltered(StockMovementFilterRequest filter);
     }
 }
+
+
 

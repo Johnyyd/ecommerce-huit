@@ -1,7 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using HuitShopDB.Services.Interfaces;
 using HuitShopDB.Models.DTOs.Cart;
 using HuitShopDB.Models.DTOs.Product;
@@ -19,7 +18,7 @@ namespace HuitShopDB.Services
             _context = new HuitShopDBDataContext();
         }
 
-        public async Task<CartDto> GetCartByUserIdAsync(int userId)
+        public CartDto GetCartByUserId(int userId)
         {
             var cart = _context.carts
                 .FirstOrDefault(c => c.user_id == userId);
@@ -33,12 +32,12 @@ namespace HuitShopDB.Services
                 _context.SubmitChanges();
             }
 
-            return await Task.FromResult(MapToCartDto(cart));
+            return MapToCartDto(cart);
         }
 
-        public async Task<bool> AddItemToCartAsync(int userId, AddCartItemRequest request)
+        public bool AddItemToCart(int userId, AddCartItemRequest request)
         {
-            var cart = await GetOrCreateCartAsync(userId);
+            var cart = GetOrCreateCart(userId);
 
             var variant = _context.product_variants
                 .FirstOrDefault(v => v.id == request.VariantId && v.is_active == true);
@@ -74,12 +73,12 @@ namespace HuitShopDB.Services
             cart.updated_at = DateTime.UtcNow;
             _context.SubmitChanges();
 
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<bool> UpdateCartItemQuantityAsync(int userId, int cartItemId, int quantity)
+        public bool UpdateCartItemQuantity(int userId, int cartItemId, int quantity)
         {
-            var cart = await GetOrCreateCartAsync(userId);
+            var cart = GetOrCreateCart(userId);
 
             var cartItem = _context.cart_items
                 .FirstOrDefault(ci => ci.id == cartItemId && ci.cart_id == cart.id);
@@ -108,28 +107,28 @@ namespace HuitShopDB.Services
             cart.updated_at = DateTime.UtcNow;
             _context.SubmitChanges();
 
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<bool> RemoveCartItemAsync(int userId, int cartItemId)
+        public bool RemoveCartItem(int userId, int cartItemId)
         {
-            var cart = await GetOrCreateCartAsync(userId);
+            var cart = GetOrCreateCart(userId);
 
             var cartItem = _context.cart_items
                 .FirstOrDefault(ci => ci.id == cartItemId && ci.cart_id == cart.id);
 
-            if (cartItem == null) return await Task.FromResult(false);
+            if (cartItem == null) return false;
 
             _context.cart_items.DeleteOnSubmit(cartItem);
             cart.updated_at = DateTime.UtcNow;
             _context.SubmitChanges();
 
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<bool> ClearCartAsync(int userId)
+        public bool ClearCart(int userId)
         {
-            var cart = await GetOrCreateCartAsync(userId);
+            var cart = GetOrCreateCart(userId);
 
             var items = _context.cart_items
                 .Where(ci => ci.cart_id == cart.id)
@@ -144,10 +143,10 @@ namespace HuitShopDB.Services
             cart.updated_at = DateTime.UtcNow;
             _context.SubmitChanges();
 
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<ValidateVoucherResponse> ApplyVoucherAsync(int userId, string code)
+        public ValidateVoucherResponse ApplyVoucher(int userId, string code)
         {
             var response = new ValidateVoucherResponse();
 
@@ -155,10 +154,10 @@ namespace HuitShopDB.Services
             {
                 response.Valid = false;
                 response.Reason = "Mã voucher không hợp lệ";
-                return await Task.FromResult(response);
+                return response;
             }
 
-            var cart = await GetOrCreateCartAsync(userId);
+            var cart = GetOrCreateCart(userId);
 
             decimal subtotal = 0;
             foreach (var ci in cart.cart_items)
@@ -190,7 +189,7 @@ namespace HuitShopDB.Services
                     response.Reason = "Voucher đã hết lượt sử dụng";
 
                 response.Valid = false;
-                return await Task.FromResult(response);
+                return response;
             }
 
             cart.voucher_code = voucher.code;
@@ -208,19 +207,19 @@ namespace HuitShopDB.Services
                 MaxDiscountAmount = voucher.max_discount_amount,
                 MinOrderValue = voucher.min_order_value
             };
-            return await Task.FromResult(response);
+            return response;
         }
 
-        public async Task<bool> RemoveVoucherAsync(int userId)
+        public bool RemoveVoucher(int userId)
         {
-            var cart = await GetOrCreateCartAsync(userId);
+            var cart = GetOrCreateCart(userId);
             cart.voucher_code = null;
             cart.updated_at = DateTime.UtcNow;
             _context.SubmitChanges();
-            return await Task.FromResult(true);
+            return true;
         }
 
-        private async Task<cart> GetOrCreateCartAsync(int userId)
+        private cart GetOrCreateCart(int userId)
         {
             var cart = _context.carts.FirstOrDefault(c => c.user_id == userId);
 
@@ -233,7 +232,7 @@ namespace HuitShopDB.Services
                 _context.SubmitChanges();
             }
 
-            return await Task.FromResult(cart);
+            return cart;
         }
 
         private CartDto MapToCartDto(cart cart)
@@ -283,3 +282,5 @@ namespace HuitShopDB.Services
         }
     }
 }
+
+

@@ -1,6 +1,5 @@
-using System;
+﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
 using HuitShopDB.Services.Interfaces;
 using HuitShopDB.Models.DTOs.Auth;
 using HuitShopDB.Models;
@@ -24,7 +23,7 @@ namespace HuitShopDB.Services
             _jwtTokenGenerator = jwtTokenGenerator;
         }
 
-        public async Task<AuthResponseDto> RegisterAsync(RegisterDto registerDto)
+        public AuthResponseDto Register(RegisterDto registerDto)
         {
             // Check if email exists
             var existingUser = _context.users
@@ -68,10 +67,10 @@ namespace HuitShopDB.Services
             response.AccessToken = accessToken;
             response.RefreshToken = refreshToken;
 
-            return await Task.FromResult(response);
+            return response;
         }
 
-        public async Task<AuthResponseDto> LoginAsync(LoginDto loginDto)
+        public AuthResponseDto Login(LoginDto loginDto)
         {
             var user = _context.users
                 .FirstOrDefault(u => u.email == loginDto.Email && u.status == "ACTIVE");
@@ -97,19 +96,21 @@ namespace HuitShopDB.Services
             response.AccessToken = accessToken;
             response.RefreshToken = refreshToken;
 
-            return await Task.FromResult(response);
+            return response;
         }
 
-        public Task<bool> RevokeRefreshTokenAsync(string refreshToken)
+        public bool RevokeRefreshToken(string refreshToken)
         {
-            return Task.FromResult(true);
+            return true;
         }
 
-        public Task<string> RefreshAccessTokenAsync(string refreshToken)
+        public string RefreshAccessToken(string refreshToken)
         {
             // Simplified for migration
-            return Task.FromResult("new_access_token_here");
+            return "new_access_token_here";
         }
     }
 }
+
+
 

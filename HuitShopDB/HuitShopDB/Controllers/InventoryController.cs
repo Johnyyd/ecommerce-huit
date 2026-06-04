@@ -1,5 +1,4 @@
-using System;
-using System.Threading.Tasks;
+﻿using System;
 using System.Web.Mvc;
 using HuitShopDB.Services.Interfaces;
 using HuitShopDB.Models.DTOs.Admin;
@@ -27,7 +26,7 @@ namespace HuitShopDB.Controllers
         }
 
         // GET: /Inventory/
-        public async Task<ActionResult> Index(int warehouseId = 0, bool lowStock = false)
+        public ActionResult Index(int warehouseId = 0, bool lowStock = false)
         {
             if (!IsAdminOrStaff())
             {
@@ -37,23 +36,23 @@ namespace HuitShopDB.Controllers
 
             ViewBag.Title = "Quản lý kho hàng";
             
-            var warehouses = await _inventoryService.GetWarehousesAsync();
+            var warehouses = _inventoryService.GetWarehouses();
             ViewBag.Warehouses = warehouses;
             ViewBag.CurrentWarehouseId = warehouseId;
             ViewBag.LowStockOnly = lowStock;
 
             if (lowStock)
             {
-                var lowStockList = await _inventoryService.GetLowStockVariantsAsync(warehouseId == 0 ? (int?)null : warehouseId);
+                var lowStockList = _inventoryService.GetLowStockVariants(warehouseId == 0 ? (int?)null : warehouseId);
                 return View("LowStock", lowStockList);
             }
 
-            var inventory = await _inventoryService.GetStockLevelByWarehouseAsync(warehouseId);
+            var inventory = _inventoryService.GetStockLevelByWarehouse(warehouseId);
             return View(inventory);
         }
 
         // GET: /Inventory/Dashboard
-        public async Task<ActionResult> Dashboard()
+        public ActionResult Dashboard()
         {
             if (!IsAdminOrStaff())
             {
@@ -62,8 +61,8 @@ namespace HuitShopDB.Controllers
             }
 
             ViewBag.Title = "Dashboard - Quản lý kho";
-            var analytics = await _inventoryService.GetWarehouseAnalyticsAsync();
-            var reorderReport = await _inventoryService.GetReorderReportAsync();
+            var analytics = _inventoryService.GetWarehouseAnalytics();
+            var reorderReport = _inventoryService.GetReorderReport();
             
             ViewBag.ReorderReport = reorderReport;
             return View(analytics);
@@ -71,7 +70,7 @@ namespace HuitShopDB.Controllers
 
         // POST: /Inventory/Adjust
         [HttpPost]
-        public async Task<ActionResult> Adjust(AdjustStockRequest request)
+        public ActionResult Adjust(AdjustStockRequest request)
         {
             if (!IsAdminOrStaff())
             {
@@ -81,7 +80,7 @@ namespace HuitShopDB.Controllers
 
             if (ModelState.IsValid)
             {
-                bool success = await _inventoryService.AdjustStockAsync(request);
+                bool success = _inventoryService.AdjustStock(request);
                 if (success)
                 {
                     TempData["SuccessMessage"] = "Điều chỉnh kho thành công.";
@@ -95,7 +94,7 @@ namespace HuitShopDB.Controllers
         }
 
         // GET: /Inventory/Import
-        public async Task<ActionResult> Import(int warehouseId = 0, int variantId = 0)
+        public ActionResult Import(int warehouseId = 0, int variantId = 0)
         {
             if (!IsAdminOrStaff())
             {
@@ -103,8 +102,8 @@ namespace HuitShopDB.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
-            ViewBag.Warehouses = await _inventoryService.GetWarehousesAsync();
-            ViewBag.Variants = await _inventoryService.GetProductVariantsAsync();
+            ViewBag.Warehouses = _inventoryService.GetWarehouses();
+            ViewBag.Variants = _inventoryService.GetProductVariants();
             
             var request = new ImportStockRequest
             {
@@ -116,7 +115,7 @@ namespace HuitShopDB.Controllers
 
         // POST: /Inventory/Import
         [HttpPost]
-        public async Task<ActionResult> Import(ImportStockRequest request, string serialsRaw)
+        public ActionResult Import(ImportStockRequest request, string serialsRaw)
         {
             if (!IsAdminOrStaff())
             {
@@ -133,20 +132,20 @@ namespace HuitShopDB.Controllers
 
             if (ModelState.IsValid)
             {
-                bool success = await _inventoryService.ImportStockAsync(request);
+                bool success = _inventoryService.ImportStock(request);
                 if (success)
                 {
                     TempData["SuccessMessage"] = "Nhập kho thành công.";
                     return RedirectToAction("Index", new { warehouseId = request.WarehouseId });
                 }
             }
-            ViewBag.Warehouses = await _inventoryService.GetWarehousesAsync();
-            ViewBag.Variants = await _inventoryService.GetProductVariantsAsync();
+            ViewBag.Warehouses = _inventoryService.GetWarehouses();
+            ViewBag.Variants = _inventoryService.GetProductVariants();
             return View(request);
         }
 
         // GET: /Inventory/Transfer
-        public async Task<ActionResult> Transfer(int warehouseId = 0, int variantId = 0)
+        public ActionResult Transfer(int warehouseId = 0, int variantId = 0)
         {
             if (!IsAdminOrStaff())
             {
@@ -155,8 +154,8 @@ namespace HuitShopDB.Controllers
             }
 
             ViewBag.Title = "Chuyển kho";
-            ViewBag.Warehouses = await _inventoryService.GetWarehousesAsync();
-            ViewBag.Variants = await _inventoryService.GetProductVariantsAsync();
+            ViewBag.Warehouses = _inventoryService.GetWarehouses();
+            ViewBag.Variants = _inventoryService.GetProductVariants();
             var model = new TransferStockRequest
             {
                 FromWarehouseId = warehouseId,
@@ -168,7 +167,7 @@ namespace HuitShopDB.Controllers
 
         // POST: /Inventory/Transfer
         [HttpPost]
-        public async Task<ActionResult> Transfer(TransferStockRequest request)
+        public ActionResult Transfer(TransferStockRequest request)
         {
             if (!IsAdminOrStaff())
             {
@@ -178,7 +177,7 @@ namespace HuitShopDB.Controllers
 
             if (ModelState.IsValid)
             {
-                bool success = await _inventoryService.TransferStockAsync(request);
+                bool success = _inventoryService.TransferStock(request);
                 if (success)
                 {
                     TempData["SuccessMessage"] = "Chuyển kho thành công.";
@@ -187,13 +186,13 @@ namespace HuitShopDB.Controllers
                 TempData["ErrorMessage"] = "Chuyển kho thất bại. Vui lòng kiểm tra lại số lượng và kho đích.";
             }
 
-            ViewBag.Warehouses = await _inventoryService.GetWarehousesAsync();
-            ViewBag.Variants = await _inventoryService.GetProductVariantsAsync();
+            ViewBag.Warehouses = _inventoryService.GetWarehouses();
+            ViewBag.Variants = _inventoryService.GetProductVariants();
             return View(request);
         }
 
         // GET: /Inventory/History
-        public async Task<ActionResult> History(int warehouseId = 0, int? variantId = null)
+        public ActionResult History(int warehouseId = 0, int? variantId = null)
         {
             if (!IsAdminOrStaff())
             {
@@ -204,17 +203,17 @@ namespace HuitShopDB.Controllers
             if (variantId == 0) variantId = null;
 
             ViewBag.Title = "Lịch sử tồn kho";
-            ViewBag.Warehouses = await _inventoryService.GetWarehousesAsync();
-            ViewBag.Variants = await _inventoryService.GetProductVariantsAsync();
+            ViewBag.Warehouses = _inventoryService.GetWarehouses();
+            ViewBag.Variants = _inventoryService.GetProductVariants();
             ViewBag.CurrentWarehouseId = warehouseId;
             ViewBag.CurrentVariantId = variantId;
 
-            var movements = await _inventoryService.GetStockMovementsAsync(warehouseId, variantId);
+            var movements = _inventoryService.GetStockMovements(warehouseId, variantId);
             return View(movements);
         }
 
         // GET: /Inventory/ReorderReport
-        public async Task<ActionResult> ReorderReport()
+        public ActionResult ReorderReport()
         {
             if (!IsAdminOrStaff())
             {
@@ -223,8 +222,9 @@ namespace HuitShopDB.Controllers
             }
 
             ViewBag.Title = "Báo cáo hàng cần đặt lại";
-            var report = await _inventoryService.GetReorderReportAsync();
+            var report = _inventoryService.GetReorderReport();
             return View(report);
         }
     }
 }
+

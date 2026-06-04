@@ -1,28 +1,28 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using HuitShopDB.Models.DTOs.Product;
 
 namespace HuitShopDB.Services.Interfaces
 {
     public interface IProductService
     {
-        Task<IEnumerable<ProductListDto>> GetProductsAsync(ProductQueryParams queryParams);
-        Task<int> GetProductsCountAsync(ProductQueryParams queryParams);
-        Task<ProductDetailDto> GetProductDetailAsync(int productId);
-        Task<IEnumerable<CategoryDto>> GetCategoriesAsync();
-        Task<IEnumerable<BrandDto>> GetBrandsAsync();
+        IEnumerable<ProductListDto> GetProducts(ProductQueryParams queryParams);
+        int GetProductsCount(ProductQueryParams queryParams);
+        ProductDetailDto GetProductDetail(int productId);
+        IEnumerable<CategoryDto> GetCategories();
+        IEnumerable<BrandDto> GetBrands();
 
         // Admin Management Methods
-        Task<IEnumerable<ProductListDto>> GetAdminProductsAsync(string search, int? categoryId, string status, int page, int pageSize);
-        Task<int> GetAdminProductsCountAsync(string search, int? categoryId, string status);
-        Task<ProductDetailDto> GetAdminProductDetailAsync(int productId);
-        Task<int> CreateProductAsync(ProductCreateDto dto);
-        Task<bool> UpdateProductAsync(int id, ProductEditDto dto);
-        Task<bool> ToggleProductStatusAsync(int id, string status);
-        Task<bool> CreateVariantAsync(int productId, VariantCreateDto dto);
-        Task<bool> UpdateVariantAsync(int variantId, VariantEditDto dto);
-        Task<bool> AddProductImageAsync(int variantId, string imageUrl, string altText, int sortOrder);
-        Task<bool> DeleteProductImageAsync(int imageId);
+        IEnumerable<ProductListDto> GetAdminProducts(string search, int? categoryId, string status, int page, int pageSize);
+        int GetAdminProductsCount(string search, int? categoryId, string status);
+        ProductDetailDto GetAdminProductDetail(int productId);
+        int CreateProduct(ProductCreateDto dto);
+        bool UpdateProduct(int id, ProductEditDto dto);
+        bool ToggleProductStatus(int id, string status);
+        bool CreateVariant(int productId, VariantCreateDto dto);
+        bool UpdateVariant(int variantId, VariantEditDto dto);
+        bool AddProductImage(int variantId, string imageUrl, string altText, int sortOrder);
+        bool DeleteProductImage(int imageId);
     }
 }
+
 

@@ -1,5 +1,4 @@
-using System;
-using System.Threading.Tasks;
+﻿using System;
 using System.Web.Mvc;
 using HuitShopDB.Services.Interfaces;
 
@@ -20,13 +19,13 @@ namespace HuitShopDB.Controllers
         }
 
         // GET: /Warranty/
-        public async Task<ActionResult> Index(string serialNumber)
+        public ActionResult Index(string serialNumber)
         {
             ViewBag.Title = "Tra cứu bảo hành";
             
             if (!string.IsNullOrEmpty(serialNumber))
             {
-                var result = await _warrantyService.GetWarrantyBySerialAsync(serialNumber);
+                var result = _warrantyService.GetWarrantyBySerial(serialNumber);
                 if (result != null)
                 {
                     return RedirectToAction("Details", new { serial = result.SerialNumber });
@@ -37,16 +36,16 @@ namespace HuitShopDB.Controllers
                 }
             }
 
-            var recent = await _warrantyService.GetRecentWarrantiesAsync(10);
+            var recent = _warrantyService.GetRecentWarranties(10);
             return View(recent);
         }
 
         // GET: /Warranty/Details?serial=...
-        public async Task<ActionResult> Details(string serial)
+        public ActionResult Details(string serial)
         {
             if (string.IsNullOrEmpty(serial)) return RedirectToAction("Index");
 
-            var result = await _warrantyService.GetWarrantyBySerialAsync(serial);
+            var result = _warrantyService.GetWarrantyBySerial(serial);
             if (result == null) return HttpNotFound();
 
             ViewBag.Title = "Chứng nhận bảo hành";
@@ -54,3 +53,4 @@ namespace HuitShopDB.Controllers
         }
     }
 }
+

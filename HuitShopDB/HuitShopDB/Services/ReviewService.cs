@@ -1,7 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using HuitShopDB.Models;
 using HuitShopDB.Models.DTOs.Review;
 using HuitShopDB.Services.Interfaces;
@@ -17,7 +16,7 @@ namespace HuitShopDB.Services
             _context = new HuitShopDBDataContext();
         }
 
-        public async Task<ProductReviewSummaryDto> GetReviewsSummaryByProductAsync(int productId)
+        public ProductReviewSummaryDto GetReviewsSummaryByProduct(int productId)
         {
             var approvedReviews = _context.reviews
                 .Where(r => r.product_id == productId && r.is_approved == true)
@@ -37,10 +36,10 @@ namespace HuitShopDB.Services
                 summary.RatingDistribution[i] = approvedReviews.Count(r => r.rating == i);
             }
 
-            return await Task.FromResult(summary);
+            return summary;
         }
 
-        public async Task<IEnumerable<ReviewDto>> GetAllReviewsAsync(bool? isApproved, int? minRating)
+        public IEnumerable<ReviewDto> GetAllReviews(bool? isApproved, int? minRating)
         {
             var query = _context.reviews.AsQueryable();
 
@@ -57,10 +56,10 @@ namespace HuitShopDB.Services
             var reviews = query.OrderByDescending(r => r.created_at).ToList();
             var result = reviews.Select(r => MapToDto(r)).ToList();
 
-            return await Task.FromResult(result);
+            return result;
         }
 
-        public async Task<bool> SubmitReviewAsync(int userId, SubmitReviewRequest request)
+        public bool SubmitReview(int userId, SubmitReviewRequest request)
         {
             var r = new review
             {
@@ -79,10 +78,10 @@ namespace HuitShopDB.Services
             _context.reviews.InsertOnSubmit(r);
             _context.SubmitChanges();
 
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<bool> ApproveReviewAsync(int reviewId)
+        public bool ApproveReview(int reviewId)
         {
             var r = _context.reviews.FirstOrDefault(x => x.id == reviewId);
             if (r == null) return false;
@@ -91,10 +90,10 @@ namespace HuitShopDB.Services
             r.updated_at = DateTime.Now;
             _context.SubmitChanges();
 
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<bool> DeleteReviewAsync(int reviewId)
+        public bool DeleteReview(int reviewId)
         {
             var r = _context.reviews.FirstOrDefault(x => x.id == reviewId);
             if (r == null) return false;
@@ -102,18 +101,18 @@ namespace HuitShopDB.Services
             _context.reviews.DeleteOnSubmit(r);
             _context.SubmitChanges();
 
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<ReviewDto> GetReviewByIdAsync(int reviewId)
+        public ReviewDto GetReviewById(int reviewId)
         {
             var r = _context.reviews.FirstOrDefault(x => x.id == reviewId);
             if (r == null) return null;
 
-            return await Task.FromResult(MapToDto(r));
+            return MapToDto(r);
         }
 
-        public async Task<IEnumerable<ReviewDto>> GetUserReviewsAsync(int userId)
+        public IEnumerable<ReviewDto> GetUserReviews(int userId)
         {
             var reviews = _context.reviews
                 .Where(r => r.user_id == userId)
@@ -121,10 +120,10 @@ namespace HuitShopDB.Services
                 .ToList();
 
             var result = reviews.Select(r => MapToDto(r)).ToList();
-            return await Task.FromResult(result);
+            return result;
         }
 
-        public async Task<bool> UpdateReviewAsync(int reviewId, SubmitReviewRequest request)
+        public bool UpdateReview(int reviewId, SubmitReviewRequest request)
         {
             var r = _context.reviews.FirstOrDefault(x => x.id == reviewId);
             if (r == null) return false;
@@ -135,10 +134,10 @@ namespace HuitShopDB.Services
             r.updated_at = DateTime.Now;
             _context.SubmitChanges();
 
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<bool> AddReviewResponseAsync(int reviewId, AddReviewResponseRequest request, int adminId)
+        public bool AddReviewResponse(int reviewId, AddReviewResponseRequest request, int adminId)
         {
             var response = new review_response
             {
@@ -151,10 +150,10 @@ namespace HuitShopDB.Services
             _context.review_responses.InsertOnSubmit(response);
             _context.SubmitChanges();
 
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<ReviewAnalyticsDto> GetReviewAnalyticsAsync()
+        public ReviewAnalyticsDto GetReviewAnalytics()
         {
             var allReviews = _context.reviews.ToList();
             var analytics = new ReviewAnalyticsDto
@@ -187,10 +186,10 @@ namespace HuitShopDB.Services
                 }
             }
 
-            return await Task.FromResult(analytics);
+            return analytics;
         }
 
-        public async Task<bool> MarkReviewAsHelpfulAsync(int reviewId)
+        public bool MarkReviewAsHelpful(int reviewId)
         {
             var r = _context.reviews.FirstOrDefault(x => x.id == reviewId);
             if (r == null) return false;
@@ -199,7 +198,7 @@ namespace HuitShopDB.Services
             r.updated_at = DateTime.Now;
             _context.SubmitChanges();
 
-            return await Task.FromResult(true);
+            return true;
         }
 
         private ReviewDto MapToDto(review r)
@@ -242,4 +241,6 @@ namespace HuitShopDB.Services
         }
     }
 }
+
+
 

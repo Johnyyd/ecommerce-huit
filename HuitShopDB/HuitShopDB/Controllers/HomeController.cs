@@ -1,5 +1,4 @@
-using System.Threading.Tasks;
-using System.Web.Mvc;
+﻿using System.Web.Mvc;
 using HuitShopDB.Services.Interfaces;
 using HuitShopDB.Models.DTOs.Product;
 
@@ -14,12 +13,12 @@ namespace HuitShopDB.Controllers
             _productService = new Services.ProductService();
         }
 
-        public async Task<ActionResult> Index()
+        public ActionResult Index()
         {
 
-            var categories = await _productService.GetCategoriesAsync();
+            var categories = _productService.GetCategories();
             var query = new ProductQueryParams { PageSize = 10, SortBy = "newest" };
-            var products = await _productService.GetProductsAsync(query);
+            var products = _productService.GetProducts(query);
 
             ViewBag.Categories = categories;
             ViewBag.FeaturedProducts = products;
@@ -34,4 +33,5 @@ namespace HuitShopDB.Controllers
         }
     }
 }
+
 

@@ -1,7 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using HuitShopDB.Services.Interfaces;
 using HuitShopDB.Models.DTOs.Product;
 using HuitShopDB.Models;
@@ -17,7 +16,7 @@ namespace HuitShopDB.Services
             _context = new HuitShopDBDataContext();
         }
 
-        public async Task<IEnumerable<ProductListDto>> GetProductsAsync(ProductQueryParams query)
+        public IEnumerable<ProductListDto> GetProducts(ProductQueryParams query)
         {
             var productsQuery = _context.products
                 .Where(p => p.status == "ACTIVE" && p.product_variants.Any(v => v.is_active == true && v.inventories.Any(i => i.quantity_on_hand - i.quantity_reserved > 0)))
@@ -63,10 +62,10 @@ namespace HuitShopDB.Services
             {
                 result.Add(MapToProductListDto(p));
             }
-            return await Task.FromResult(result);
+            return result;
         }
 
-        public async Task<int> GetProductsCountAsync(ProductQueryParams query)
+        public int GetProductsCount(ProductQueryParams query)
         {
             var productsQuery = _context.products
                 .Where(p => p.status == "ACTIVE" && p.product_variants.Any(v => v.is_active == true && v.inventories.Any(i => i.quantity_on_hand - i.quantity_reserved > 0)))
@@ -93,20 +92,20 @@ namespace HuitShopDB.Services
                 productsQuery = productsQuery.Where(p =>
                     p.product_variants.Any(v => v.inventories.Any(i => i.quantity_on_hand - i.quantity_reserved > 0)));
 
-            return await Task.FromResult(productsQuery.Count());
+            return productsQuery.Count();
         }
 
-        public async Task<ProductDetailDto> GetProductDetailAsync(int productId)
+        public ProductDetailDto GetProductDetail(int productId)
         {
             var p = _context.products
                 .FirstOrDefault(x => x.id == productId && x.status == "ACTIVE");
 
             if (p == null) return null;
 
-            return await Task.FromResult(MapToProductDetailDto(p));
+            return MapToProductDetailDto(p);
         }
 
-        public async Task<IEnumerable<CategoryDto>> GetCategoriesAsync()
+        public IEnumerable<CategoryDto> GetCategories()
         {
             var categories = _context.categories
                 .Where(c => c.is_active == true)
@@ -139,10 +138,10 @@ namespace HuitShopDB.Services
                 }
             }
 
-            return await Task.FromResult(result);
+            return result;
         }
 
-        public async Task<IEnumerable<BrandDto>> GetBrandsAsync()
+        public IEnumerable<BrandDto> GetBrands()
         {
             var brands = _context.brands
                 .OrderBy(b => b.name)
@@ -159,7 +158,7 @@ namespace HuitShopDB.Services
                 result.Add(dto);
             }
 
-            return await Task.FromResult(result);
+            return result;
         }
 
         private ProductListDto MapToProductListDto(product p)
@@ -272,7 +271,7 @@ namespace HuitShopDB.Services
             return detail;
         }
 
-        public async Task<IEnumerable<ProductListDto>> GetAdminProductsAsync(string search, int? categoryId, string status, int page, int pageSize)
+        public IEnumerable<ProductListDto> GetAdminProducts(string search, int? categoryId, string status, int page, int pageSize)
         {
             var query = _context.products.AsQueryable();
 
@@ -302,10 +301,10 @@ namespace HuitShopDB.Services
             {
                 result.Add(MapToProductListDto(p));
             }
-            return await Task.FromResult(result);
+            return result;
         }
 
-        public async Task<int> GetAdminProductsCountAsync(string search, int? categoryId, string status)
+        public int GetAdminProductsCount(string search, int? categoryId, string status)
         {
             var query = _context.products.AsQueryable();
 
@@ -324,10 +323,10 @@ namespace HuitShopDB.Services
                 query = query.Where(p => p.status == status);
             }
 
-            return await Task.FromResult(query.Count());
+            return query.Count();
         }
 
-        public async Task<ProductDetailDto> GetAdminProductDetailAsync(int productId)
+        public ProductDetailDto GetAdminProductDetail(int productId)
         {
             var p = _context.products.FirstOrDefault(x => x.id == productId);
             if (p == null) return null;
@@ -389,10 +388,10 @@ namespace HuitShopDB.Services
             detail.RatingAverage = 0;
             detail.ReviewCount = 0;
 
-            return await Task.FromResult(detail);
+            return detail;
         }
 
-        public Task<int> CreateProductAsync(ProductCreateDto dto)
+        public int CreateProduct(ProductCreateDto dto)
         {
             try
             {
@@ -432,20 +431,20 @@ namespace HuitShopDB.Services
                 _context.product_variants.InsertOnSubmit(variant);
                 _context.SubmitChanges();
 
-                return Task.FromResult(p.id);
+                return p.id;
             }
             catch (Exception)
             {
-                return Task.FromResult(0);
+                return 0;
             }
         }
 
-        public Task<bool> UpdateProductAsync(int id, ProductEditDto dto)
+        public bool UpdateProduct(int id, ProductEditDto dto)
         {
             try
             {
                 var p = _context.products.FirstOrDefault(x => x.id == id);
-                if (p == null) return Task.FromResult(false);
+                if (p == null) return false;
 
                 p.name = dto.Name;
                 p.slug = ToFriendlySlug(dto.Name);
@@ -459,34 +458,34 @@ namespace HuitShopDB.Services
                 p.updated_at = DateTime.Now;
 
                 _context.SubmitChanges();
-                return Task.FromResult(true);
+                return true;
             }
             catch (Exception)
             {
-                return Task.FromResult(false);
+                return false;
             }
         }
 
-        public Task<bool> ToggleProductStatusAsync(int id, string status)
+        public bool ToggleProductStatus(int id, string status)
         {
             try
             {
                 var p = _context.products.FirstOrDefault(x => x.id == id);
-                if (p == null) return Task.FromResult(false);
+                if (p == null) return false;
 
                 p.status = status;
                 p.updated_at = DateTime.Now;
 
                 _context.SubmitChanges();
-                return Task.FromResult(true);
+                return true;
             }
             catch (Exception)
             {
-                return Task.FromResult(false);
+                return false;
             }
         }
 
-        public Task<bool> CreateVariantAsync(int productId, VariantCreateDto dto)
+        public bool CreateVariant(int productId, VariantCreateDto dto)
         {
             try
             {
@@ -506,20 +505,20 @@ namespace HuitShopDB.Services
 
                 _context.product_variants.InsertOnSubmit(variant);
                 _context.SubmitChanges();
-                return Task.FromResult(true);
+                return true;
             }
             catch (Exception)
             {
-                return Task.FromResult(false);
+                return false;
             }
         }
 
-        public Task<bool> UpdateVariantAsync(int variantId, VariantEditDto dto)
+        public bool UpdateVariant(int variantId, VariantEditDto dto)
         {
             try
             {
                 var v = _context.product_variants.FirstOrDefault(x => x.id == variantId);
-                if (v == null) return Task.FromResult(false);
+                if (v == null) return false;
 
                 v.variant_name = dto.VariantName;
                 v.sku = dto.Sku;
@@ -534,15 +533,15 @@ namespace HuitShopDB.Services
                 v.updated_at = DateTime.Now;
 
                 _context.SubmitChanges();
-                return Task.FromResult(true);
+                return true;
             }
             catch (Exception)
             {
-                return Task.FromResult(false);
+                return false;
             }
         }
 
-        public Task<bool> AddProductImageAsync(int variantId, string imageUrl, string altText, int sortOrder)
+        public bool AddProductImage(int variantId, string imageUrl, string altText, int sortOrder)
         {
             try
             {
@@ -557,28 +556,28 @@ namespace HuitShopDB.Services
 
                 _context.product_images.InsertOnSubmit(img);
                 _context.SubmitChanges();
-                return Task.FromResult(true);
+                return true;
             }
             catch (Exception)
             {
-                return Task.FromResult(false);
+                return false;
             }
         }
 
-        public Task<bool> DeleteProductImageAsync(int imageId)
+        public bool DeleteProductImage(int imageId)
         {
             try
             {
                 var img = _context.product_images.FirstOrDefault(x => x.id == imageId);
-                if (img == null) return Task.FromResult(false);
+                if (img == null) return false;
 
                 _context.product_images.DeleteOnSubmit(img);
                 _context.SubmitChanges();
-                return Task.FromResult(true);
+                return true;
             }
             catch (Exception)
             {
-                return Task.FromResult(false);
+                return false;
             }
         }
 
@@ -613,4 +612,6 @@ namespace HuitShopDB.Services
         }
     }
 }
+
+
 

@@ -1,7 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using HuitShopDB.Models;
 using HuitShopDB.Models.DTOs.Admin;
 using HuitShopDB.Services.Interfaces;
@@ -17,7 +16,7 @@ namespace HuitShopDB.Services
             _context = new HuitShopDBDataContext();
         }
 
-        public async Task<IEnumerable<InventoryDto>> GetStockLevelByWarehouseAsync(int warehouseId)
+        public IEnumerable<InventoryDto> GetStockLevelByWarehouse(int warehouseId)
         {
             var query = from inv in _context.inventories
                         where warehouseId == 0 || inv.warehouse_id == warehouseId
@@ -36,10 +35,10 @@ namespace HuitShopDB.Services
                             ReorderPoint = inv.reorder_point
                         };
 
-            return await Task.FromResult(query.ToList());
+            return query.ToList();
         }
 
-        public async Task<IEnumerable<LowStockDto>> GetLowStockVariantsAsync(int? warehouseId)
+        public IEnumerable<LowStockDto> GetLowStockVariants(int? warehouseId)
         {
             var query = from inv in _context.inventories
                         where (!warehouseId.HasValue || inv.warehouse_id == warehouseId.Value)
@@ -60,10 +59,10 @@ namespace HuitShopDB.Services
                             ReorderPoint = inv.reorder_point
                         };
 
-            return await Task.FromResult(query.ToList());
+            return query.ToList();
         }
 
-        public async Task<bool> AdjustStockAsync(AdjustStockRequest request)
+        public bool AdjustStock(AdjustStockRequest request)
         {
             var inv = _context.inventories.FirstOrDefault(i => i.warehouse_id == request.WarehouseId && i.variant_id == request.VariantId);
             if (inv == null) return false;
@@ -86,10 +85,10 @@ namespace HuitShopDB.Services
             _context.stock_movements.InsertOnSubmit(movement);
             _context.SubmitChanges();
 
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<bool> ImportStockAsync(ImportStockRequest request)
+        public bool ImportStock(ImportStockRequest request)
         {
             var inv = _context.inventories.FirstOrDefault(i => i.warehouse_id == request.WarehouseId && i.variant_id == request.VariantId);
             int quantity = request.Serials.Any() ? request.Serials.Count : (request.Quantity > 0 ? request.Quantity : 1);
@@ -149,10 +148,10 @@ namespace HuitShopDB.Services
             }
 
             _context.SubmitChanges();
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<bool> TransferStockAsync(TransferStockRequest request)
+        public bool TransferStock(TransferStockRequest request)
         {
             var fromInv = _context.inventories.FirstOrDefault(i => i.warehouse_id == request.FromWarehouseId && i.variant_id == request.VariantId);
             if (fromInv == null || fromInv.quantity_on_hand < request.Quantity) return false;
@@ -210,10 +209,10 @@ namespace HuitShopDB.Services
             _context.stock_movements.InsertOnSubmit(moveIn);
 
             _context.SubmitChanges();
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<IEnumerable<StockMovementDto>> GetStockMovementsAsync(int warehouseId = 0, int? variantId = null)
+        public IEnumerable<StockMovementDto> GetStockMovements(int warehouseId = 0, int? variantId = null)
         {
             var query = from m in _context.stock_movements
                         where (warehouseId == 0 || m.warehouse_id == warehouseId)
@@ -233,22 +232,22 @@ namespace HuitShopDB.Services
                             CreatedAt = m.created_at
                         };
 
-            return await Task.FromResult(query.ToList());
+            return query.ToList();
         }
 
         // Additional helper for UI
-        public async Task<IEnumerable<warehouse>> GetWarehousesAsync()
+        public IEnumerable<warehouse> GetWarehouses()
         {
-            return await Task.FromResult(_context.warehouses.ToList());
+            return _context.warehouses.ToList();
         }
 
-        public async Task<IEnumerable<product_variant>> GetProductVariantsAsync()
+        public IEnumerable<product_variant> GetProductVariants()
         {
             var query = _context.product_variants.Where(v => v.is_active == true).OrderBy(v => v.product.name);
-            return await Task.FromResult(query.ToList());
+            return query.ToList();
         }
 
-        public async Task<WarehouseAnalyticsDto> GetWarehouseAnalyticsAsync()
+        public WarehouseAnalyticsDto GetWarehouseAnalytics()
         {
             var analytics = new WarehouseAnalyticsDto();
 
@@ -281,10 +280,10 @@ namespace HuitShopDB.Services
                 analytics.WarehouseStats.Add(stats);
             }
 
-            return await Task.FromResult(analytics);
+            return analytics;
         }
 
-        public async Task<IEnumerable<InventoryReorderReportDto>> GetReorderReportAsync()
+        public IEnumerable<InventoryReorderReportDto> GetReorderReport()
         {
             var report = new List<InventoryReorderReportDto>();
             
@@ -329,10 +328,10 @@ namespace HuitShopDB.Services
                 report.Add(reportItem);
             }
 
-            return await Task.FromResult(report);
+            return report;
         }
 
-        public async Task<IEnumerable<StockMovementDto>> GetStockMovementsFilteredAsync(StockMovementFilterRequest filter)
+        public IEnumerable<StockMovementDto> GetStockMovementsFiltered(StockMovementFilterRequest filter)
         {
             var query = _context.stock_movements.AsQueryable();
 
@@ -371,7 +370,9 @@ namespace HuitShopDB.Services
                 CreatedAt = m.created_at
             }).ToList();
 
-            return await Task.FromResult(result);
+            return result;
         }
     }
 }
+
+

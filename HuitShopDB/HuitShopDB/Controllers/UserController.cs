@@ -1,6 +1,5 @@
-using System;
+﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web.Mvc;
 using HuitShopDB.Services.Interfaces;
 using HuitShopDB.Models.DTOs.User;
@@ -28,7 +27,7 @@ namespace HuitShopDB.Controllers
         }
 
         // GET: /User/
-        public async Task<ActionResult> Index(string search, string role, string status)
+        public ActionResult Index(string search, string role, string status)
         {
             if (!IsAdminOrStaff())
             {
@@ -41,12 +40,12 @@ namespace HuitShopDB.Controllers
             ViewBag.Role = role;
             ViewBag.Status = status;
 
-            var users = await _userService.GetUsersAsync(search, role, status);
+            var users = _userService.GetUsers(search, role, status);
             return View(users);
         }
 
         // GET: /User/Edit/5
-        public async Task<ActionResult> Edit(int id)
+        public ActionResult Edit(int id)
         {
             if (!IsAdminOrStaff())
             {
@@ -54,7 +53,7 @@ namespace HuitShopDB.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
-            var user = await _userService.GetUserByIdAsync(id);
+            var user = _userService.GetUserById(id);
             if (user == null) return HttpNotFound();
 
             ViewBag.Title = "Chỉnh sửa người dùng";
@@ -63,7 +62,7 @@ namespace HuitShopDB.Controllers
 
         // POST: /User/Edit/5
         [HttpPost]
-        public async Task<ActionResult> Edit(int id, string role, string status)
+        public ActionResult Edit(int id, string role, string status)
         {
             if (!IsAdminOrStaff())
             {
@@ -72,8 +71,8 @@ namespace HuitShopDB.Controllers
             }
 
             bool success = true;
-            success &= await _userService.UpdateUserRoleAsync(id, role);
-            success &= await _userService.UpdateUserStatusAsync(id, status);
+            success &= _userService.UpdateUserRole(id, role);
+            success &= _userService.UpdateUserStatus(id, status);
 
             if (success)
             {
@@ -89,7 +88,7 @@ namespace HuitShopDB.Controllers
 
         // POST: /User/ToggleStatus/5
         [HttpPost]
-        public async Task<ActionResult> ToggleStatus(int id, string currentStatus)
+        public ActionResult ToggleStatus(int id, string currentStatus)
         {
             if (!IsAdminOrStaff())
             {
@@ -98,7 +97,7 @@ namespace HuitShopDB.Controllers
             }
 
             string newStatus = (currentStatus == "ACTIVE") ? "SUSPENDED" : "ACTIVE";
-            bool success = await _userService.UpdateUserStatusAsync(id, newStatus);
+            bool success = _userService.UpdateUserStatus(id, newStatus);
             
             if (success)
             {
@@ -108,7 +107,7 @@ namespace HuitShopDB.Controllers
         }
 
         // GET: /User/Details/5
-        public async Task<ActionResult> Details(int id)
+        public ActionResult Details(int id)
         {
             if (!IsAdminOrStaff())
             {
@@ -116,7 +115,7 @@ namespace HuitShopDB.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
-            var user = await _userService.GetUserByIdAsync(id);
+            var user = _userService.GetUserById(id);
             if (user == null) return HttpNotFound();
 
             ViewBag.Title = "Chi tiết người dùng";
@@ -126,7 +125,7 @@ namespace HuitShopDB.Controllers
         // GET: /User/Profile
         [HttpGet]
         [ActionName("Profile")]
-        public async Task<ActionResult> UserProfile()
+        public ActionResult UserProfile()
         {
             int userId = Session["UserId"] != null ? (int)Session["UserId"] : 0;
             if (userId == 0)
@@ -134,7 +133,7 @@ namespace HuitShopDB.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
-            var details = await _userService.GetUserDetailsAsync(userId);
+            var details = _userService.GetUserDetails(userId);
             if (details == null) return HttpNotFound();
 
             // Fetch user addresses directly using the context
@@ -155,7 +154,7 @@ namespace HuitShopDB.Controllers
         // POST: /User/UpdateProfile
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> UpdateProfile(string fullName, string phone, string avatarUrl)
+        public ActionResult UpdateProfile(string fullName, string phone, string avatarUrl)
         {
             int userId = Session["UserId"] != null ? (int)Session["UserId"] : 0;
             if (userId == 0)
@@ -169,7 +168,7 @@ namespace HuitShopDB.Controllers
                 return RedirectToAction("Profile");
             }
 
-            bool success = await _userService.UpdateUserProfileAsync(userId, fullName, phone, avatarUrl);
+            bool success = _userService.UpdateUserProfile(userId, fullName, phone, avatarUrl);
             if (success)
             {
                 Session["UserName"] = fullName;
@@ -281,3 +280,4 @@ namespace HuitShopDB.Controllers
         }
     }
 }
+

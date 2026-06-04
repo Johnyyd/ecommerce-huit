@@ -1,7 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using HuitShopDB.Services.Interfaces;
 using HuitShopDB.Models.DTOs.Order;
 using HuitShopDB.Models;
@@ -18,7 +17,7 @@ namespace HuitShopDB.Services
             _context = new HuitShopDBDataContext();
         }
 
-        public async Task<OrderResponseDto> CreateOrderAsync(int userId, CreateOrderRequest request)
+        public OrderResponseDto CreateOrder(int userId, CreateOrderRequest request)
         {
             var cart = _context.carts.FirstOrDefault(c => c.user_id == userId);
 
@@ -162,10 +161,10 @@ namespace HuitShopDB.Services
 
             _context.SubmitChanges();
 
-            return await GetOrderByCodeAsync(orderCode);
+            return GetOrderByCode(orderCode);
         }
 
-        public async Task<IEnumerable<OrderResponseDto>> GetOrdersByUserIdAsync(int userId, int page = 1, int pageSize = 20)
+        public IEnumerable<OrderResponseDto> GetOrdersByUserId(int userId, int page = 1, int pageSize = 20)
         {
             var orders = _context.orders
                 .Where(o => o.user_id == userId)
@@ -178,24 +177,24 @@ namespace HuitShopDB.Services
             foreach (var o in orders)
                 result.Add(MapToOrderResponseDto(o));
 
-            return await Task.FromResult(result);
+            return result;
         }
 
-        public async Task<OrderResponseDto> GetOrderByCodeAsync(string orderCode)
+        public OrderResponseDto GetOrderByCode(string orderCode)
         {
             var o = _context.orders.FirstOrDefault(x => x.code == orderCode);
             if (o == null) return null;
-            return await Task.FromResult(MapToOrderResponseDto(o));
+            return MapToOrderResponseDto(o);
         }
 
-        public async Task<OrderResponseDto> GetOrderByIdAsync(int orderId)
+        public OrderResponseDto GetOrderById(int orderId)
         {
             var o = _context.orders.FirstOrDefault(x => x.id == orderId);
             if (o == null) return null;
-            return await Task.FromResult(MapToOrderResponseDto(o));
+            return MapToOrderResponseDto(o);
         }
 
-        public async Task<IEnumerable<OrderResponseDto>> GetAllOrdersAsync(string status, string keyword, int page, int pageSize)
+        public IEnumerable<OrderResponseDto> GetAllOrders(string status, string keyword, int page, int pageSize)
         {
             var query = _context.orders.AsQueryable();
 
@@ -215,10 +214,10 @@ namespace HuitShopDB.Services
             foreach (var o in orders)
                 result.Add(MapToOrderResponseDto(o));
 
-            return await Task.FromResult(result);
+            return result;
         }
 
-        public async Task<int> GetAllOrdersCountAsync(string status, string keyword)
+        public int GetAllOrdersCount(string status, string keyword)
         {
             var query = _context.orders.AsQueryable();
 
@@ -228,14 +227,14 @@ namespace HuitShopDB.Services
             if (!string.IsNullOrEmpty(keyword))
                 query = query.Where(o => o.code.Contains(keyword));
 
-            return await Task.FromResult(query.Count());
+            return query.Count();
         }
 
-        public async Task<bool> CancelOrderAsync(int orderId, string reason)
+        public bool CancelOrder(int orderId, string reason)
         {
             var o = _context.orders.FirstOrDefault(x => x.id == orderId);
             if (o == null || (o.status != "PENDING" && o.status != "CONFIRMED"))
-                return await Task.FromResult(false);
+                return false;
 
             var previousStatus = o.status;
             o.status = "CANCELLED";
@@ -266,14 +265,14 @@ namespace HuitShopDB.Services
             _context.order_status_histories.InsertOnSubmit(history);
 
             _context.SubmitChanges();
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<bool> ConfirmOrderAsync(int orderId, int? staffId)
+        public bool ConfirmOrder(int orderId, int? staffId)
         {
             var o = _context.orders.FirstOrDefault(x => x.id == orderId);
             if (o == null || o.status != "PENDING")
-                return await Task.FromResult(false);
+                return false;
 
             o.status = "CONFIRMED";
 
@@ -286,14 +285,14 @@ namespace HuitShopDB.Services
             _context.order_status_histories.InsertOnSubmit(history);
 
             _context.SubmitChanges();
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<bool> ShipOrderAsync(int orderId, int warehouseId, string serialNumbersJson)
+        public bool ShipOrder(int orderId, int warehouseId, string serialNumbersJson)
         {
             var o = _context.orders.FirstOrDefault(x => x.id == orderId);
             if (o == null || o.status != "CONFIRMED")
-                return await Task.FromResult(false);
+                return false;
 
             o.status = "SHIPPING";
 
@@ -332,14 +331,14 @@ namespace HuitShopDB.Services
             _context.order_status_histories.InsertOnSubmit(history);
 
             _context.SubmitChanges();
-            return await Task.FromResult(true);
+            return true;
         }
 
-        public async Task<bool> CompleteOrderAsync(int orderId)
+        public bool CompleteOrder(int orderId)
         {
             var o = _context.orders.FirstOrDefault(x => x.id == orderId);
             if (o == null || o.status != "SHIPPING")
-                return await Task.FromResult(false);
+                return false;
 
             o.status = "COMPLETED";
             o.payment_status = "PAID";
@@ -373,7 +372,7 @@ namespace HuitShopDB.Services
             _context.order_status_histories.InsertOnSubmit(history);
 
             _context.SubmitChanges();
-            return await Task.FromResult(true);
+            return true;
         }
 
         private OrderResponseDto MapToOrderResponseDto(order o)
@@ -463,3 +462,5 @@ namespace HuitShopDB.Services
         }
     }
 }
+
+

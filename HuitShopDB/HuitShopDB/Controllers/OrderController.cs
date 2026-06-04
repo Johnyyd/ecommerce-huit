@@ -1,7 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web.Mvc;
 using HuitShopDB.Services;
 using HuitShopDB.Services.Interfaces;
@@ -71,12 +70,12 @@ namespace HuitShopDB.Controllers
         }
 
         // GET: /Order/Details/{code}
-        public async Task<ActionResult> Details(string code)
+        public ActionResult Details(string code)
         {
             var userId = GetCurrentUserId();
             if (userId == null) return RequireLogin();
 
-            var order = await _orderService.GetOrderByCodeAsync(code);
+            var order = _orderService.GetOrderByCode(code);
             if (order == null || order.UserId != userId.Value)
                 return HttpNotFound();
 
@@ -85,13 +84,13 @@ namespace HuitShopDB.Controllers
 
         // POST AJAX: /Order/Cancel
         [HttpPost]
-        public async Task<ActionResult> Cancel(int orderId, string reason)
+        public ActionResult Cancel(int orderId, string reason)
         {
             var userId = GetCurrentUserId();
             if (userId == null)
                 return Json(new { success = false, message = "Chưa đăng nhập" });
 
-            var order = await _orderService.GetOrderByIdAsync(orderId);
+            var order = _orderService.GetOrderById(orderId);
             if (order == null || order.UserId != userId.Value)
                 return Json(new { success = false, message = "Không tìm thấy đơn hàng" });
 
@@ -100,7 +99,7 @@ namespace HuitShopDB.Controllers
 
             try
             {
-                var result = await _orderService.CancelOrderAsync(orderId, reason);
+                var result = _orderService.CancelOrder(orderId, reason);
                 return Json(new { success = result, message = result ? "Đã hủy đơn hàng thành công" : "Không thể hủy đơn hàng" });
             }
             catch (Exception ex)
@@ -280,13 +279,13 @@ namespace HuitShopDB.Controllers
         }
 
         // GET: /Order/Manage
-        public async Task<ActionResult> Manage(string status = "ALL", string keyword = "", int page = 1)
+        public ActionResult Manage(string status = "ALL", string keyword = "", int page = 1)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
             int pageSize = 15;
-            var orders = await _orderService.GetAllOrdersAsync(status, keyword, page, pageSize);
-            int totalCount = await _orderService.GetAllOrdersCountAsync(status, keyword);
+            var orders = _orderService.GetAllOrders(status, keyword, page, pageSize);
+            int totalCount = _orderService.GetAllOrdersCount(status, keyword);
 
             ViewBag.Status = status;
             ViewBag.Keyword = keyword;
@@ -305,11 +304,11 @@ namespace HuitShopDB.Controllers
         }
 
         // GET: /Order/AdminDetails/{id}
-        public async Task<ActionResult> AdminDetails(int id)
+        public ActionResult AdminDetails(int id)
         {
             if (!IsAdmin()) return RedirectToAction("Login", "Auth");
 
-            var order = await _orderService.GetOrderByIdAsync(id);
+            var order = _orderService.GetOrderById(id);
             if (order == null) return HttpNotFound();
 
             // Lấy danh sách serial numbers khả dụng trong kho để có thể gán
@@ -322,7 +321,7 @@ namespace HuitShopDB.Controllers
 
         // POST AJAX: /Order/UpdateStatus
         [HttpPost]
-        public async Task<ActionResult> UpdateStatus(int orderId, string newStatus, string note)
+        public ActionResult UpdateStatus(int orderId, string newStatus, string note)
         {
             if (!IsAdmin())
                 return Json(new { success = false, message = "Không có quyền truy cập" });
@@ -336,19 +335,19 @@ namespace HuitShopDB.Controllers
                 {
                     case "CONFIRMED":
                         int? adminId = Session["UserId"] != null ? (int?)((int)Session["UserId"]) : null;
-                        result = await _orderService.ConfirmOrderAsync(orderId, adminId);
+                        result = _orderService.ConfirmOrder(orderId, adminId);
                         message = result ? "Đã xác nhận đơn hàng" : "Không thể xác nhận đơn hàng";
                         break;
                     case "SHIPPING":
-                        result = await _orderService.ShipOrderAsync(orderId, 1, null);
+                        result = _orderService.ShipOrder(orderId, 1, null);
                         message = result ? "Đơn hàng đang được vận chuyển" : "Không thể cập nhật trạng thái";
                         break;
                     case "COMPLETED":
-                        result = await _orderService.CompleteOrderAsync(orderId);
+                        result = _orderService.CompleteOrder(orderId);
                         message = result ? "Đơn hàng đã hoàn thành" : "Không thể hoàn thành đơn hàng";
                         break;
                     case "CANCELLED":
-                        result = await _orderService.CancelOrderAsync(orderId, note ?? "Admin hủy đơn");
+                        result = _orderService.CancelOrder(orderId, note ?? "Admin hủy đơn");
                         message = result ? "Đã hủy đơn hàng" : "Không thể hủy đơn hàng";
                         break;
                     default:
@@ -366,12 +365,12 @@ namespace HuitShopDB.Controllers
 
         // POST AJAX: /Order/AssignSerial
         [HttpPost]
-        public async Task<ActionResult> AssignSerial(int orderId, string serialNumbersJson)
+        public ActionResult AssignSerial(int orderId, string serialNumbersJson)
         {
             if (!IsAdmin())
                 return Json(new { success = false, message = "Không có quyền truy cập" });
 
-            var result = await _orderService.ShipOrderAsync(orderId, 1, serialNumbersJson);
+            var result = _orderService.ShipOrder(orderId, 1, serialNumbersJson);
             return Json(new { success = result, message = result ? "Đã gán serial và chuyển trạng thái Đang giao" : "Lỗi khi gán serial" });
         }
 
@@ -447,3 +446,4 @@ namespace HuitShopDB.Controllers
         }
     }
 }
+

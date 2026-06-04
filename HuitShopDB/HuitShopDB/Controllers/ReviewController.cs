@@ -1,5 +1,4 @@
-using System;
-using System.Threading.Tasks;
+﻿using System;
 using System.Web.Mvc;
 using HuitShopDB.Services.Interfaces;
 using HuitShopDB.Models.DTOs.Review;
@@ -27,7 +26,7 @@ namespace HuitShopDB.Controllers
         }
 
         // GET: /Review/
-        public async Task<ActionResult> Index(bool? approved, int? minRating)
+        public ActionResult Index(bool? approved, int? minRating)
         {
             if (!IsAdminOrStaff())
             {
@@ -39,13 +38,13 @@ namespace HuitShopDB.Controllers
             ViewBag.ApprovedFilter = approved;
             ViewBag.MinRating = minRating;
 
-            var reviews = await _reviewService.GetAllReviewsAsync(approved, minRating);
+            var reviews = _reviewService.GetAllReviews(approved, minRating);
             return View(reviews);
         }
 
         // POST: /Review/Approve/5
         [HttpPost]
-        public async Task<ActionResult> Approve(int id)
+        public ActionResult Approve(int id)
         {
             if (!IsAdminOrStaff())
             {
@@ -53,7 +52,7 @@ namespace HuitShopDB.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
-            bool success = await _reviewService.ApproveReviewAsync(id);
+            bool success = _reviewService.ApproveReview(id);
             if (success)
             {
                 TempData["SuccessMessage"] = "Đã duyệt đánh giá thành công.";
@@ -63,7 +62,7 @@ namespace HuitShopDB.Controllers
 
         // POST: /Review/Delete/5
         [HttpPost]
-        public async Task<ActionResult> Delete(int id)
+        public ActionResult Delete(int id)
         {
             if (!IsAdminOrStaff())
             {
@@ -71,7 +70,7 @@ namespace HuitShopDB.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
-            bool success = await _reviewService.DeleteReviewAsync(id);
+            bool success = _reviewService.DeleteReview(id);
             if (success)
             {
                 TempData["SuccessMessage"] = "Đã xóa đánh giá.";
@@ -81,7 +80,7 @@ namespace HuitShopDB.Controllers
 
         // POST: /Review/Reply
         [HttpPost]
-        public async Task<ActionResult> Reply(AddReviewResponseRequest request)
+        public ActionResult Reply(AddReviewResponseRequest request)
         {
             if (!IsAdminOrStaff())
             {
@@ -97,7 +96,7 @@ namespace HuitShopDB.Controllers
 
             int adminId = Session["UserId"] != null ? (int)Session["UserId"] : 1;
 
-            bool success = await _reviewService.AddReviewResponseAsync(request.ReviewId, request, adminId);
+            bool success = _reviewService.AddReviewResponse(request.ReviewId, request, adminId);
             if (success)
             {
                 TempData["SuccessMessage"] = "Đã gửi phản hồi thành công.";
@@ -107,3 +106,4 @@ namespace HuitShopDB.Controllers
         }
     }
 }
+

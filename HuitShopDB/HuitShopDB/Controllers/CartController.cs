@@ -1,6 +1,5 @@
-using System;
+﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Web.Mvc;
 using HuitShopDB.Services.Interfaces;
 using HuitShopDB.Services;
@@ -37,7 +36,7 @@ namespace HuitShopDB.Controllers
         }
 
         // GET: /Cart
-        public async Task<ActionResult> Index()
+        public ActionResult Index()
         {
             int userId = GetCurrentUserId();
             if (userId == 0)
@@ -45,13 +44,13 @@ namespace HuitShopDB.Controllers
                 TempData["ErrorMessage"] = "Vui lòng đăng nhập để xem giỏ hàng.";
                 return RedirectToAction("Login", "Auth", new { returnUrl = Request.Url != null ? Request.Url.PathAndQuery : null });
             }
-            var cart = await _cartService.GetCartByUserIdAsync(userId);
+            var cart = _cartService.GetCartByUserId(userId);
             return View(cart);
         }
 
         // GET: /Cart/GetMiniCartJson
         [HttpGet]
-        public async Task<JsonResult> GetMiniCartJson()
+        public JsonResult GetMiniCartJson()
         {
             int userId = GetCurrentUserId();
             if (userId == 0)
@@ -59,7 +58,7 @@ namespace HuitShopDB.Controllers
 
             try
             {
-                var cart = await _cartService.GetCartByUserIdAsync(userId);
+                var cart = _cartService.GetCartByUserId(userId);
                 var items = cart.Items.Select(i => new {
                     id = i.Id,
                     variantId = i.Variant.Id,
@@ -89,7 +88,7 @@ namespace HuitShopDB.Controllers
 
         // POST: /Cart/AddToCart
         [HttpPost]
-        public async Task<JsonResult> AddToCart(int variantId, int quantity = 1)
+        public JsonResult AddToCart(int variantId, int quantity = 1)
         {
             int userId = GetCurrentUserId();
             if (userId == 0)
@@ -98,10 +97,10 @@ namespace HuitShopDB.Controllers
             try
             {
                 var request = new AddCartItemRequest { VariantId = variantId, Quantity = quantity };
-                bool result = await _cartService.AddItemToCartAsync(userId, request);
+                bool result = _cartService.AddItemToCart(userId, request);
                 if (result)
                 {
-                    var cart = await _cartService.GetCartByUserIdAsync(userId);
+                    var cart = _cartService.GetCartByUserId(userId);
                     return Json(new { success = true, message = "Đã thêm sản phẩm vào giỏ hàng thành công!", cartCount = cart.Items.Sum(i => i.Quantity) });
                 }
                 return Json(new { success = false, message = "Không thể thêm sản phẩm vào giỏ hàng." });
@@ -113,7 +112,7 @@ namespace HuitShopDB.Controllers
 
         // POST: /Cart/UpdateQuantity
         [HttpPost]
-        public async Task<JsonResult> UpdateQuantity(int cartItemId, int quantity)
+        public JsonResult UpdateQuantity(int cartItemId, int quantity)
         {
             int userId = GetCurrentUserId();
             if (userId == 0)
@@ -123,14 +122,14 @@ namespace HuitShopDB.Controllers
             {
                 if (quantity < 1)
                 {
-                    await _cartService.RemoveCartItemAsync(userId, cartItemId);
-                    var uc = await _cartService.GetCartByUserIdAsync(userId);
+                    _cartService.RemoveCartItem(userId, cartItemId);
+                    var uc = _cartService.GetCartByUserId(userId);
                     return Json(new { success = true, removed = true, subtotal = uc.Subtotal, discount = uc.Discount, total = uc.Total, cartCount = uc.Items.Sum(i => i.Quantity) });
                 }
-                bool result = await _cartService.UpdateCartItemQuantityAsync(userId, cartItemId, quantity);
+                bool result = _cartService.UpdateCartItemQuantity(userId, cartItemId, quantity);
                 if (result)
                 {
-                    var uc = await _cartService.GetCartByUserIdAsync(userId);
+                    var uc = _cartService.GetCartByUserId(userId);
                     var item = uc.Items.FirstOrDefault(i => i.Id == cartItemId);
                     return Json(new { success = true, removed = false, lineTotal = item != null ? item.LineTotal : 0, subtotal = uc.Subtotal, discount = uc.Discount, total = uc.Total, cartCount = uc.Items.Sum(i => i.Quantity) });
                 }
@@ -142,7 +141,7 @@ namespace HuitShopDB.Controllers
 
         // POST: /Cart/RemoveItem
         [HttpPost]
-        public async Task<JsonResult> RemoveItem(int cartItemId)
+        public JsonResult RemoveItem(int cartItemId)
         {
             int userId = GetCurrentUserId();
             if (userId == 0)
@@ -150,10 +149,10 @@ namespace HuitShopDB.Controllers
 
             try
             {
-                bool result = await _cartService.RemoveCartItemAsync(userId, cartItemId);
+                bool result = _cartService.RemoveCartItem(userId, cartItemId);
                 if (result)
                 {
-                    var uc = await _cartService.GetCartByUserIdAsync(userId);
+                    var uc = _cartService.GetCartByUserId(userId);
                     return Json(new { success = true, subtotal = uc.Subtotal, discount = uc.Discount, total = uc.Total, cartCount = uc.Items.Sum(i => i.Quantity) });
                 }
                 return Json(new { success = false, message = "Sản phẩm không có trong giỏ hoặc không thể xóa." });
@@ -164,13 +163,13 @@ namespace HuitShopDB.Controllers
         // ==================== CHECKOUT FLOW ====================
 
         // GET: /Cart/Checkout
-        public async Task<ActionResult> Checkout()
+        public ActionResult Checkout()
         {
             int userId = GetCurrentUserId();
             if (userId == 0)
                 return RedirectToAction("Login", "Auth", new { returnUrl = "/Cart/Checkout" });
 
-            var cart = await _cartService.GetCartByUserIdAsync(userId);
+            var cart = _cartService.GetCartByUserId(userId);
             if (!cart.Items.Any())
             {
                 TempData["ErrorMessage"] = "Giỏ hàng của bạn đang trống. Hãy thêm sản phẩm trước khi thanh toán.";
@@ -197,7 +196,7 @@ namespace HuitShopDB.Controllers
         // POST: /Cart/PlaceOrder
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> PlaceOrder(
+        public ActionResult PlaceOrder(
             string paymentMethod,
             int? savedAddressId,
             string fullName,
@@ -256,7 +255,7 @@ namespace HuitShopDB.Controllers
 
             try
             {
-                var order = await _orderService.CreateOrderAsync(userId, request);
+                var order = _orderService.CreateOrder(userId, request);
                 return RedirectToAction("OrderConfirmation", new { code = order.Code });
             }
             catch (InvalidOperationException ex)
@@ -272,13 +271,13 @@ namespace HuitShopDB.Controllers
         }
 
         // GET: /Cart/OrderConfirmation
-        public async Task<ActionResult> OrderConfirmation(string code)
+        public ActionResult OrderConfirmation(string code)
         {
             int userId = GetCurrentUserId();
             if (userId == 0)
                 return RedirectToAction("Login", "Auth");
 
-            var order = await _orderService.GetOrderByCodeAsync(code);
+            var order = _orderService.GetOrderByCode(code);
             if (order == null || order.UserId != userId)
                 return HttpNotFound();
 
@@ -286,3 +285,4 @@ namespace HuitShopDB.Controllers
         }
     }
 }
+

@@ -1,5 +1,4 @@
-using System;
-using System.Threading.Tasks;
+﻿using System;
 using System.Web.Mvc;
 using System.Web.Security;
 using HuitShopDB.Services.Interfaces;
@@ -36,7 +35,7 @@ namespace HuitShopDB.Controllers
         // POST: /Auth/Login
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Login(LoginDto loginDto, string returnUrl)
+        public ActionResult Login(LoginDto loginDto, string returnUrl)
         {
             if (!ModelState.IsValid)
             {
@@ -45,7 +44,7 @@ namespace HuitShopDB.Controllers
 
             try
             {
-                var result = await _authService.LoginAsync(loginDto);
+                var result = _authService.Login(loginDto);
                 if (result != null)
                 {
                     // Establish Session
@@ -93,7 +92,7 @@ namespace HuitShopDB.Controllers
         // POST: /Auth/Register
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Register(RegisterDto registerDto)
+        public ActionResult Register(RegisterDto registerDto)
         {
             if (!ModelState.IsValid)
             {
@@ -102,7 +101,7 @@ namespace HuitShopDB.Controllers
 
             try
             {
-                var result = await _authService.RegisterAsync(registerDto);
+                var result = _authService.Register(registerDto);
                 if (result != null)
                 {
                     // Auto Login after successful registration
@@ -141,3 +140,4 @@ namespace HuitShopDB.Controllers
         }
     }
 }
+

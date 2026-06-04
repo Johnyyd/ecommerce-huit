@@ -1,5 +1,4 @@
-using System;
-using System.Threading.Tasks;
+﻿using System;
 using System.Web.Mvc;
 using HuitShopDB.Services.Interfaces;
 using HuitShopDB.Models.DTOs.Product;
@@ -23,7 +22,7 @@ namespace HuitShopDB.Controllers
             _reviewService = reviewService;
         }
 
-        public async Task<ActionResult> Index(int? categoryId, int? brandId, decimal? minPrice, decimal? maxPrice, string search, string sortBy, bool inStockOnly = false, int page = 1)
+        public ActionResult Index(int? categoryId, int? brandId, decimal? minPrice, decimal? maxPrice, string search, string sortBy, bool inStockOnly = false, int page = 1)
         {
             var query = new ProductQueryParams();
             query.CategoryId = categoryId;
@@ -36,10 +35,10 @@ namespace HuitShopDB.Controllers
             query.Page = page;
             query.PageSize = 12;
 
-            var products = await _productService.GetProductsAsync(query);
-            var totalCount = await _productService.GetProductsCountAsync(query);
-            var categories = await _productService.GetCategoriesAsync();
-            var brands = await _productService.GetBrandsAsync();
+            var products = _productService.GetProducts(query);
+            var totalCount = _productService.GetProductsCount(query);
+            var categories = _productService.GetCategories();
+            var brands = _productService.GetBrands();
 
             ViewBag.Categories = categories;
             ViewBag.Brands = brands;
@@ -56,7 +55,7 @@ namespace HuitShopDB.Controllers
         }
 
         [HttpGet]
-        public async Task<JsonResult> InstantSearch(string term)
+        public JsonResult InstantSearch(string term)
         {
             if (string.IsNullOrWhiteSpace(term))
             {
@@ -70,7 +69,7 @@ namespace HuitShopDB.Controllers
                 PageSize = 5
             };
 
-            var products = await _productService.GetProductsAsync(query);
+            var products = _productService.GetProducts(query);
             
             var results = new System.Collections.Generic.List<object>();
             foreach (var p in products)
@@ -86,19 +85,19 @@ namespace HuitShopDB.Controllers
             return Json(new { success = true, data = results }, JsonRequestBehavior.AllowGet);
         }
 
-        public async Task<ActionResult> Detail(int id)
+        public ActionResult Detail(int id)
         {
-            var product = await _productService.GetProductDetailAsync(id);
+            var product = _productService.GetProductDetail(id);
             if (product == null) return HttpNotFound();
 
-            var reviewSummary = await _reviewService.GetReviewsSummaryByProductAsync(id);
+            var reviewSummary = _reviewService.GetReviewsSummaryByProduct(id);
             ViewBag.ReviewSummary = reviewSummary;
 
             return View(product);
         }
 
         [HttpPost]
-        public async Task<ActionResult> SubmitReview(HuitShopDB.Models.DTOs.Review.SubmitReviewRequest request)
+        public ActionResult SubmitReview(HuitShopDB.Models.DTOs.Review.SubmitReviewRequest request)
         {
             int userId = Session["UserId"] != null ? (int)Session["UserId"] : 0;
             if (userId == 0)
@@ -109,7 +108,7 @@ namespace HuitShopDB.Controllers
 
             try
             {
-                bool success = await _reviewService.SubmitReviewAsync(userId, request);
+                bool success = _reviewService.SubmitReview(userId, request);
                 if (success)
                 {
                     TempData["SuccessMessage"] = "Đánh giá của bạn đã được gửi và đang chờ duyệt.";
@@ -163,7 +162,7 @@ namespace HuitShopDB.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> AdminIndex(string search, int? categoryId, string status, int page = 1)
+        public ActionResult AdminIndex(string search, int? categoryId, string status, int page = 1)
         {
             if (!IsAdminOrStaff())
             {
@@ -172,9 +171,9 @@ namespace HuitShopDB.Controllers
             }
 
             int pageSize = 10;
-            var products = await _productService.GetAdminProductsAsync(search, categoryId, status, page, pageSize);
-            int totalProducts = await _productService.GetAdminProductsCountAsync(search, categoryId, status);
-            var categories = await _productService.GetCategoriesAsync();
+            var products = _productService.GetAdminProducts(search, categoryId, status, page, pageSize);
+            int totalProducts = _productService.GetAdminProductsCount(search, categoryId, status);
+            var categories = _productService.GetCategories();
 
             ViewBag.Categories = categories;
             ViewBag.Search = search;
@@ -189,7 +188,7 @@ namespace HuitShopDB.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Create()
+        public ActionResult Create()
         {
             if (!IsAdminOrStaff())
             {
@@ -197,15 +196,15 @@ namespace HuitShopDB.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
-            ViewBag.Categories = await _productService.GetCategoriesAsync();
-            ViewBag.Brands = await _productService.GetBrandsAsync();
+            ViewBag.Categories = _productService.GetCategories();
+            ViewBag.Brands = _productService.GetBrands();
 
             return View();
         }
 
         [HttpPost]
         [ValidateInput(false)]
-        public async Task<ActionResult> Create(ProductCreateDto model, System.Web.HttpPostedFileBase uploadImage)
+        public ActionResult Create(ProductCreateDto model, System.Web.HttpPostedFileBase uploadImage)
         {
             if (!IsAdminOrStaff())
             {
@@ -223,7 +222,7 @@ namespace HuitShopDB.Controllers
                 string imageUrl = UploadImageFile(uploadImage);
                 model.DefaultThumbnailUrl = imageUrl ?? "/Content/images/placeholder.png";
 
-                int productId = await _productService.CreateProductAsync(model);
+                int productId = _productService.CreateProduct(model);
                 if (productId > 0)
                 {
                     TempData["SuccessMessage"] = "Thêm sản phẩm mới thành công!";
@@ -232,13 +231,13 @@ namespace HuitShopDB.Controllers
                 TempData["ErrorMessage"] = "Đã xảy ra lỗi khi lưu sản phẩm.";
             }
 
-            ViewBag.Categories = await _productService.GetCategoriesAsync();
-            ViewBag.Brands = await _productService.GetBrandsAsync();
+            ViewBag.Categories = _productService.GetCategories();
+            ViewBag.Brands = _productService.GetBrands();
             return View(model);
         }
 
         [HttpGet]
-        public async Task<ActionResult> Edit(int id)
+        public ActionResult Edit(int id)
         {
             if (!IsAdminOrStaff())
             {
@@ -246,18 +245,18 @@ namespace HuitShopDB.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
-            var product = await _productService.GetAdminProductDetailAsync(id);
+            var product = _productService.GetAdminProductDetail(id);
             if (product == null) return HttpNotFound();
 
-            ViewBag.Categories = await _productService.GetCategoriesAsync();
-            ViewBag.Brands = await _productService.GetBrandsAsync();
+            ViewBag.Categories = _productService.GetCategories();
+            ViewBag.Brands = _productService.GetBrands();
 
             return View(product);
         }
 
         [HttpPost]
         [ValidateInput(false)]
-        public async Task<ActionResult> Edit(int id, ProductEditDto model)
+        public ActionResult Edit(int id, ProductEditDto model)
         {
             if (!IsAdminOrStaff())
             {
@@ -267,7 +266,7 @@ namespace HuitShopDB.Controllers
 
             if (ModelState.IsValid)
             {
-                bool success = await _productService.UpdateProductAsync(id, model);
+                bool success = _productService.UpdateProduct(id, model);
                 if (success)
                 {
                     TempData["SuccessMessage"] = "Cập nhật thông tin sản phẩm thành công!";
@@ -276,14 +275,14 @@ namespace HuitShopDB.Controllers
                 TempData["ErrorMessage"] = "Đã xảy ra lỗi khi lưu thông tin sản phẩm.";
             }
 
-            var product = await _productService.GetAdminProductDetailAsync(id);
-            ViewBag.Categories = await _productService.GetCategoriesAsync();
-            ViewBag.Brands = await _productService.GetBrandsAsync();
+            var product = _productService.GetAdminProductDetail(id);
+            ViewBag.Categories = _productService.GetCategories();
+            ViewBag.Brands = _productService.GetBrands();
             return View(product);
         }
 
         [HttpPost]
-        public async Task<JsonResult> AddVariant(int productId, string variantName, string sku, decimal price, decimal originalPrice, System.Web.HttpPostedFileBase variantImage)
+        public JsonResult AddVariant(int productId, string variantName, string sku, decimal price, decimal originalPrice, System.Web.HttpPostedFileBase variantImage)
         {
             if (!IsAdminOrStaff())
             {
@@ -303,7 +302,7 @@ namespace HuitShopDB.Controllers
                 DisplayOrder = 1
             };
 
-            bool success = await _productService.CreateVariantAsync(productId, dto);
+            bool success = _productService.CreateVariant(productId, dto);
             if (success)
             {
                 return Json(new { success = true, message = "Thêm biến thể mới thành công!" });
@@ -312,7 +311,7 @@ namespace HuitShopDB.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> UpdateVariant(int variantId, string variantName, string sku, decimal price, decimal originalPrice, bool isActive, int displayOrder, System.Web.HttpPostedFileBase variantImage)
+        public JsonResult UpdateVariant(int variantId, string variantName, string sku, decimal price, decimal originalPrice, bool isActive, int displayOrder, System.Web.HttpPostedFileBase variantImage)
         {
             if (!IsAdminOrStaff())
             {
@@ -332,7 +331,7 @@ namespace HuitShopDB.Controllers
                 DisplayOrder = displayOrder
             };
 
-            bool success = await _productService.UpdateVariantAsync(variantId, dto);
+            bool success = _productService.UpdateVariant(variantId, dto);
             if (success)
             {
                 return Json(new { success = true, message = "Cập nhật biến thể thành công!" });
@@ -341,14 +340,14 @@ namespace HuitShopDB.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> ToggleProductStatus(int productId, string status)
+        public JsonResult ToggleProductStatus(int productId, string status)
         {
             if (!IsAdminOrStaff())
             {
                 return Json(new { success = false, message = "Bạn không có quyền truy cập." });
             }
 
-            bool success = await _productService.ToggleProductStatusAsync(productId, status);
+            bool success = _productService.ToggleProductStatus(productId, status);
             if (success)
             {
                 return Json(new { success = true, message = "Cập nhật trạng thái sản phẩm thành công!" });
@@ -357,7 +356,7 @@ namespace HuitShopDB.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> AddProductImage(int variantId, string altText, int sortOrder, System.Web.HttpPostedFileBase galleryImage)
+        public JsonResult AddProductImage(int variantId, string altText, int sortOrder, System.Web.HttpPostedFileBase galleryImage)
         {
             if (!IsAdminOrStaff())
             {
@@ -370,7 +369,7 @@ namespace HuitShopDB.Controllers
                 return Json(new { success = false, message = "Vui lòng chọn hình ảnh hợp lệ để tải lên." });
             }
 
-            bool success = await _productService.AddProductImageAsync(variantId, imageUrl, altText, sortOrder);
+            bool success = _productService.AddProductImage(variantId, imageUrl, altText, sortOrder);
             if (success)
             {
                 return Json(new { success = true, message = "Tải lên ảnh bộ sưu tập thành công!" });
@@ -379,14 +378,14 @@ namespace HuitShopDB.Controllers
         }
 
         [HttpPost]
-        public async Task<JsonResult> DeleteProductImage(int imageId)
+        public JsonResult DeleteProductImage(int imageId)
         {
             if (!IsAdminOrStaff())
             {
                 return Json(new { success = false, message = "Bạn không có quyền truy cập." });
             }
 
-            bool success = await _productService.DeleteProductImageAsync(imageId);
+            bool success = _productService.DeleteProductImage(imageId);
             if (success)
             {
                 return Json(new { success = true, message = "Xóa ảnh thành công!" });
@@ -395,4 +394,5 @@ namespace HuitShopDB.Controllers
         }
     }
 }
+
 
